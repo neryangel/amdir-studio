@@ -1,0 +1,33 @@
+# Created by scripts/ingest.mjs from inbox folder "sample-edit-reel". Review, then set needsReview: false.
+title: "sample edit reel"
+artist: ""
+client: ""
+type: "personal"
+disciplines: 
+  - "video"
+year: 2026
+summary: "[להשלמה] המטרה: מה היה צריך לקרות"
+deliverables: []
+credits: []
+tools: []
+aiUsed: false
+aiNote: ""
+outcome: 
+  text: ""
+  source: ""
+poster: "../../assets/works/sample-edit-reel/poster.jpg"
+posterAlt: "[להשלמה] תיאור תמונת הפתיחה"
+video: 
+  discriminant: "none"
+preview: 
+  mp4: "/media/works/sample-edit-reel/preview.mp4"
+  webm: "/media/works/sample-edit-reel/preview.webm"
+gallery: 
+  - image: "../../assets/works/sample-edit-reel/image-1.jpg"
+    alt: "[להשלמה] תיאור התמונה still-01.jpg"
+websiteUrl: ""
+permissionToShow: false
+featured: false
+order: 100
+placeholder: false
+needsReview: true

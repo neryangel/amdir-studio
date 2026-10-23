@@ -2,6 +2,7 @@
 //  1. placeholder items are excluded unless SHOW_PLACEHOLDERS
 //  2. client works without permissionToShow are ALWAYS excluded (with a build warning)
 //  3. client/personal clips without musicLicensed=true produce a build warning (not excluded)
+//  4. needsReview items (from scripts/ingest.mjs) are treated like placeholders
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
 import { SHOW_PLACEHOLDERS } from './config';
 import { WORK_FILTERS, type FilterKey } from './enums';
@@ -26,7 +27,7 @@ export function isWorkVisible(work: Work): boolean {
   if (d.disciplines.includes('clips') && (d.type === 'client' || d.type === 'personal') && d.musicLicensed !== true) {
     warnOnce(`music:${work.id}`, `קליפ "${work.id}": לא סומן שהמוזיקה מורשית (musicLicensed). העבודה נכללת, אבל כדאי לבדוק.`);
   }
-  if (d.placeholder && !SHOW_PLACEHOLDERS) return false;
+  if ((d.placeholder || d.needsReview) && !SHOW_PLACEHOLDERS) return false;
   return true;
 }
 

@@ -61,6 +61,7 @@ const counts = Object.fromEntries(
                 <div class="index-row__title">
                   <a href={url(`/work/${w.id}/`)}>{workTitle(w)}</a>
                   <TempBadge show={w.data.placeholder} />
+                  <TempBadge show={w.data.needsReview} label="ממתין לבדיקה" />
                   <span class="index-row__disc">{w.data.disciplines.map((d) => DISCIPLINE_LABEL[d]).join(', ')}</span>
                 </div>
                 <span class="index-row__roles">{w.data.credits.join(', ')}</span>

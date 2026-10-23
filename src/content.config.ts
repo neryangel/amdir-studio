@@ -66,6 +66,11 @@ const works = defineCollection({
       poster: image(),
       posterAlt: z.string().min(1, 'חובה למלא טקסט חלופי לתמונת הפתיחה'),
       video,
+      /** Short muted loop for the work grid (public paths, made by scripts/ingest.mjs). */
+      preview: z
+        .object({ mp4: optText, webm: optText })
+        .nullish()
+        .transform((p) => (p && p.mp4 ? { mp4: p.mp4, webm: p.webm } : undefined)),
       gallery: z
         .array(
           z.object({
@@ -83,6 +88,8 @@ const works = defineCollection({
       order: z.number().int().default(100),
       /** Temporary content. Shown with a "חומר זמני" badge, excluded from production builds. */
       placeholder: z.boolean().default(false),
+      /** Created by the ingest script with guessed fields. Excluded from production until reviewed. */
+      needsReview: z.boolean().default(false),
     }),
 });
 

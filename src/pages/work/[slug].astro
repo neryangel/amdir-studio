@@ -73,6 +73,7 @@ const ld = creativeWorkLd({
           <TypeLabel type={d.type} />
           {d.aiUsed ? <span class="type-label">כולל AI</span> : null}
           <TempBadge show={d.placeholder} label="עבודה זמנית, התוכן לא אמיתי" />
+          <TempBadge show={d.needsReview} label="ממתין לבדיקה, נוצר אוטומטית" />
         </div>
       </header>
 

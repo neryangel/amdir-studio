@@ -1,0 +1,36 @@
+# Created by scripts/ingest.mjs from inbox folder "קליפ בדיקה סינתטי". Review, then set needsReview: false.
+title: "קליפ בדיקה סינתטי"
+artist: ""
+client: ""
+type: "personal"
+disciplines: 
+  - "clips"
+  - "motion"
+  - "ai"
+year: 2026
+summary: "קליפ סינתטי לבדיקת הסקריפט. אין כאן עבודה אמיתית."
+deliverables: []
+credits: 
+  - "עריכה"
+tools: 
+  - "ffmpeg"
+aiUsed: true
+aiNote: "בדיקה: סימון AI מגיע רק מ-info.json"
+outcome: 
+  text: ""
+  source: ""
+poster: "../../assets/works/sample-synthetic-clip/poster.jpg"
+posterAlt: "[להשלמה] תיאור תמונת הפתיחה"
+video: 
+  discriminant: "none"
+preview: 
+  mp4: "/media/works/sample-synthetic-clip/preview.mp4"
+  webm: "/media/works/sample-synthetic-clip/preview.webm"
+gallery: []
+websiteUrl: ""
+permissionToShow: false
+musicLicensed: false
+featured: false
+order: 100
+placeholder: false
+needsReview: true

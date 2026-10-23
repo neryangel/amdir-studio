@@ -26,6 +26,7 @@ const Heading = headingLevel;
       <TypeLabel type={d.type} />
       <span>{d.disciplines.map((x) => DISCIPLINE_LABEL[x]).join(', ')}</span>
       <TempBadge show={d.placeholder} />
+      <TempBadge show={d.needsReview} label="ממתין לבדיקה" />
     </p>
   </div>
 </a>

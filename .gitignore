@@ -12,3 +12,6 @@ qa-shots/
 qa-report*.json
 .leads/
 dist-e2e/
+# Raw intake material: never commit originals
+inbox/
+inbox-sample/

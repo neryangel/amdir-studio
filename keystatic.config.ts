@@ -103,6 +103,13 @@ export default config({
         }),
         posterAlt: fields.text({ label: 'טקסט חלופי לתמונת הפתיחה', validation: { length: { min: 1 } } }),
         video: video('סרטון'),
+        preview: fields.object(
+          {
+            mp4: fields.text({ label: 'MP4', description: 'נתיב תחת public, למשל /media/works/slug/preview.mp4' }),
+            webm: fields.text({ label: 'WebM (לא חובה)' }),
+          },
+          { label: 'לופ תצוגה מקדימה (מושתק, נוצר בסקריפט הקליטה)' },
+        ),
         gallery: fields.array(
           fields.object({
             image: fields.image({
@@ -127,6 +134,10 @@ export default config({
         featured: fields.checkbox({ label: 'להציג בדף הבית' }),
         order: fields.integer({ label: 'סדר', defaultValue: 100 }),
         placeholder: fields.checkbox({ label: 'חומר זמני', description: 'לא ייכלל בבניית ייצור', defaultValue: true }),
+        needsReview: fields.checkbox({
+          label: 'ממתין לבדיקה',
+          description: 'נוצר אוטומטית בסקריפט הקליטה. להסיר את הסימון אחרי שבדקת את כל השדות.',
+        }),
       },
     }),
     services: collection({
