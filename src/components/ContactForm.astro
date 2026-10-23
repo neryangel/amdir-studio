@@ -100,7 +100,7 @@ const GROUP_TITLE = { media: 'על הקליפ או הסרטון', web: 'על ה�
         ) : g === 'web' ? (
           <div class="brief__grid">
             <div class="field field--full">
-              <label for={id('brief-currentSiteUrl')}>יש לכם אתר היום? קישור</label>
+              <label for={id('brief-currentSiteUrl')}>קישור לאתר הקיים</label>
               <input id={id('brief-currentSiteUrl')} name="brief.currentSiteUrl" type="url" inputmode="url" dir="ltr" autocomplete="url" aria-describedby={`${id('brief-currentSiteUrl-help')} ${id('brief-currentSiteUrl-err')}`} aria-errormessage={id('brief-currentSiteUrl-err')} />
               <p class="help" id={id('brief-currentSiteUrl-help')}>אם אין אתר, השאירו ריק.</p>
               <p class="error" id={id('brief-currentSiteUrl-err')} data-error-for="brief.currentSiteUrl" />
@@ -206,7 +206,7 @@ const GROUP_TITLE = { media: 'על הקליפ או הסרטון', web: 'על ה�
   <div class="form-status" id={id('status')} role="status" aria-live="polite"></div>
   <noscript>
     <p class="form-status">
-      הטופס עדיין לא מחובר, והוא דורש JavaScript. בינתיים אפשר לפנות <a href={wa}>בוואטסאפ</a>.
+      שליחת הטופס דורשת JavaScript. אפשר לפנות גם <a href={wa}>בוואטסאפ</a>.
     </p>
   </noscript>
 </form>
@@ -236,12 +236,12 @@ const GROUP_TITLE = { media: 'על הקליפ או הסרטון', web: 'על ה�
   }
 
   const MESSAGES: Record<string, string> = {
-    name: 'נא למלא שם.',
-    reach: 'נא למלא טלפון או אימייל שאפשר לחזור אליו.',
+    name: 'כתבו שם.',
+    reach: 'כתבו טלפון או אימייל שאפשר לחזור אליו.',
     reachInvalid: 'זה לא נראה כמו טלפון או אימייל. לדוגמה: 050-0000000 או name@example.com',
-    need: 'נא לבחור במה אפשר לעזור.',
-    details: 'נא לכתוב כמה מילים על הפרויקט.',
-    privacyConsent: 'כדי לשלוח צריך לאשר את מדיניות הפרטיות.',
+    need: 'בחרו במה אפשר לעזור.',
+    details: 'כתבו כמה מילים על הפרויקט.',
+    privacyConsent: 'כדי לשלוח, צריך לסמן את האישור על מדיניות הפרטיות.',
   };
   // Server field names → form field names
   const FIELD_MAP: Record<string, string> = {
@@ -259,7 +259,7 @@ const GROUP_TITLE = { media: 'על הקליפ או הסרטון', web: 'על ה�
 
   const FAIL_TEXT: Record<FailReason, string> = {
     'not-connected': 'הטופס עדיין לא מחובר. בינתיים אפשר לפנות ',
-    network: 'לא הצלחנו להתחבר לשרת, והפרטים לא נשלחו. אפשר לנסות שוב, או לפנות ',
+    network: 'החיבור לשרת לא הצליח, והפרטים לא נשלחו. אפשר לנסות שוב, או לפנות ',
     server: 'השליחה לא הצליחה, והפרטים לא נשמרו. אפשר לנסות שוב בעוד כמה דקות, או לפנות ',
     'too-fast': 'רגע אחד. נסו לשלוח שוב בעוד כמה שניות, או פנו ',
     'rate-limited': 'נשלחו כבר כמה פניות מהחיבור הזה. אפשר לנסות שוב מאוחר יותר, או לפנות ',
@@ -421,7 +421,7 @@ const GROUP_TITLE = { media: 'על הקליפ או הסרטון', web: 'על ה�
       if (result.reason === 'invalid') {
         for (const f of result.fields ?? []) {
           const local = FIELD_MAP[f];
-          if (local) setError(form, local, MESSAGES[local] ?? (local.startsWith('brief.') ? (/Url$/.test(local) ? URL_ERROR : MONTH_ERROR) : 'נא לבדוק את השדה.'));
+          if (local) setError(form, local, MESSAGES[local] ?? (local.startsWith('brief.') ? (/Url$/.test(local) ? URL_ERROR : MONTH_ERROR) : 'בדקו את השדה.'));
         }
       }
       // Never claim success. Keep everything the visitor typed.

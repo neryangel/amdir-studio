@@ -3,15 +3,20 @@ import Base from '../layouts/Base.astro';
 import { url } from '../lib/url';
 ---
 
-<Base title="העמוד לא נמצא" description="העמוד שחיפשתם לא נמצא." path="/404/" noindex>
+<Base title="העמוד לא נמצא" description="העמוד שחיפשתם לא נמצא. אפשר להמשיך לעבודות, לדף הבית או ליצירת קשר." path="/404/" noindex>
   <div class="wrap">
     <header class="page-head">
       <h1>העמוד לא נמצא</h1>
-      <p class="lead">אולי הקישור השתנה, או שהעמוד הוסר. אפשר להמשיך מכאן:</p>
-      <div class="ctas">
-        <a class="btn" href={url('/work/')}>לעבודות</a>
-        <a class="btn" href={url('/')}>לדף הבית</a>
-      </div>
+      <p class="lead">יכול להיות שהקישור השתנה, או שהעמוד הוסר. אפשר להמשיך מאחד המקומות האלה:</p>
     </header>
+    <nav class="notfound" aria-label="המשך מכאן">
+      <ul class="ctas">
+        <li><a class="btn btn--primary" href={url('/work/')}>לעבודות</a></li>
+        <li><a class="btn" href={url('/')}>לדף הבית</a></li>
+      </ul>
+      <p class="notfound__more">
+        חיפשתם משהו מסוים? <a class="link-arrow" href={url('/contact/')}>ספרו לי על הפרויקט</a>, ואשלח קישור.
+      </p>
+    </nav>
   </div>
 </Base>

@@ -37,7 +37,7 @@ const counts = Object.fromEntries(
                 <label class="chip">
                   <input type="radio" name="discipline" id={`f-${f.key}`} value={f.key} checked={f.key === 'all'} />
                   <span>
-                    {f.label} <span class="visually-hidden">({counts[f.key]} עבודות)</span>
+                    {f.label} <span class="visually-hidden">({counts[f.key] === 1 ? 'עבודה אחת' : `${counts[f.key]} עבודות`})</span>
                   </span>
                 </label>
               ))}
@@ -120,7 +120,8 @@ const counts = Object.fromEntries(
       const n = key === 'all' ? rows.length : rows.filter((r) => (r.dataset.f ?? '').split(' ').includes(key)).length;
       if (announce && status) {
         const label = radios.find((r) => r.value === key)?.closest('label')?.querySelector('span')?.firstChild?.textContent?.trim();
-        status.textContent = n === 0 ? `אין עבודות בתחום ${label ?? ''}` : `מוצגות ${n} עבודות${key === 'all' ? '' : ` בתחום ${label ?? ''}`}`;
+        const what = n === 1 ? 'מוצגת עבודה אחת' : `מוצגות ${n} עבודות`;
+        status.textContent = n === 0 ? `אין עבודות בתחום ${label ?? ''}` : `${what}${key === 'all' ? '' : ` בתחום ${label ?? ''}`}`;
       }
       const u = new URL(location.href);
       if (key === 'all') u.searchParams.delete('d');

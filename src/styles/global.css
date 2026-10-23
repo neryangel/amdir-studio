@@ -1464,3 +1464,16 @@ body.has-review-bar {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ---------- 404 ---------- */
+.notfound {
+  display: grid;
+  gap: 20px;
+  padding-bottom: 48px;
+}
+.notfound .ctas {
+  list-style: none;
+}
+.notfound__more {
+  color: var(--muted);
+}
