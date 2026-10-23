@@ -32,7 +32,7 @@ async function fill(page: Page, prefix: string, need?: string) {
 }
 
 async function axe(page: Page, state: string) {
-  const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  const r = await new AxeBuilder({ page: page as unknown as ConstructorParameters<typeof AxeBuilder>[0]['page'] }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   for (const v of r.violations) axeFindings.push({ state, id: v.id, impact: v.impact, nodes: v.nodes.length });
 }
 

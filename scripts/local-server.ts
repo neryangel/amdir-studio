@@ -16,7 +16,7 @@ export interface LocalServer {
   close(): Promise<void>;
 }
 
-export async function startLocalServer(opts: { dir?: string; port?: number; jsonl: string; rateLimit?: number }): Promise<LocalServer> {
+export async function startLocalServer(opts: { dir?: string | undefined; port?: number; jsonl: string; rateLimit?: number }): Promise<LocalServer> {
   let mode: 'ok' | 'fail' = 'ok';
   const jsonl = new JsonlFileStore(opts.jsonl);
   const store: LeadStore = {
