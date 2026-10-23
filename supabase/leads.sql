@@ -27,6 +27,9 @@ create table if not exists public.studio_leads (
   contact_type      text not null check (contact_type in ('email', 'phone')),
   need              text not null check (need in ('clip', 'video', 'ai', 'web', 'pilot', 'other')),
   details           text not null check (char_length(details) between 1 and 4000),
+  -- need-specific extras, e.g. {"songUrl": "https://...", "releaseDate": "2026-03"}.
+  -- Keys are validated server-side (server/lead/schema.ts, BRIEF_GROUPS). Null when none were given.
+  brief             jsonb check (brief is null or (jsonb_typeof(brief) = 'object' and pg_column_size(brief) < 4096)),
   -- consent record
   privacy_consent   boolean not null check (privacy_consent = true),
   marketing_opt_in  boolean not null default false,
@@ -51,4 +54,6 @@ grant select, insert, update on table public.studio_leads to service_role;
 create index if not exists studio_leads_created_at_idx on public.studio_leads (created_at desc) where deleted_at is null;
 create index if not exists studio_leads_status_idx on public.studio_leads (status) where deleted_at is null;
 create index if not exists studio_leads_source_idx on public.studio_leads (source, created_at desc);
+-- Lets the studio filter by brief answers (e.g. siteGoal) without scanning every row.
+create index if not exists studio_leads_brief_idx on public.studio_leads using gin (brief jsonb_path_ops) where brief is not null;
 create index if not exists studio_leads_retention_idx on public.studio_leads (created_at) where deleted_at is null;

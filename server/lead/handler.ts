@@ -111,6 +111,9 @@ export function createLeadHandler(deps: LeadDeps) {
       return reply(429, { ok: false, error: 'rate_limited' }, { 'retry-after': String(wait) });
     }
 
+    const brief = input.brief
+      ? Object.fromEntries(Object.entries(input.brief).filter((e): e is [string, string] => typeof e[1] === 'string' && e[1] !== ''))
+      : {};
     const record: LeadRecord = {
       source: input.source,
       name: input.name,
@@ -118,6 +121,7 @@ export function createLeadHandler(deps: LeadDeps) {
       contact_type: contactKind(input.contact) ?? 'phone',
       need: input.need,
       details: input.details,
+      brief: Object.keys(brief).length ? brief : null,
       privacy_consent: true,
       marketing_opt_in: input.marketingOptIn,
       notice_version: input.noticeVersion,
@@ -130,6 +134,8 @@ export function createLeadHandler(deps: LeadDeps) {
       name: maskName(record.name),
       contact: maskContact(record.contact),
       details: maskText(record.details),
+      // brief: field names only, never values
+      briefFields: record.brief ? Object.keys(record.brief) : [],
       marketingOptIn: record.marketing_opt_in,
     };
 

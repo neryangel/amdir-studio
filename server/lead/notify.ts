@@ -1,5 +1,6 @@
 // Notification adapters. Notification happens only AFTER the lead is stored.
 import type { LeadRecord } from './store';
+import { BRIEF_FIELD_LABEL, EVENTS_PER_YEAR_LABEL, SITE_GOAL_LABEL } from '../../src/lib/lead-shared';
 
 export interface Notifier {
   readonly kind: string;
@@ -30,6 +31,16 @@ export class ResendNotifier implements Notifier {
       `${r.contact_type === 'email' ? 'אימייל' : 'טלפון'}: ${r.contact}`,
       `במה אפשר לעזור: ${NEED_LABEL[r.need] ?? r.need}`,
       `עדכונים: ${r.marketing_opt_in ? 'כן' : 'לא'}`,
+      ...Object.entries(r.brief ?? {}).map(([k, v]) => {
+        const label = BRIEF_FIELD_LABEL[k as keyof typeof BRIEF_FIELD_LABEL] ?? k;
+        const value =
+          k === 'siteGoal'
+            ? (SITE_GOAL_LABEL[v as keyof typeof SITE_GOAL_LABEL] ?? v)
+            : k === 'eventsPerYear'
+              ? (EVENTS_PER_YEAR_LABEL[v as keyof typeof EVENTS_PER_YEAR_LABEL] ?? v)
+              : v;
+        return `${label}: ${value}`;
+      }),
       '',
       r.details,
       '',

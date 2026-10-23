@@ -264,7 +264,7 @@ describe('adapters', () => {
   it('ResendNotifier posts to the Resend API with an idempotency key', async () => {
     const fetchMock = vi.fn(async () => new Response('{"id":"e1"}', { status: 200 }));
     const n = new ResendNotifier({ apiKey: 're_test', from: 'AMDIR <leads@example.com>', to: 'owner@example.com', fetch: fetchMock });
-    await n.notify('lead-9', { source: 'contact', name: 'א', contact: 'a@b.co', contact_type: 'email', need: 'web', details: 'd', privacy_consent: true, marketing_opt_in: false, notice_version: 'v', consent_at: 'now', ip_hash: 'h' });
+    await n.notify('lead-9', { source: 'contact', name: 'א', contact: 'a@b.co', contact_type: 'email', need: 'web', details: 'd', brief: { songUrl: 'https://x.co/s' }, privacy_consent: true, marketing_opt_in: false, notice_version: 'v', consent_at: 'now', ip_hash: 'h' });
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe('https://api.resend.com/emails');
     expect((init.headers as Record<string, string>)['idempotency-key']).toBe('lead-lead-9');

@@ -117,6 +117,100 @@ for (const v of variants) {
   await ctx.close();
 }
 
+// ---- need-specific brief: one submission per branch, checked in the JSONL store ----
+{
+  server.setStoreMode('ok');
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'he-IL' });
+  const page = await ctx.newPage();
+  const lastRow = async () => {
+    const rows = (await readFile(jsonl, 'utf8')).trim().split('\n');
+    return JSON.parse(rows.at(-1) ?? '{}') as Record<string, unknown>;
+  };
+  const branches: { need: string; fill: Record<string, string>; select?: Record<string, string>; expect: Record<string, string> }[] = [
+    {
+      need: 'clip',
+      fill: { 'brief-songUrl': 'youtu.be/demo-song', 'brief-releaseDate': '2026-03', 'brief-referenceUrl': 'https://vimeo.com/123' },
+      expect: { songUrl: 'https://youtu.be/demo-song', releaseDate: '2026-03', referenceUrl: 'https://vimeo.com/123' },
+    },
+    {
+      need: 'web',
+      fill: { 'brief-currentSiteUrl': 'https://old-site.example.co.il', 'brief-desiredDate': '2027-01' },
+      select: { 'brief-siteGoal': 'leads' },
+      expect: { currentSiteUrl: 'https://old-site.example.co.il', siteGoal: 'leads', desiredDate: '2027-01' },
+    },
+    {
+      need: 'pilot',
+      fill: { 'brief-currentTools': 'גלריה אונליין וגיליון' },
+      select: { 'brief-eventsPerYear': '31-60' },
+      expect: { eventsPerYear: '31-60', currentTools: 'גלריה אונליין וגיליון' },
+    },
+  ];
+  for (const b of branches) {
+    await page.goto(`${server.url}/contact/`, { waitUntil: 'networkidle' });
+    const visibleBefore = await page.locator('fieldset[data-brief-group]:visible').count();
+    await page.focus('#contact-need');
+    await page.selectOption('#contact-need', b.need);
+    const visible = await page.locator('fieldset[data-brief-group]:visible').evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.briefGroup));
+    const focusKept = await page.evaluate(() => document.activeElement?.id === 'contact-need');
+    const announced = (await page.textContent('[data-brief-live]')) ?? '';
+    await page.fill('#contact-name', 'בדיקת בריף');
+    await page.fill('#contact-reach', '052-765-4321');
+    await page.fill('#contact-details', 'בדיקת שדות לפי סוג פרויקט');
+    for (const [k, v] of Object.entries(b.fill)) await page.fill(`#contact-${k}`, v);
+    for (const [k, v] of Object.entries(b.select ?? {})) await page.selectOption(`#contact-${k}`, v);
+    await page.check('#contact-privacy');
+    if (b.need === 'web') await axe(page, 'brief web group open');
+    await page.waitForTimeout(3200);
+    await page.click('form[data-lead-form] button[type=submit]');
+    await page.waitForSelector('form[data-state="sent"]', { timeout: 10_000 });
+    const row = await lastRow();
+    check(
+      `brief [${b.need}]: only its group shown, focus kept, announced, stored as object`,
+      visibleBefore === 0 && visible.length === 1 && focusKept && announced.includes('לא חובה') && JSON.stringify(row.brief) === JSON.stringify(b.expect) && row.need === b.need,
+      JSON.stringify({ visibleBefore, visible, focusKept, announced, brief: row.brief }),
+    );
+  }
+
+  // need "other": no group, brief not sent (stored as null)
+  await page.goto(`${server.url}/contact/`, { waitUntil: 'networkidle' });
+  await page.selectOption('#contact-need', 'clip');
+  await page.fill('#contact-brief-songUrl', 'https://youtu.be/should-not-be-sent');
+  await page.selectOption('#contact-need', 'other');
+  await page.fill('#contact-name', 'אחר');
+  await page.fill('#contact-reach', 'other@example.com');
+  await page.fill('#contact-details', 'משהו אחר');
+  await page.check('#contact-privacy');
+  await page.waitForTimeout(3200);
+  await page.click('form[data-lead-form] button[type=submit]');
+  await page.waitForSelector('form[data-state="sent"]', { timeout: 10_000 });
+  check('brief [other]: hidden group values are not sent (brief null)', (await lastRow()).brief === null, JSON.stringify((await lastRow()).brief));
+
+  // invalid URL: client error under the field, exposed as invalid, nothing stored
+  const before = await lineCount();
+  await page.goto(`${server.url}/contact/`, { waitUntil: 'networkidle' });
+  await page.selectOption('#contact-need', 'video');
+  await page.fill('#contact-name', 'קישור שבור');
+  await page.fill('#contact-reach', 'x@example.com');
+  await page.fill('#contact-details', 'בדיקה');
+  await page.fill('#contact-brief-songUrl', 'javascript:alert(1)');
+  await page.check('#contact-privacy');
+  await page.click('form[data-lead-form] button[type=submit]');
+  const err = (await page.textContent('#contact-brief-songUrl-err')) ?? '';
+  const inv = await page.getAttribute('#contact-brief-songUrl', 'aria-invalid');
+  const focusErr = await page.evaluate(() => document.activeElement?.id);
+  check('brief: javascript: URL refused in the browser, error under the field, focus moved', err.length > 5 && inv === 'true' && focusErr === 'contact-brief-songUrl' && (await lineCount()) === before, JSON.stringify({ err, inv, focusErr }));
+  await ctx.close();
+
+  // No JS: every group visible with its legend
+  const noJs = await browser.newContext({ viewport: { width: 390, height: 900 }, javaScriptEnabled: false });
+  const p3 = await noJs.newPage();
+  await p3.goto(`${server.url}/contact/`, { waitUntil: 'networkidle' });
+  const legends = await p3.locator('fieldset[data-brief-group]:visible legend').allTextContents();
+  check('brief (no JS): all three groups visible with headings', legends.length === 3, legends.join(' | '));
+  await p3.screenshot({ path: path.join(shots, 'contact-nojs-brief--390.png'), fullPage: true });
+  await noJs.close();
+}
+
 await browser.close();
 await server.close();
 

@@ -4,6 +4,7 @@
 // Submission goes through src/lib/lead.ts (submitLead). With no backend it never claims success.
 import { getSettings } from '../lib/content';
 import { url, whatsappHref } from '../lib/url';
+import { EVENTS_PER_YEAR, EVENTS_PER_YEAR_LABEL, SITE_GOALS, SITE_GOAL_LABEL } from '../lib/lead-shared';
 
 interface Props {
   variant?: 'contact' | 'pilot';
@@ -29,22 +30,17 @@ const needs =
 const detailsLabel = variant === 'pilot' ? 'ספרו בקצרה על העבודה שלכם' : 'פרטים';
 const detailsHelp =
   variant === 'pilot'
-    ? 'למשל: איזה אירועים אתם מצלמים, וכמה בערך בחודש.'
-    : 'מה המטרה, האם יש תאריך יעד, ואם יש קישור לדוגמה שאהבתם.';
+    ? 'למשל: אילו אירועים אתם מצלמים, ומה הייתם רוצים לשפר בתהליך העבודה.'
+    : 'מה המטרה, ומה כבר קיים. אם יש תאריך יעד, כתבו גם אותו.';
+// Need-specific groups. Without JS all are visible (with legends); with JS only the matching one.
+const groups = variant === 'pilot' ? (['pilot'] as const) : (['media', 'web', 'pilot'] as const);
+const GROUP_TITLE = { media: 'על הקליפ או הסרטון', web: 'על האתר', pilot: 'על העבודה שלכם' } as const;
 ---
 
-<form
-  class="form"
-  data-lead-form
-  data-form={variant}
-  data-wa={wa}
-  data-reply={settings.replyTime}
-  novalidate
-  aria-describedby={id('status')}
->
+<form class="form" data-lead-form data-form={variant} data-wa={wa} data-reply={settings.replyTime} novalidate>
   <div class="field">
     <label for={id('name')}>שם <span class="req">(חובה)</span></label>
-    <input id={id('name')} name="name" autocomplete="name" required aria-describedby={id('name-err')} />
+    <input id={id('name')} name="name" autocomplete="name" required aria-describedby={id('name-err')} aria-errormessage={id('name-err')} />
     <p class="error" id={id('name-err')} data-error-for="name"></p>
   </div>
 
@@ -58,6 +54,7 @@ const detailsHelp =
       dir="ltr"
       required
       aria-describedby={`${id('reach-help')} ${id('reach-err')}`}
+      aria-errormessage={id('reach-err')}
     />
     <p class="help" id={id('reach-help')}>מספיק אחד מהשניים.</p>
     <p class="error" id={id('reach-err')} data-error-for="reach"></p>
@@ -65,16 +62,92 @@ const detailsHelp =
 
   <div class="field field--full">
     <label for={id('need')}>במה אפשר לעזור? <span class="req">(חובה)</span></label>
-    <select id={id('need')} name="need" required aria-describedby={id('need-err')}>
+    <select id={id('need')} name="need" required aria-describedby={id('need-err')} aria-errormessage={id('need-err')}>
       {variant === 'pilot' ? null : <option value="">בחירה מהרשימה</option>}
       {needs.map((n) => <option value={n.value}>{n.label}</option>)}
     </select>
     <p class="error" id={id('need-err')} data-error-for="need"></p>
+    <p class="visually-hidden" aria-live="polite" data-brief-live></p>
   </div>
+
+  {
+    groups.map((g) => (
+      <fieldset class="brief field--full" data-brief-group={g} data-title={GROUP_TITLE[g]}>
+        <legend>
+          {GROUP_TITLE[g]} <span class="req">(לא חובה)</span>
+        </legend>
+        {g === 'media' ? (
+          <div class="brief__grid">
+            <div class="field field--full">
+              <label for={id('brief-songUrl')}>קישור לשיר או לחומר</label>
+              <input id={id('brief-songUrl')} name="brief.songUrl" type="url" inputmode="url" dir="ltr" autocomplete="off" aria-describedby={`${id('brief-songUrl-help')} ${id('brief-songUrl-err')}`} aria-errormessage={id('brief-songUrl-err')} />
+              <p class="help" id={id('brief-songUrl-help')}>YouTube, Spotify, Drive או כל קישור אחר.</p>
+              <p class="error" id={id('brief-songUrl-err')} data-error-for="brief.songUrl" />
+            </div>
+            <div class="field">
+              <label for={id('brief-releaseDate')}>תאריך יציאה משוער</label>
+              <input id={id('brief-releaseDate')} name="brief.releaseDate" type="month" dir="ltr" aria-describedby={`${id('brief-releaseDate-help')} ${id('brief-releaseDate-err')}`} aria-errormessage={id('brief-releaseDate-err')} />
+              <p class="help" id={id('brief-releaseDate-help')}>חודש ושנה, למשל 2026-03.</p>
+              <p class="error" id={id('brief-releaseDate-err')} data-error-for="brief.releaseDate" />
+            </div>
+            <div class="field">
+              <label for={id('brief-referenceUrl')}>סגנון או רפרנס (קישור)</label>
+              <input id={id('brief-referenceUrl')} name="brief.referenceUrl" type="url" inputmode="url" dir="ltr" autocomplete="off" aria-describedby={`${id('brief-referenceUrl-help')} ${id('brief-referenceUrl-err')}`} aria-errormessage={id('brief-referenceUrl-err')} />
+              <p class="help" id={id('brief-referenceUrl-help')}>קליפ או עבודה שאהבתם, אם יש.</p>
+              <p class="error" id={id('brief-referenceUrl-err')} data-error-for="brief.referenceUrl" />
+            </div>
+          </div>
+        ) : g === 'web' ? (
+          <div class="brief__grid">
+            <div class="field field--full">
+              <label for={id('brief-currentSiteUrl')}>יש לכם אתר היום? קישור</label>
+              <input id={id('brief-currentSiteUrl')} name="brief.currentSiteUrl" type="url" inputmode="url" dir="ltr" autocomplete="url" aria-describedby={`${id('brief-currentSiteUrl-help')} ${id('brief-currentSiteUrl-err')}`} aria-errormessage={id('brief-currentSiteUrl-err')} />
+              <p class="help" id={id('brief-currentSiteUrl-help')}>אם אין אתר, השאירו ריק.</p>
+              <p class="error" id={id('brief-currentSiteUrl-err')} data-error-for="brief.currentSiteUrl" />
+            </div>
+            <div class="field">
+              <label for={id('brief-siteGoal')}>מה המטרה העיקרית?</label>
+              <select id={id('brief-siteGoal')} name="brief.siteGoal">
+                <option value="">בחירה</option>
+                {SITE_GOALS.map((v) => <option value={v}>{SITE_GOAL_LABEL[v]}</option>)}
+              </select>
+            </div>
+            <div class="field">
+              <label for={id('brief-desiredDate')}>מועד רצוי לעלייה לאוויר</label>
+              <input id={id('brief-desiredDate')} name="brief.desiredDate" type="month" dir="ltr" aria-describedby={`${id('brief-desiredDate-help')} ${id('brief-desiredDate-err')}`} aria-errormessage={id('brief-desiredDate-err')} />
+              <p class="help" id={id('brief-desiredDate-help')}>חודש ושנה, למשל 2026-09.</p>
+              <p class="error" id={id('brief-desiredDate-err')} data-error-for="brief.desiredDate" />
+            </div>
+          </div>
+        ) : (
+          <div class="brief__grid">
+            <div class="field">
+              <label for={id('brief-eventsPerYear')}>כמה אירועים בשנה, בערך?</label>
+              <select id={id('brief-eventsPerYear')} name="brief.eventsPerYear">
+                <option value="">בחירה</option>
+                {EVENTS_PER_YEAR.map((v) => <option value={v}>{EVENTS_PER_YEAR_LABEL[v]}</option>)}
+              </select>
+            </div>
+            <div class="field">
+              <label for={id('brief-currentTools')}>באילו כלים אתם משתמשים היום?</label>
+              <input id={id('brief-currentTools')} name="brief.currentTools" maxlength="300" autocomplete="off" aria-describedby={id('brief-currentTools-help')} />
+              <p class="help" id={id('brief-currentTools-help')}>למשל: גלריה אונליין, גיליון אקסל, וואטסאפ.</p>
+            </div>
+          </div>
+        )}
+      </fieldset>
+    ))
+  }
 
   <div class="field field--full">
     <label for={id('details')}>{detailsLabel} <span class="req">(חובה)</span></label>
-    <textarea id={id('details')} name="details" required aria-describedby={`${id('details-help')} ${id('details-err')}`}
+    <textarea
+      id={id('details')}
+      name="details"
+      required
+      maxlength="4000"
+      aria-describedby={`${id('details-help')} ${id('details-err')}`}
+      aria-errormessage={id('details-err')}
     ></textarea>
     <p class="help" id={id('details-help')}>{detailsHelp}</p>
     <p class="error" id={id('details-err')} data-error-for="details"></p>
@@ -101,9 +174,10 @@ const detailsHelp =
         name="privacyConsent"
         required
         aria-describedby={`${id('notice')} ${id('privacy-err')}`}
+        aria-errormessage={id('privacy-err')}
       />
       <label for={id('privacy')}>
-        קראתי את <a href={url('/privacy/')}>מדיניות הפרטיות</a> ואני מסכים/ה שהפרטים ישמשו למענה על הפנייה. <span
+        קראתי את <a href={url('/privacy/')}>מדיניות הפרטיות</a>, ואפשר להשתמש בפרטים שלי כדי לענות על הפנייה. <span
           class="req">(חובה)</span
         >
       </label>
@@ -139,7 +213,27 @@ const detailsHelp =
 
 <script>
   import { isReach, prefetchToken, submitLead, type FailReason, type LeadPayload } from '../lib/lead';
-  import { LEAD_NEEDS, type LeadNeed } from '../lib/lead-shared';
+  import {
+    BRIEF_GROUPS,
+    LEAD_NEEDS,
+    MONTH_OR_DATE,
+    briefGroupFor,
+    isHttpUrl,
+    type BriefField,
+    type LeadNeed,
+  } from '../lib/lead-shared';
+
+  const URL_FIELDS = new Set<string>(['songUrl', 'referenceUrl', 'currentSiteUrl']);
+  const MONTH_FIELDS = new Set<string>(['releaseDate', 'desiredDate']);
+  const URL_ERROR = 'זה לא נראה כמו קישור. למשל: https://youtu.be/...';
+  const MONTH_ERROR = 'חודש ושנה בפורמט 2026-03.';
+
+  /** "youtu.be/x" → "https://youtu.be/x". Leaves anything else as typed. */
+  function normalizeUrl(v: string): string {
+    const t = v.trim();
+    if (!t || /^[a-z][a-z0-9+.-]*:/i.test(t)) return t;
+    return /^[^\s/]+\.[^\s/]+/.test(t) ? `https://${t}` : t;
+  }
 
   const MESSAGES: Record<string, string> = {
     name: 'נא למלא שם.',
@@ -150,7 +244,18 @@ const detailsHelp =
     privacyConsent: 'כדי לשלוח צריך לאשר את מדיניות הפרטיות.',
   };
   // Server field names → form field names
-  const FIELD_MAP: Record<string, string> = { contact: 'reach', name: 'name', need: 'need', details: 'details', privacyConsent: 'privacyConsent' };
+  const FIELD_MAP: Record<string, string> = {
+    contact: 'reach',
+    name: 'name',
+    need: 'need',
+    details: 'details',
+    privacyConsent: 'privacyConsent',
+    'brief.songUrl': 'brief.songUrl',
+    'brief.referenceUrl': 'brief.referenceUrl',
+    'brief.currentSiteUrl': 'brief.currentSiteUrl',
+    'brief.releaseDate': 'brief.releaseDate',
+    'brief.desiredDate': 'brief.desiredDate',
+  };
 
   const FAIL_TEXT: Record<FailReason, string> = {
     'not-connected': 'הטופס עדיין לא מחובר. בינתיים אפשר לפנות ',
@@ -185,6 +290,25 @@ const detailsHelp =
   document.querySelectorAll<HTMLFormElement>('form[data-lead-form]').forEach((form) => {
     prefetchToken();
     const status = form.querySelector<HTMLElement>('.form-status[role="status"]');
+    const isPilot = form.dataset.form === 'pilot';
+    const groups = Array.from(form.querySelectorAll<HTMLFieldSetElement>('fieldset[data-brief-group]'));
+    const live = form.querySelector<HTMLElement>('[data-brief-live]');
+    const activeGroup = () => (isPilot ? 'pilot' : briefGroupFor((form.elements.namedItem('need') as HTMLSelectElement | null)?.value ?? ''));
+
+    // Progressive disclosure: only the group that matches "במה אפשר לעזור" stays visible.
+    // Focus stays on the select; the change is announced in a polite live region.
+    function syncGroups(announce: boolean) {
+      const active = activeGroup();
+      let shown: HTMLFieldSetElement | undefined;
+      for (const g of groups) {
+        const on = g.dataset.briefGroup === active;
+        g.hidden = !on;
+        if (on) shown = g;
+      }
+      if (announce && live) live.textContent = shown ? `נוספו שאלות ${shown.dataset.title ?? ''}. הן לא חובה.` : '';
+    }
+    syncGroups(false);
+    form.querySelector('select[name="need"]')?.addEventListener('change', () => syncGroups(true));
     const get = (n: string) => {
       const el = form.elements.namedItem(n);
       return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement
@@ -218,7 +342,31 @@ const detailsHelp =
       if (!details) errors.push(['details', MESSAGES.details ?? '']);
       if (!privacy) errors.push(['privacyConsent', MESSAGES.privacyConsent ?? '']);
 
-      ['name', 'reach', 'need', 'details', 'privacyConsent'].forEach((n) => setError(form, n, ''));
+      // Brief: only the visible group is sent; every field is optional.
+      const group = activeGroup();
+      const brief: Partial<Record<BriefField, string>> = {};
+      const briefNames: string[] = [];
+      if (group) {
+        for (const field of BRIEF_GROUPS[group].fields) {
+          const el = get(`brief.${field}`);
+          if (!el) continue;
+          briefNames.push(`brief.${field}`);
+          let value = el.value.trim();
+          if (!value) continue;
+          if (URL_FIELDS.has(field)) {
+            value = normalizeUrl(value);
+            if (el instanceof HTMLInputElement) el.value = value;
+            if (!isHttpUrl(value)) errors.push([`brief.${field}`, URL_ERROR]);
+          } else if (MONTH_FIELDS.has(field) && !MONTH_OR_DATE.test(value)) {
+            errors.push([`brief.${field}`, MONTH_ERROR]);
+          }
+          brief[field] = value;
+        }
+      }
+      form.querySelectorAll<HTMLElement>('[data-error-for^="brief."]').forEach((e) => (e.textContent = ''));
+      form.querySelectorAll('[name^="brief."][aria-invalid]').forEach((e) => e.removeAttribute('aria-invalid'));
+
+      ['name', 'reach', 'need', 'details', 'privacyConsent', ...briefNames].forEach((n) => setError(form, n, ''));
       errors.forEach(([n, m]) => setError(form, n, m));
       if (errors.length) {
         if (status) status.textContent = `יש ${errors.length === 1 ? 'שדה אחד' : `${errors.length} שדות`} לתיקון.`;
@@ -236,6 +384,7 @@ const detailsHelp =
         privacyConsent: true,
         marketingOptIn: marketing,
         website,
+        ...(Object.keys(brief).length ? { brief } : {}),
       };
       const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
       const label = button?.textContent ?? '';
@@ -265,13 +414,14 @@ const detailsHelp =
         );
         form.dataset.state = 'sent';
         form.reset();
+        syncGroups(false);
         return;
       }
 
       if (result.reason === 'invalid') {
         for (const f of result.fields ?? []) {
           const local = FIELD_MAP[f];
-          if (local) setError(form, local, MESSAGES[local] ?? 'נא לבדוק את השדה.');
+          if (local) setError(form, local, MESSAGES[local] ?? (local.startsWith('brief.') ? (/Url$/.test(local) ? URL_ERROR : MONTH_ERROR) : 'נא לבדוק את השדה.'));
         }
       }
       // Never claim success. Keep everything the visitor typed.

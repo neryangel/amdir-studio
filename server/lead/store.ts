@@ -6,6 +6,8 @@ export interface LeadRecord {
   contact_type: 'email' | 'phone';
   need: string;
   details: string;
+  /** Need-specific extras (jsonb), null when none were given. */
+  brief: Record<string, string> | null;
   /** Consent record (see supabase/leads.sql). */
   privacy_consent: true;
   marketing_opt_in: boolean;

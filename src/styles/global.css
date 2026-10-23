@@ -1430,3 +1430,37 @@ body.has-review-bar {
 .index-row__thumb {
   position: relative;
 }
+
+/* ---------- need-specific brief groups ---------- */
+.brief {
+  margin: 0;
+  padding: 16px 18px 4px;
+  border: 0;
+  border-inline-start: 3px solid var(--accent);
+  background: var(--surface);
+  border-radius: var(--radius);
+  min-width: 0;
+}
+.brief[hidden] {
+  display: none;
+}
+.brief legend {
+  font-weight: 700;
+  font-size: 16px;
+  padding: 0;
+  float: inline-start;
+  width: 100%;
+  margin-bottom: 12px;
+}
+.brief__grid {
+  clear: both;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+  padding-bottom: 12px;
+}
+@media (max-width: 600px) {
+  .brief__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -3,7 +3,7 @@
 // PUBLIC_LEAD_ENDPOINT unset  → submitLead() returns { ok:false, reason:'not-connected' } (honest message, no fake success)
 // PUBLIC_LEAD_ENDPOINT=/api/lead → GET it once for a signed render token (time-trap), then POST JSON.
 // The server (api/lead.ts → server/lead/handler.ts) answers 200 { ok:true, id } only AFTER the lead was stored.
-import { NOTICE_VERSION, contactKind, type LeadNeed, type LeadSource } from './lead-shared';
+import { NOTICE_VERSION, contactKind, type BriefField, type LeadNeed, type LeadSource } from './lead-shared';
 
 export const LEAD_ENDPOINT: string | undefined = import.meta.env.PUBLIC_LEAD_ENDPOINT || undefined;
 
@@ -20,6 +20,8 @@ export interface LeadPayload {
   marketingOptIn: boolean;
   /** Honeypot. People never see it, so it stays empty. */
   website: string;
+  /** Optional need-specific extras (only the visible group, only non-empty values). */
+  brief?: Partial<Record<BriefField, string>>;
 }
 
 export type FailReason = 'not-connected' | 'network' | 'server' | 'too-fast' | 'invalid' | 'rate-limited';
