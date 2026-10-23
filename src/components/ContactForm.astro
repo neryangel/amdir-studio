@@ -1,0 +1,239 @@
+---
+// Accessible lead form, shared by /contact and the pilot form on the product page.
+// Labels above inputs, errors below, aria-invalid + aria-describedby, focus moves to the first error.
+// Submission goes through src/lib/lead.ts (submitLead). With no backend it never claims success.
+import { getSettings } from '../lib/content';
+import { url, whatsappHref } from '../lib/url';
+
+interface Props {
+  variant?: 'contact' | 'pilot';
+  /** Unique id prefix if two forms ever share a page. */
+  idPrefix?: string;
+}
+const { variant = 'contact', idPrefix = variant } = Astro.props;
+const settings = await getSettings();
+const wa = whatsappHref(settings.whatsappNumber) ?? url('/contact/#whatsapp');
+const id = (name: string) => `${idPrefix}-${name}`;
+
+const needs =
+  variant === 'pilot'
+    ? [{ value: 'pilot', label: 'הצטרפות לפיילוט של Event Pro Studio' }]
+    : [
+        { value: 'clip', label: 'קליפ לשיר' },
+        { value: 'video', label: 'עריכה, מושן או אפקטים' },
+        { value: 'ai', label: 'קליפ או תמונות ב-AI' },
+        { value: 'web', label: 'אתר' },
+        { value: 'pilot', label: 'הפיילוט של Event Pro Studio' },
+        { value: 'other', label: 'משהו אחר' },
+      ];
+const detailsLabel = variant === 'pilot' ? 'ספרו בקצרה על העבודה שלכם' : 'פרטים';
+const detailsHelp =
+  variant === 'pilot'
+    ? 'למשל: איזה אירועים אתם מצלמים, וכמה בערך בחודש.'
+    : 'מה המטרה, האם יש תאריך יעד, ואם יש קישור לדוגמה שאהבתם.';
+---
+
+<form
+  class="form"
+  data-lead-form
+  data-form={variant}
+  data-wa={wa}
+  novalidate
+  aria-describedby={id('status')}
+>
+  <div class="field">
+    <label for={id('name')}>שם <span class="req">(חובה)</span></label>
+    <input id={id('name')} name="name" autocomplete="name" required aria-describedby={id('name-err')} />
+    <p class="error" id={id('name-err')} data-error-for="name"></p>
+  </div>
+
+  <div class="field">
+    <label for={id('reach')}>טלפון או אימייל <span class="req">(חובה)</span></label>
+    <input
+      id={id('reach')}
+      name="reach"
+      inputmode="email"
+      autocomplete="email"
+      dir="ltr"
+      required
+      aria-describedby={`${id('reach-help')} ${id('reach-err')}`}
+    />
+    <p class="help" id={id('reach-help')}>מספיק אחד מהשניים.</p>
+    <p class="error" id={id('reach-err')} data-error-for="reach"></p>
+  </div>
+
+  <div class="field field--full">
+    <label for={id('need')}>במה אפשר לעזור? <span class="req">(חובה)</span></label>
+    <select id={id('need')} name="need" required aria-describedby={id('need-err')}>
+      {variant === 'pilot' ? null : <option value="">בחירה מהרשימה</option>}
+      {needs.map((n) => <option value={n.value}>{n.label}</option>)}
+    </select>
+    <p class="error" id={id('need-err')} data-error-for="need"></p>
+  </div>
+
+  <div class="field field--full">
+    <label for={id('details')}>{detailsLabel} <span class="req">(חובה)</span></label>
+    <textarea id={id('details')} name="details" required aria-describedby={`${id('details-help')} ${id('details-err')}`}
+    ></textarea>
+    <p class="help" id={id('details-help')}>{detailsHelp}</p>
+    <p class="error" id={id('details-err')} data-error-for="details"></p>
+  </div>
+
+  <div class="notice" id={id('notice')}>
+    <p>
+      <strong>מה קורה עם הפרטים:</strong> הפרטים משמשים רק כדי לחזור אליכם בעניין הפנייה. מסירת הפרטים היא
+      לפי רצונכם, ואין חובה חוקית למסור אותם. הפרטים נשמרים אצל ספקי האחסון והדואר שהאתר עובד איתם, ורק
+      לצורך הזה.
+    </p>
+    <p>
+      יש לכם זכות לעיין בפרטים שנשמרו עליכם ולבקש לתקן אותם. פרטים נוספים ב<a href={url('/privacy/')}
+        >מדיניות הפרטיות</a
+      >.
+    </p>
+  </div>
+
+  <div class="field field--full">
+    <div class="check">
+      <input
+        type="checkbox"
+        id={id('privacy')}
+        name="privacyConsent"
+        required
+        aria-describedby={`${id('notice')} ${id('privacy-err')}`}
+      />
+      <label for={id('privacy')}>
+        קראתי את <a href={url('/privacy/')}>מדיניות הפרטיות</a> ואני מסכים/ה שהפרטים ישמשו למענה על הפנייה. <span
+          class="req">(חובה)</span
+        >
+      </label>
+    </div>
+    <p class="error" id={id('privacy-err')} data-error-for="privacyConsent"></p>
+  </div>
+
+  <div class="field field--full">
+    <div class="check">
+      <input type="checkbox" id={id('marketing')} name="marketingOptIn" />
+      <label for={id('marketing')}>
+        אשמח לקבל מדי פעם עדכונים על עבודות ומוצרים חדשים. <span class="req">(לא חובה, אפשר להסיר בכל עת)</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="field">
+    <button class="btn btn--primary" type="submit">{variant === 'pilot' ? 'שליחת בקשה לפיילוט' : 'שליחה'}</button>
+  </div>
+
+  <div class="form-status" id={id('status')} role="status" aria-live="polite"></div>
+  <noscript>
+    <p class="form-status">
+      הטופס עדיין לא מחובר, והוא דורש JavaScript. בינתיים אפשר לפנות <a href={wa}>בוואטסאפ</a>.
+    </p>
+  </noscript>
+</form>
+
+<script>
+  import { isReach, submitLead, type LeadPayload } from '../lib/lead';
+
+  const MESSAGES: Record<string, string> = {
+    name: 'נא למלא שם.',
+    reach: 'נא למלא טלפון או אימייל שאפשר לחזור אליו.',
+    reachInvalid: 'זה לא נראה כמו טלפון או אימייל. לדוגמה: 050-0000000 או name@example.com',
+    need: 'נא לבחור במה אפשר לעזור.',
+    details: 'נא לכתוב כמה מילים על הפרויקט.',
+    privacyConsent: 'כדי לשלוח צריך לאשר את מדיניות הפרטיות.',
+  };
+
+  function setError(form: HTMLFormElement, name: string, message: string) {
+    const field = form.elements.namedItem(name);
+    const err = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+    if (field instanceof HTMLElement) {
+      if (message) field.setAttribute('aria-invalid', 'true');
+      else field.removeAttribute('aria-invalid');
+    }
+    if (err) err.textContent = message;
+  }
+
+  document.querySelectorAll<HTMLFormElement>('form[data-lead-form]').forEach((form) => {
+    const status = form.querySelector<HTMLElement>('.form-status[role="status"]');
+    const get = (n: string) => {
+      const el = form.elements.namedItem(n);
+      return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement
+        ? el
+        : null;
+    };
+
+    form.addEventListener('input', (e) => {
+      const t = e.target;
+      if (t instanceof HTMLElement && t.getAttribute('aria-invalid') === 'true' && 'name' in t) {
+        setError(form, String((t as HTMLInputElement).name), '');
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = get('name')?.value.trim() ?? '';
+      const reach = get('reach')?.value.trim() ?? '';
+      const need = get('need')?.value ?? '';
+      const details = get('details')?.value.trim() ?? '';
+      const privacy = (get('privacyConsent') as HTMLInputElement | null)?.checked ?? false;
+      const marketing = (get('marketingOptIn') as HTMLInputElement | null)?.checked ?? false;
+
+      const errors: [string, string][] = [];
+      if (!name) errors.push(['name', MESSAGES.name ?? '']);
+      if (!reach) errors.push(['reach', MESSAGES.reach ?? '']);
+      else if (!isReach(reach)) errors.push(['reach', MESSAGES.reachInvalid ?? '']);
+      if (!need) errors.push(['need', MESSAGES.need ?? '']);
+      if (!details) errors.push(['details', MESSAGES.details ?? '']);
+      if (!privacy) errors.push(['privacyConsent', MESSAGES.privacyConsent ?? '']);
+
+      ['name', 'reach', 'need', 'details', 'privacyConsent'].forEach((n) => setError(form, n, ''));
+      errors.forEach(([n, m]) => setError(form, n, m));
+      if (errors.length) {
+        if (status) status.textContent = `יש ${errors.length === 1 ? 'שדה אחד' : `${errors.length} שדות`} לתיקון.`;
+        const first = errors[0];
+        if (first) (form.elements.namedItem(first[0]) as HTMLElement | null)?.focus();
+        return;
+      }
+
+      const payload: LeadPayload = {
+        form: form.dataset.form === 'pilot' ? 'pilot' : 'contact',
+        name,
+        reach,
+        need,
+        details,
+        privacyConsent: true,
+        marketingOptIn: marketing,
+        submittedAt: new Date().toISOString(),
+      };
+      const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (button) button.disabled = true;
+      const result = await submitLead(payload);
+      if (button) button.disabled = false;
+      if (!status) return;
+
+      if (result.ok) {
+        status.textContent = 'הפנייה נשמרה. אחזור אליכם בהקדם.';
+        form.reset();
+        return;
+      }
+      // Never claim success. Keep everything the visitor typed.
+      const wa = form.dataset.wa ?? '#';
+      status.replaceChildren();
+      const p = document.createElement('p');
+      p.append(
+        result.reason === 'not-connected'
+          ? 'הטופס עדיין לא מחובר. בינתיים אפשר לפנות '
+          : 'השליחה לא הצליחה, והפרטים לא נשמרו. אפשר לנסות שוב, או לפנות ',
+      );
+      const a = document.createElement('a');
+      a.href = wa;
+      a.textContent = 'בוואטסאפ';
+      if (wa.startsWith('http')) {
+        a.target = '_blank';
+        a.rel = 'noopener';
+      }
+      p.append(a, '. מה שכתבתם נשאר בטופס.');
+      status.append(p);
+    });
+  });
+</script>

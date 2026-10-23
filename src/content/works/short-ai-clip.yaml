@@ -1,0 +1,37 @@
+title: קליפ קצר לרשתות
+artist: '[שם האמן]'
+client: ''
+type: personal
+disciplines:
+  - clips
+  - ai
+year: 2026
+summary: >-
+  טקסט זמני. קליפ קצר של 20 שניות לשיר, בנוי לצפייה בנייד.
+deliverables:
+  - קליפ 9:16
+credits:
+  - הפקה
+  - עריכה
+  - יצירת וידאו ב-AI
+tools:
+  - Premiere
+aiUsed: true
+aiNote: טקסט זמני. חלק מהשוטים נוצרו ב-AI.
+outcome:
+  text: ''
+  source: ''
+poster: ../../assets/works/short-ai-clip/poster.png
+posterAlt: תמונת פתיחה זמנית, כתמי אור ירקרקים על רקע כהה
+video:
+  discriminant: none
+gallery:
+  - image: ../../assets/works/short-ai-clip/gallery-1.png
+    alt: סטיל זמני מהקליפ
+  - image: ../../assets/works/short-ai-clip/gallery-2.png
+    alt: סטיל זמני מרובע מהקליפ
+websiteUrl: ''
+permissionToShow: false
+featured: true
+order: 6
+placeholder: true

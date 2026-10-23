@@ -1,0 +1,83 @@
+---
+// Rendered ONLY when PUBLIC_REVIEW_MODE=true. Lets the owner compare the two directions.
+// The choice is kept in localStorage (per browser) and applied before paint by Base.astro.
+---
+
+<div class="review-bar" role="region" aria-label="מצב סקירה">
+  <div class="wrap">
+    <span class="review-bar__label">מצב סקירה, לא יופיע באתר:</span>
+    <div class="review-bar__group" role="group" aria-label="כיוון עיצוב">
+      <button type="button" data-set-direction="stage" aria-pressed="false">א׳ במה</button>
+      <button type="button" data-set-direction="index" aria-pressed="false">ב׳ אינדקס</button>
+    </div>
+    <div class="review-bar__group" role="group" aria-label="בהירות (לכיוון ב׳)" data-theme-group>
+      <button type="button" data-set-theme="auto" aria-pressed="false">לפי המכשיר</button>
+      <button type="button" data-set-theme="light" aria-pressed="false">בהיר</button>
+      <button type="button" data-set-theme="dark" aria-pressed="false">כהה</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const root = document.documentElement;
+  const store = {
+    get(k: string) {
+      try {
+        return localStorage.getItem(k);
+      } catch {
+        return null;
+      }
+    },
+    set(k: string, v: string | null) {
+      try {
+        if (v === null) localStorage.removeItem(k);
+        else localStorage.setItem(k, v);
+      } catch {
+        /* private mode: the choice just won't persist */
+      }
+    },
+  };
+
+  function sync() {
+    const dir = root.dataset.direction ?? 'stage';
+    const theme = root.dataset.theme ?? 'auto';
+    document.querySelectorAll<HTMLButtonElement>('[data-set-direction]').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.dataset.setDirection === dir));
+    });
+    document.querySelectorAll<HTMLButtonElement>('[data-set-theme]').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.dataset.setTheme === theme));
+    });
+    const group = document.querySelector<HTMLElement>('[data-theme-group]');
+    if (group) group.hidden = dir !== 'index';
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-set-direction]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const d = b.dataset.setDirection;
+      if (d !== 'stage' && d !== 'index') return;
+      root.dataset.direction = d;
+      store.set('amdir-review-direction', d);
+      sync();
+    });
+  });
+  document.querySelectorAll<HTMLButtonElement>('[data-set-theme]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const t = b.dataset.setTheme;
+      if (t === 'light' || t === 'dark') {
+        root.dataset.theme = t;
+        store.set('amdir-review-theme', t);
+      } else {
+        delete root.dataset.theme;
+        store.set('amdir-review-theme', null);
+      }
+      sync();
+    });
+  });
+  // Allow ?direction=index&theme=dark links (handy for sharing a specific view).
+  const params = new URLSearchParams(location.search);
+  const qd = params.get('direction');
+  const qt = params.get('theme');
+  if (qd === 'stage' || qd === 'index') root.dataset.direction = qd;
+  if (qt === 'light' || qt === 'dark') root.dataset.theme = qt;
+  sync();
+</script>

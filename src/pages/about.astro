@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro';
+import Process from '../components/Process.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { TODO } from '../lib/config';
+import { getRoutes, getSettings } from '../lib/content';
+import { url } from '../lib/url';
+
+const settings = await getSettings();
+const routes = await getRoutes();
+---
+
+<Base
+  title="סטודיו"
+  description={`${settings.studioName} הוא ${settings.subline}: הפקת קליפים, עריכה, מושן ואפקטים, קליפים ותמונות ב-AI, ועיצוב ובניית אתרים.`}
+  path="/about/"
+>
+  <div class="wrap">
+    <header class="page-head">
+      <h1>סטודיו</h1>
+      <p class="lead">{settings.studioName} הוא {settings.subline}. איש קשר אחד, מהשיחה הראשונה ועד הקובץ האחרון.</p>
+    </header>
+
+    <section class="section" aria-labelledby="who-title">
+      <div class="split">
+        <div class="prose">
+          <h2 class="h3 split__title" id="who-title">מי אני</h2>
+          <p>
+            <span class="todo">{TODO}</span> כמה שורות בגוף ראשון: הרקע שלך, איך הגעת להפקה ולעריכה, ומה חשוב לך
+            בעבודה עם אמנים ועסקים. בלי מספרים שאין להם מקור.
+          </p>
+        </div>
+        <div class="prose">
+          <h2 class="h3 split__title" id="ai-title">איך אני עובד עם AI</h2>
+          <p>
+            AI הוא כלי אחד מתוך כמה, כמו Premiere או After Effects. כשהוא משרת את הרעיון, אני משתמש בו ליצירת תמונות
+            או שוטים, ואז עורך ומשלב ידנית.
+          </p>
+          <p>בכל עבודה באתר כתוב בקרדיטים אם נעשה בה שימוש ב-AI, ולמה.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="services-title">
+      <div class="section__head">
+        <h2 class="h2" id="services-title">שירותים</h2>
+      </div>
+      {
+        routes.services.length ? (
+          <ul class="checklist">
+            {routes.services.map((s) => (
+              <li>
+                <a class="link-arrow" href={url(s.href)}>
+                  {s.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <ul class="checklist">
+            <li>הפקת קליפים, עריכה ב-Premiere, מושן ואפקטים ב-After Effects, וקליפים ותמונות ב-AI</li>
+            <li>עיצוב ובניית אתרים</li>
+          </ul>
+        )
+      }
+    </section>
+
+    <Process />
+    <CtaBand />
+  </div>
+</Base>

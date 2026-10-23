@@ -1,0 +1,55 @@
+---
+import { TODO } from '../lib/config';
+import { getSettings } from '../lib/content';
+import { url, whatsappHref } from '../lib/url';
+
+const s = await getSettings();
+const wa = whatsappHref(s.whatsappNumber);
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <section aria-labelledby="footer-biz">
+      <h2 id="footer-biz">{s.studioName}, {s.subline}</h2>
+      <dl>
+        <dt>שם העסק</dt>
+        <dd>{s.business.legalName ?? <span class="todo">{TODO}</span>}</dd>
+        <dt>בעלים</dt>
+        <dd>{s.ownerName}</dd>
+        <dt>עוסק מס׳</dt>
+        <dd>{s.business.osekNumber ?? <span class="todo">{TODO}</span>}</dd>
+        <dt>יצירת קשר</dt>
+        <dd>
+          {s.email ? <a href={`mailto:${s.email}`}>{s.email}</a> : <span class="todo">{TODO} אימייל</span>}
+        </dd>
+      </dl>
+    </section>
+    <nav aria-labelledby="footer-site">
+      <h2 id="footer-site">באתר</h2>
+      <ul>
+        <li><a href={url('/work/')}>עבודות</a></li>
+        <li><a href={url('/about/')}>סטודיו</a></li>
+        <li><a href={url('/contact/')}>יצירת קשר</a></li>
+        <li>
+          {
+            wa ? (
+              <a href={wa} rel="noopener" target="_blank">
+                וואטסאפ<span class="visually-hidden"> (נפתח בחלון חדש)</span>
+              </a>
+            ) : (
+              <a href={url('/contact/#whatsapp')}>וואטסאפ</a>
+            )
+          }
+        </li>
+      </ul>
+    </nav>
+    <nav aria-labelledby="footer-legal">
+      <h2 id="footer-legal">מידע משפטי</h2>
+      <ul>
+        <li><a href={url('/privacy/')}>מדיניות פרטיות</a></li>
+        <li><a href={url('/accessibility/')}>הצהרת נגישות</a></li>
+        <li><a href={url('/terms/')}>תנאי שימוש ושירות</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>

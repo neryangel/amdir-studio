@@ -1,0 +1,24 @@
+studioName: AMDIR
+ownerName: נריה אנג׳ל
+headline: הפקת קליפים, וידאו ואתרים. מהרעיון ועד הקובץ האחרון.
+subline: הסטודיו של נריה אנג׳ל
+defaultDirection: stage
+email: ''
+whatsappNumber: ''
+showreel:
+  discriminant: file
+  value:
+    id: /media/placeholder-reel.mp4
+    captions: /media/placeholder-reel.he.vtt
+showreelPoster: ../../assets/site/showreel-poster.png
+showreelPosterAlt: תמונת פתיחה זמנית לשואוריל, אלומות אור על במה חשוכה
+showreelPlaceholder: true
+business:
+  legalName: ''
+  osekNumber: ''
+  address: ''
+accessibility:
+  contactName: ''
+  contactEmail: ''
+  contactPhone: ''
+  lastReviewed: ''

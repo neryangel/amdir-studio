@@ -1,0 +1,37 @@
+title: סדרת תמונות AI
+artist: ''
+client: ''
+type: personal
+disciplines:
+  - ai
+  - photo
+year: 2026
+summary: >-
+  טקסט זמני. סדרת תמונות סביב רעיון אחד, שנוצרה ב-AI ועברה עריכה ידנית.
+deliverables:
+  - שש תמונות ברזולוציה מלאה
+credits:
+  - רעיון
+  - יצירת תמונות ב-AI
+  - עריכה וצבע
+tools:
+  - Photoshop
+aiUsed: true
+aiNote: טקסט זמני. התמונות נוצרו ב-AI ועברו עריכה וצבע ידניים.
+outcome:
+  text: ''
+  source: ''
+poster: ../../assets/works/ai-image-series/poster.png
+posterAlt: תמונת פתיחה זמנית, כתמי אור זהובים מטושטשים
+video:
+  discriminant: none
+gallery:
+  - image: ../../assets/works/ai-image-series/gallery-1.png
+    alt: תמונה זמנית מהסדרה, כתמי אור רכים
+  - image: ../../assets/works/ai-image-series/gallery-2.png
+    alt: תמונה זמנית מרובעת מהסדרה
+websiteUrl: ''
+permissionToShow: false
+featured: true
+order: 4
+placeholder: true

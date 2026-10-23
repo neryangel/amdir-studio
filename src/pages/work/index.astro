@@ -1,0 +1,123 @@
+---
+import { Picture } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import TempBadge from '../../components/TempBadge.astro';
+import TypeLabel from '../../components/TypeLabel.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { DISCIPLINE_LABEL, WORK_FILTERS } from '../../lib/enums';
+import { filterKeys, getSettings, getWorks, workTitle } from '../../lib/content';
+import { url, whatsappHref } from '../../lib/url';
+
+const works = await getWorks();
+const settings = await getSettings();
+const wa = whatsappHref(settings.whatsappNumber) ?? url('/contact/#whatsapp');
+const counts = Object.fromEntries(
+  WORK_FILTERS.map((f) => [f.key, f.key === 'all' ? works.length : works.filter((w) => filterKeys(w).includes(f.key)).length]),
+);
+---
+
+<Base
+  title="עבודות"
+  description="אינדקס העבודות של AMDIR: קליפים, וידאו ומושן, AI, אתרים ותמונות. לכל עבודה מצוין אם היא ללקוח, אישית, דמו או קונספט."
+  path="/work/"
+>
+  <div class="wrap">
+    <header class="page-head">
+      <h1>עבודות</h1>
+      <p class="lead">לכל עבודה מצוין הסוג: לקוח, אישי, דמו או קונספט.</p>
+    </header>
+
+    {
+      works.length ? (
+        <div class="work-index" data-work-index>
+          <fieldset class="filters">
+            <legend>סינון לפי תחום</legend>
+            <div class="filters__list">
+              {WORK_FILTERS.map((f) => (
+                <label class="chip">
+                  <input type="radio" name="discipline" id={`f-${f.key}`} value={f.key} checked={f.key === 'all'} />
+                  <span>
+                    {f.label} <span class="visually-hidden">({counts[f.key]} עבודות)</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <p class="filter-status" role="status" aria-live="polite" data-filter-status />
+
+          <div class="index-head" aria-hidden="true">
+            <span>שנה</span>
+            <span>עבודה</span>
+            <span>החלק שלי</span>
+            <span>סוג</span>
+          </div>
+          <ol class="index-list">
+            {works.map((w) => (
+              <li class="index-row" data-f={filterKeys(w).join(' ')}>
+                <div class="index-row__thumb">
+                  <Picture src={w.data.poster} alt="" formats={['avif', 'webp']} widths={[200, 400]} sizes="180px" />
+                </div>
+                <span class="index-row__year">{w.data.year}</span>
+                <div class="index-row__title">
+                  <a href={url(`/work/${w.id}/`)}>{workTitle(w)}</a>
+                  <TempBadge show={w.data.placeholder} />
+                  <span class="index-row__disc">{w.data.disciplines.map((d) => DISCIPLINE_LABEL[d]).join(', ')}</span>
+                </div>
+                <span class="index-row__roles">{w.data.credits.join(', ')}</span>
+                <span class="index-row__labels">
+                  <TypeLabel type={w.data.type} />
+                  {w.data.aiUsed ? <span class="type-label">כולל AI</span> : null}
+                </span>
+              </li>
+            ))}
+          </ol>
+          {WORK_FILTERS.filter((f) => f.key !== 'all' && counts[f.key] === 0).map((f) => (
+            <p class="index-empty" data-for={f.key}>
+              עוד אין כאן עבודות בתחום {f.label}. <a href={wa}>אפשר לבקש דוגמאות בוואטסאפ</a>.
+            </p>
+          ))}
+        </div>
+      ) : (
+        <div class="empty">
+          <p>העבודות עולות לאתר בימים אלה. בינתיים אפשר לבקש דוגמאות רלוונטיות לפרויקט שלכם.</p>
+          <a class="link-arrow" href={wa}>
+            לבקשת דוגמאות בוואטסאפ
+          </a>
+        </div>
+      )
+    }
+
+    <CtaBand />
+  </div>
+</Base>
+
+<script>
+  // Progressive enhancement only. Filtering itself is pure CSS (:has + :checked).
+  // JS adds: ?d=clips deep links, and a live count for screen readers.
+  const root = document.querySelector<HTMLElement>('[data-work-index]');
+  if (root) {
+    const status = root.querySelector<HTMLElement>('[data-filter-status]');
+    const rows = Array.from(root.querySelectorAll<HTMLElement>('.index-row'));
+    const radios = Array.from(root.querySelectorAll<HTMLInputElement>('input[name="discipline"]'));
+
+    const apply = (key: string, announce: boolean) => {
+      const n = key === 'all' ? rows.length : rows.filter((r) => (r.dataset.f ?? '').split(' ').includes(key)).length;
+      if (announce && status) {
+        const label = radios.find((r) => r.value === key)?.closest('label')?.querySelector('span')?.firstChild?.textContent?.trim();
+        status.textContent = n === 0 ? `אין עבודות בתחום ${label ?? ''}` : `מוצגות ${n} עבודות${key === 'all' ? '' : ` בתחום ${label ?? ''}`}`;
+      }
+      const u = new URL(location.href);
+      if (key === 'all') u.searchParams.delete('d');
+      else u.searchParams.set('d', key);
+      history.replaceState(null, '', u);
+    };
+
+    const initial = new URLSearchParams(location.search).get('d');
+    const match = radios.find((r) => r.value === initial);
+    if (match) {
+      match.checked = true;
+      apply(match.value, false);
+    }
+    radios.forEach((r) => r.addEventListener('change', () => r.checked && apply(r.value, true)));
+  }
+</script>

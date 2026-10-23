@@ -1,0 +1,39 @@
+title: טיזר לאירוע
+artist: ''
+client: ''
+type: concept
+disciplines:
+  - video
+  - motion
+year: 2025
+summary: >-
+  טקסט זמני. קונספט לטיזר של 30 שניות שמזמין לאירוע, בלי לגלות יותר מדי.
+deliverables:
+  - טיזר 30 שניות
+  - גרסה 9:16
+credits:
+  - רעיון
+  - עריכה
+  - מושן ואפקטים
+tools:
+  - Premiere
+  - After Effects
+aiUsed: false
+aiNote: ''
+outcome:
+  text: ''
+  source: ''
+poster: ../../assets/works/event-teaser/poster.png
+posterAlt: תמונת פתיחה זמנית, אלומות אור כתומות על רקע כחול כהה
+video:
+  discriminant: none
+gallery:
+  - image: ../../assets/works/event-teaser/gallery-1.png
+    alt: סטיל זמני מתוך הטיזר, אלומות אור
+  - image: ../../assets/works/event-teaser/gallery-2.png
+    alt: סטיל זמני מרובע, כתמי אור כתומים
+websiteUrl: ''
+permissionToShow: false
+featured: true
+order: 3
+placeholder: true

@@ -1,0 +1,40 @@
+title: דף נחיתה להופעה
+artist: ''
+client: ''
+type: demo
+disciplines:
+  - web
+  - motion
+year: 2025
+summary: >-
+  טקסט זמני. דמו של דף נחיתה להופעה: תאריך, מקום וכפתור כרטיסים אחד, עם תנועה קלה
+  שלא מעכבת את הטעינה.
+deliverables:
+  - דף נחיתה בעברית
+  - גרסת נייד
+credits:
+  - עיצוב
+  - פיתוח
+  - מושן
+tools:
+  - Astro
+  - After Effects
+aiUsed: false
+aiNote: ''
+outcome:
+  text: ''
+  source: ''
+poster: ../../assets/works/show-landing-page/poster.png
+posterAlt: תמונת פתיחה זמנית, שרטוט מופשט של דף נחיתה כהה
+video:
+  discriminant: none
+gallery:
+  - image: ../../assets/works/show-landing-page/gallery-1.png
+    alt: תצוגה זמנית של הדף, שרטוט מופשט
+  - image: ../../assets/works/show-landing-page/gallery-2.png
+    alt: תצוגה זמנית בנייד, שרטוט מופשט
+websiteUrl: ''
+permissionToShow: false
+featured: true
+order: 5
+placeholder: true

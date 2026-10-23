@@ -1,0 +1,139 @@
+---
+import { Picture } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import VideoFacade from '../components/VideoFacade.astro';
+import WorkCard from '../components/WorkCard.astro';
+import Process from '../components/Process.astro';
+import CtaBand from '../components/CtaBand.astro';
+import TempBadge from '../components/TempBadge.astro';
+import { getFeaturedWorks, getProducts, getSettings } from '../lib/content';
+import { SHOW_PLACEHOLDERS } from '../lib/config';
+import { url, whatsappHref } from '../lib/url';
+
+const settings = await getSettings();
+const works = await getFeaturedWorks(6);
+const [product] = await getProducts();
+const showReel = !settings.showreelPlaceholder || SHOW_PLACEHOLDERS;
+const wa = whatsappHref(settings.whatsappNumber) ?? url('/contact/#whatsapp');
+
+// "הפקת קליפים, וידאו ואתרים. מהרעיון ועד הקובץ האחרון." -> two spans, one line break opportunity.
+const dot = settings.headline.indexOf('.');
+const h1Main = dot > 0 ? settings.headline.slice(0, dot + 1) : settings.headline;
+const h1Tail = dot > 0 ? settings.headline.slice(dot + 1).trim() : '';
+
+const crafts = [
+  'הפקת קליפים',
+  'עריכה ב-Premiere',
+  'מושן ואפקטים ב-After Effects',
+  'קליפים ותמונות ב-AI',
+  'עיצוב ובניית אתרים',
+];
+---
+
+<Base title="דף הבית" description={`${settings.headline} ${settings.subline}.`} path="/">
+  <div class="wrap">
+    <section class:list={['hero', { 'hero--solo': !showReel }]} aria-labelledby="hero-title">
+      <div class="hero__copy">
+        <h1 class="display" id="hero-title">
+          <span class="h1-main">{h1Main}</span>{' '}
+          {h1Tail ? <span class="h1-tail">{h1Tail}</span> : null}
+        </h1>
+        <p class="hero__sub">{settings.subline}</p>
+        <div class="ctas">
+          <a class="btn btn--primary" href={url('/contact/')}>ספרו לי על הפרויקט</a>
+          <a class="btn" href={url('/work/')}>לעבודות</a>
+        </div>
+      </div>
+      {showReel ? (
+      <div class="hero__media">
+        <VideoFacade
+          video={settings.showreel}
+          poster={settings.showreelPoster}
+          posterAlt={settings.showreelPosterAlt}
+          title="שואוריל AMDIR"
+          eager
+        />
+        <p class="facade__note">
+          <span>שואוריל. מתחיל רק בלחיצה, עם כתוביות.</span>
+          <TempBadge show={settings.showreelPlaceholder} />
+        </p>
+      </div>
+      ) : null}
+    </section>
+
+    <section class="section" aria-labelledby="works-title">
+      <div class="section__head">
+        <h2 class="h2" id="works-title">עבודות נבחרות</h2>
+      </div>
+      {
+        works.length ? (
+          <ul class="works-grid">
+            {works.map((w, i) => (
+              <li>
+                <WorkCard work={w} sizes={i === 0 ? '(max-width: 900px) 100vw, 66vw' : undefined} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div class="empty">
+            <p>העבודות עולות לאתר בימים אלה. בינתיים אפשר לבקש דוגמאות רלוונטיות לפרויקט שלכם.</p>
+            <a class="link-arrow" href={wa}>
+              לבקשת דוגמאות בוואטסאפ
+            </a>
+          </div>
+        )
+      }
+      {
+        works.length ? (
+          <p class="section__more">
+            <a class="link-arrow" href={url('/work/')}>
+              לכל העבודות
+            </a>
+          </p>
+        ) : null
+      }
+    </section>
+
+    <section class="section" aria-labelledby="crafts-title">
+      <div class="section__head">
+        <h2 class="h2" id="crafts-title">מה אני עושה</h2>
+      </div>
+      <ul class="crafts">
+        {crafts.map((c) => <li>{c}</li>)}
+      </ul>
+    </section>
+
+    <Process />
+
+    {
+      product ? (
+        <section class="section" aria-labelledby="product-title">
+          <div class="product">
+            <div class="product__copy">
+              <p class="product__kicker">מוצר של AMDIR</p>
+              <h2 class="h2" id="product-title">
+                {product.data.title} {product.data.status === 'pilot' ? <span class="pilot-badge">בפיילוט</span> : null}
+              </h2>
+              <p>{product.data.summary}</p>
+              <TempBadge show={product.data.placeholder} />
+              <a class="btn" href={url(`/products/${product.id}/`)}>
+                לעמוד המוצר
+              </a>
+            </div>
+            <div class="product__media">
+              <Picture
+                src={product.data.poster}
+                alt={product.data.posterAlt}
+                formats={['avif', 'webp']}
+                widths={[480, 800, 1200]}
+                sizes="(max-width: 900px) 100vw, 50vw"
+              />
+            </div>
+          </div>
+        </section>
+      ) : null
+    }
+
+    <CtaBand />
+  </div>
+</Base>

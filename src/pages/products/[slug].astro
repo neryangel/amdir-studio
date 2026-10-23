@@ -1,0 +1,103 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { Picture } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import TempBadge from '../../components/TempBadge.astro';
+import { getProducts, type Product } from '../../lib/content';
+import { absolute } from '../../lib/url';
+
+export const getStaticPaths = (async () => {
+  const products = await getProducts();
+  return products.map((product) => ({ params: { slug: product.id }, props: { product } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  product: Product;
+}
+const { product } = Astro.props;
+const d = product.data;
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: d.title,
+  description: d.summary,
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'he',
+  publisher: { '@id': `${absolute('/', Astro.site)}#studio` },
+};
+---
+
+<Base title={d.title} description={d.summary.slice(0, 155)} path={`/products/${product.id}/`} jsonLd={[ld]}>
+  <div class="wrap">
+    <header class="page-head">
+      <p class="product__kicker">מוצר של AMDIR</p>
+      <h1>
+        {d.title}
+        {d.status === 'pilot' ? <span class="pilot-badge">בפיילוט</span> : null}
+      </h1>
+      <p class="lead">{d.summary}</p>
+      <div><TempBadge show={d.placeholder} label="חומר זמני, הטקסט לבדיקה" /></div>
+    </header>
+
+    <section aria-labelledby="demo-title">
+      <h2 class="visually-hidden" id="demo-title">סרטון הדגמה</h2>
+      {
+        d.demoVideo ? (
+          <VideoFacade video={d.demoVideo} poster={d.poster} posterAlt={d.posterAlt} title={`הדגמה של ${d.title}`} eager />
+        ) : (
+          <div class="hero__media">
+            <div class="cover">
+              <Picture
+                src={d.poster}
+                alt={d.posterAlt}
+                formats={['avif', 'webp']}
+                widths={[480, 800, 1200, 1600]}
+                sizes="(max-width: 1240px) 100vw, 1240px"
+                loading="eager"
+                fetchpriority="high"
+              />
+            </div>
+            <p class="facade__note">
+              כאן יופיע סרטון הדגמה קצר, מוקלט על נתוני דוגמה מסומנים. <span class="todo">[להשלמה]</span>
+            </p>
+          </div>
+        )
+      }
+    </section>
+
+    <section class="section" aria-labelledby="what-title">
+      <div class="split">
+        <div>
+          <h2 class="h3 split__title" id="what-title">מה המערכת עושה</h2>
+          <ul class="checklist">
+            {d.features.map((x) => <li>{x}</li>)}
+          </ul>
+        </div>
+        <div>
+          <h2 class="h3 split__title" id="facts-title">חשוב לדעת</h2>
+          <ul class="checklist">
+            {d.facts.map((x) => <li>{x}</li>)}
+            {
+              d.legalDraft.map((x) => (
+                <li>
+                  {x} <span class="todo">[טיוטה לבדיקה משפטית]</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pilot" aria-labelledby="pilot-title">
+      <div class="section__head">
+        <h2 class="h2" id="pilot-title">להצטרפות לפיילוט</h2>
+        <p class="lead">הפיילוט פתוח למספר קטן של צלמי אירועים. השאירו פרטים ואחזור אליכם.</p>
+      </div>
+      <ContactForm variant="pilot" />
+    </section>
+  </div>
+</Base>

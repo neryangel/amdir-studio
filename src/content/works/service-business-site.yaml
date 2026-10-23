@@ -1,0 +1,40 @@
+title: אתר תדמית
+artist: ''
+client: '[שם עסק השירות]'
+type: client
+disciplines:
+  - web
+year: 2026
+summary: >-
+  טקסט זמני. מה העסק היה צריך מהאתר: למשל, שלקוחות יבינו בתוך כמה שניות מה
+  השירות, ושפנייה תגיע ישירות לבעל העסק.
+deliverables:
+  - אתר בעברית, מותאם לנייד
+  - טופס פנייה
+  - הדרכה לעדכון תוכן
+credits:
+  - אפיון
+  - עיצוב
+  - פיתוח
+tools:
+  - Astro
+  - Figma
+aiUsed: false
+aiNote: ''
+outcome:
+  text: ''
+  source: ''
+poster: ../../assets/works/service-business-site/poster.png
+posterAlt: תמונת פתיחה זמנית, שרטוט מופשט של עמוד אתר
+video:
+  discriminant: none
+gallery:
+  - image: ../../assets/works/service-business-site/gallery-1.png
+    alt: תצוגה זמנית של עמוד הבית, שרטוט מופשט
+  - image: ../../assets/works/service-business-site/gallery-2.png
+    alt: תצוגה זמנית בנייד, שרטוט מופשט
+websiteUrl: ''
+permissionToShow: true
+featured: true
+order: 2
+placeholder: true

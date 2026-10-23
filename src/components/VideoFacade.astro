@@ -1,0 +1,115 @@
+---
+// Click-to-play facade. Before the click there are ZERO third-party requests:
+// only the local poster image. The player (Bunny / Vimeo / YouTube iframe, or a
+// <video> element) is created on click, with sound, because the visitor asked for it.
+// CSP note: allow frame-src for the chosen provider (iframe.mediadelivery.net,
+// player.vimeo.com or www.youtube-nocookie.com) and media-src for self-hosted files.
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import type { VideoRef } from '../content.config';
+import { asset } from '../lib/url';
+import { videoEmbedUrl } from '../lib/seo';
+
+interface Props {
+  video?: VideoRef | undefined;
+  poster: ImageMetadata;
+  posterAlt: string;
+  /** Human title of the video, used in the button label and iframe title. */
+  title: string;
+  eager?: boolean;
+  sizes?: string;
+}
+
+const { video, poster, posterAlt, title, eager = false, sizes = '(max-width: 900px) 100vw, 60vw' } = Astro.props;
+
+let src: string | undefined;
+let kind: 'iframe' | 'file' | undefined;
+if (video) {
+  if (video.provider === 'file') {
+    kind = 'file';
+    src = /^https?:/.test(video.id) ? video.id : asset(video.id);
+  } else {
+    kind = 'iframe';
+    src = videoEmbedUrl(video);
+  }
+}
+const captions = video?.captions ? (/^https?:/.test(video.captions) ? video.captions : asset(video.captions)) : undefined;
+---
+
+<div class="facade" data-kind={kind} data-src={src} data-captions={captions} data-title={title}>
+  <Picture
+    src={poster}
+    alt={posterAlt}
+    formats={['avif', 'webp']}
+    widths={[480, 800, 1200, 1600]}
+    sizes={sizes}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : 'auto'}
+  />
+  {
+    kind && src ? (
+      <button type="button" class="facade__play">
+        <span class="facade__tri" aria-hidden="true" />
+        צפייה עם קול<span class="visually-hidden">: {title}</span>
+      </button>
+    ) : null
+  }
+  {
+    kind && src ? (
+      <noscript>
+        <a class="facade__play" href={src}>
+          לצפייה בסרטון
+        </a>
+      </noscript>
+    ) : null
+  }
+</div>
+
+<script>
+  function activate(root: HTMLElement) {
+    const { kind, src, captions, title } = root.dataset;
+    if (!kind || !src || root.dataset.state === 'playing') return;
+    let player: HTMLElement;
+    if (kind === 'file') {
+      const v = document.createElement('video');
+      v.src = src;
+      v.controls = true;
+      v.playsInline = true;
+      v.preload = 'auto';
+      v.setAttribute('aria-label', title ?? 'סרטון');
+      if (captions) {
+        const t = document.createElement('track');
+        t.kind = 'captions';
+        t.srclang = 'he';
+        t.label = 'עברית';
+        t.src = captions;
+        t.default = true;
+        v.appendChild(t);
+      }
+      player = v;
+      root.appendChild(v);
+      root.dataset.state = 'playing';
+      void v.play().catch(() => {
+        /* the visitor can still press play in the native controls */
+      });
+    } else {
+      const f = document.createElement('iframe');
+      const u = new URL(src);
+      u.searchParams.set('autoplay', kind === 'iframe' && u.hostname.includes('mediadelivery') ? 'true' : '1');
+      f.src = u.toString();
+      f.title = title ?? 'נגן וידאו';
+      f.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
+      f.allowFullscreen = true;
+      f.referrerPolicy = 'strict-origin-when-cross-origin';
+      player = f;
+      root.appendChild(f);
+      root.dataset.state = 'playing';
+    }
+    player.tabIndex = -1;
+    player.focus({ preventScroll: true });
+  }
+
+  document.querySelectorAll<HTMLElement>('.facade[data-kind]').forEach((root) => {
+    root.querySelector('.facade__play')?.addEventListener('click', () => activate(root));
+  });
+</script>

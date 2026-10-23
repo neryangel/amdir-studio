@@ -1,0 +1,34 @@
+---
+interface Step {
+  title: string;
+  text: string;
+}
+interface Props {
+  steps?: Step[];
+  headingId?: string;
+  heading?: string;
+}
+const defaults: Step[] = [
+  { title: 'שיחת היכרות', text: 'מה המטרה, למי זה מיועד ומה כבר קיים.' },
+  { title: 'הצעה ותכנון', text: 'היקף, לוח זמנים ומחיר בכתב, לפני שמתחילים.' },
+  { title: 'עבודה עם נקודות אישור', text: 'גרסה לבדיקה בכל שלב מוסכם.' },
+  { title: 'מסירה וליווי', text: 'קבצים סופיים, הדרכה ותקופת תיקונים מוגדרת.' },
+];
+const { steps = defaults, headingId = 'process-title', heading = 'איך עובדים יחד' } = Astro.props;
+---
+
+<section class="section" aria-labelledby={headingId}>
+  <div class="section__head">
+    <h2 class="h2" id={headingId}>{heading}</h2>
+  </div>
+  <ol class="steps">
+    {
+      steps.map((s) => (
+        <li>
+          <strong>{s.title}</strong>
+          <span>{s.text}</span>
+        </li>
+      ))
+    }
+  </ol>
+</section>

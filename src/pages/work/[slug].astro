@@ -1,0 +1,212 @@
+---
+import { Picture, getImage } from 'astro:assets';
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import TempBadge from '../../components/TempBadge.astro';
+import TypeLabel from '../../components/TypeLabel.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { DISCIPLINE_LABEL } from '../../lib/enums';
+import { getSettings, getWorks, relatedWorks, workTitle, type Work } from '../../lib/content';
+import { absolute, asset, url } from '../../lib/url';
+import { creativeWorkLd, videoEmbedUrl } from '../../lib/seo';
+
+export const getStaticPaths = (async () => {
+  const works = await getWorks();
+  return works.map((work, i) => ({
+    params: { slug: work.id },
+    props: { work, all: works, next: works[(i + 1) % works.length], prev: works[(i - 1 + works.length) % works.length] },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  work: Work;
+  all: Work[];
+  next: Work | undefined;
+  prev: Work | undefined;
+}
+const { work, all, next, prev } = Astro.props;
+const d = work.data;
+const settings = await getSettings();
+const title = workTitle(work);
+const related = relatedWorks(work, all, 3);
+const disciplines = d.disciplines.map((x) => DISCIPLINE_LABEL[x]).join(', ');
+const og = await getImage({ src: d.poster, width: 1200, format: 'jpeg' });
+const ogImage = new URL(og.src, Astro.site ?? 'https://studio.amdir.example').toString();
+
+// Credits line: roles + tools, AI appears as ONE credit when used.
+const creditLine = `${d.credits.join(', ')}: ${settings.ownerName}, ${settings.studioName}`;
+const toolLine = d.tools.length ? `כלים: ${d.tools.join(', ')}${d.aiUsed ? ', כלי AI' : ''}` : d.aiUsed ? 'כלים: כלי AI' : '';
+
+const ld = creativeWorkLd({
+  name: title,
+  description: d.summary,
+  url: absolute(`/work/${work.id}/`, Astro.site),
+  image: ogImage,
+  year: d.year,
+  studioId: `${absolute('/', Astro.site)}#studio`,
+  ownerName: settings.ownerName,
+  genre: d.disciplines.map((x) => DISCIPLINE_LABEL[x]),
+  video: d.video
+    ? d.video.provider === 'file'
+      ? { contentUrl: new URL(/^https?:/.test(d.video.id) ? d.video.id : asset(d.video.id), Astro.site ?? 'https://x').toString() }
+      : { embedUrl: videoEmbedUrl(d.video) }
+    : undefined,
+});
+---
+
+<Base
+  title={title}
+  description={d.summary.slice(0, 155)}
+  path={`/work/${work.id}/`}
+  ogImage={ogImage}
+  ogType="article"
+  jsonLd={[ld]}
+>
+  <div class="wrap">
+    <article aria-labelledby="work-title">
+      <header class="work-head">
+        <p class="crumbs"><a href={url('/work/')}>עבודות</a> / {disciplines}</p>
+        <h1 class="work-title" id="work-title">{title}</h1>
+        <div class="work-labels">
+          <TypeLabel type={d.type} />
+          {d.aiUsed ? <span class="type-label">כולל AI</span> : null}
+          <TempBadge show={d.placeholder} label="עבודה זמנית, התוכן לא אמיתי" />
+        </div>
+      </header>
+
+      <div class="work-media">
+        {
+          d.video ? (
+            <VideoFacade video={d.video} poster={d.poster} posterAlt={d.posterAlt} title={title} eager sizes="(max-width: 1240px) 100vw, 1240px" />
+          ) : (
+            <div class="cover">
+              <Picture
+                src={d.poster}
+                alt={d.posterAlt}
+                formats={['avif', 'webp']}
+                widths={[480, 800, 1200, 1600]}
+                sizes="(max-width: 1240px) 100vw, 1240px"
+                loading="eager"
+                fetchpriority="high"
+              />
+            </div>
+          )
+        }
+      </div>
+
+      <dl class="meta-strip">
+        <div><dt>סוג</dt><dd><TypeLabel type={d.type} /></dd></div>
+        <div><dt>שנה</dt><dd>{d.year}</dd></div>
+        <div><dt>תחום</dt><dd>{disciplines}</dd></div>
+        <div><dt>{d.artist ? 'אמן' : d.client ? 'לקוח' : 'הקשר'}</dt><dd>{d.artist ?? d.client ?? (d.type === 'personal' ? 'עבודה אישית' : d.type === 'demo' ? 'דמו' : 'קונספט')}</dd></div>
+      </dl>
+
+      <div class="work-body">
+        <h2>המטרה</h2>
+        <div><p>{d.summary}</p></div>
+
+        {
+          d.deliverables.length ? (
+            <>
+              <h2>מה נוצר</h2>
+              <div>
+                <ul>
+                  {d.deliverables.map((x) => (
+                    <li>{x}</li>
+                  ))}
+                </ul>
+                {d.websiteUrl ? (
+                  <p>
+                    <a class="link-arrow" href={d.websiteUrl} rel="noopener" target="_blank">
+                      לאתר החי<span class="visually-hidden"> (נפתח בחלון חדש)</span>
+                    </a>
+                  </p>
+                ) : null}
+              </div>
+            </>
+          ) : null
+        }
+
+        <h2>קרדיטים</h2>
+        <div>
+          <div class="credits-box">
+            <h3>קרדיטים</h3>
+            <p>{creditLine}</p>
+            {toolLine ? <p>{toolLine}</p> : null}
+            {d.aiUsed && d.aiNote ? <p>שימוש ב-AI: {d.aiNote}</p> : null}
+          </div>
+        </div>
+
+        {
+          d.outcome ? (
+            <>
+              <h2>התוצאה</h2>
+              <div>
+                <p>{d.outcome.text}</p>
+                <p class="outcome-source">מקור: {d.outcome.source}</p>
+              </div>
+            </>
+          ) : null
+        }
+      </div>
+
+      {
+        d.gallery.length ? (
+          <section aria-label="תמונות מהעבודה">
+            <ul class="gallery">
+              {d.gallery.map((g, i) => (
+                <li>
+                  <figure>
+                    <Picture
+                      src={g.image}
+                      alt={g.alt}
+                      formats={['avif', 'webp']}
+                      widths={i === 0 ? [480, 800, 1200] : [400, 600]}
+                      sizes={i === 0 ? '(max-width: 600px) 100vw, 66vw' : '(max-width: 600px) 100vw, 33vw'}
+                    />
+                  </figure>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null
+      }
+    </article>
+
+    {
+      related.length ? (
+        <section class="related" aria-labelledby="related-title">
+          <div class="section__head">
+            <h2 class="h3" id="related-title">עבודות קשורות</h2>
+          </div>
+          <ul>
+            {related.map((r) => (
+              <li>
+                <WorkCard work={r} sizes="(max-width: 600px) 100vw, 33vw" />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null
+    }
+
+    {
+      all.length > 1 && next && prev ? (
+        <nav class="pager" aria-label="עבודות נוספות">
+          <a href={url(`/work/${prev.id}/`)} rel="prev">
+            <small>הקודמת</small>
+            <strong>{workTitle(prev)}</strong>
+          </a>
+          <a class="pager__next" href={url(`/work/${next.id}/`)} rel="next">
+            <small>הבאה</small>
+            <strong>{workTitle(next)}</strong>
+          </a>
+        </nav>
+      ) : null
+    }
+
+    <CtaBand />
+  </div>
+</Base>

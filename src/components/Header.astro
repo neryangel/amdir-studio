@@ -1,0 +1,54 @@
+---
+import { getProducts, getSettings } from '../lib/content';
+import { url, whatsappHref } from '../lib/url';
+
+const settings = await getSettings();
+const products = await getProducts();
+const productsHref = products.length === 1 && products[0] ? `/products/${products[0].id}/` : '/products/';
+const wa = whatsappHref(settings.whatsappNumber);
+
+const items = [
+  { href: '/work/', label: 'עבודות', match: '/work/' },
+  { href: '/about/', label: 'סטודיו', match: '/about/' },
+  { href: productsHref, label: 'מוצרים', match: '/products/' },
+  { href: '/contact/', label: 'יצירת קשר', match: '/contact/' },
+];
+const current = Astro.url.pathname;
+const isCurrent = (match: string) => current.startsWith(url(match));
+---
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href={url('/')}>
+      <span class="brand__mark">{settings.studioName}</span>
+      <span class="brand__sub">סטודיו</span>
+      <span class="visually-hidden">, לדף הבית</span>
+    </a>
+    <nav class="nav" aria-label="ניווט ראשי">
+      <ul>
+        {
+          items.map((item) => (
+            <li>
+              <a href={url(item.href)} aria-current={isCurrent(item.match) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          {
+            wa ? (
+              <a class="nav__wa" href={wa} rel="noopener" target="_blank">
+                וואטסאפ<span class="visually-hidden"> (נפתח בחלון חדש)</span>
+              </a>
+            ) : (
+              <a class="nav__wa" href={url('/contact/#whatsapp')}>
+                וואטסאפ
+              </a>
+            )
+          }
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>

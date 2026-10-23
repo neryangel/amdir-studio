@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import TempBadge from '../../components/TempBadge.astro';
+import { getProducts } from '../../lib/content';
+import { url } from '../../lib/url';
+
+const products = await getProducts();
+---
+
+<Base title="מוצרים" description="מוצרים של AMDIR. Event Pro Studio, מערכת עבודה לצלמי אירועים, נמצאת בפיילוט." path="/products/">
+  <div class="wrap">
+    <header class="page-head">
+      <h1>מוצרים</h1>
+      <p class="lead">חוץ מעבודה ללקוחות, AMDIR בונה גם מוצרים.</p>
+    </header>
+    {
+      products.length ? (
+        <ul class="checklist">
+          {products.map((p) => (
+            <li>
+              <a class="link-arrow" href={url(`/products/${p.id}/`)}>
+                {p.data.title}
+              </a>{' '}
+              {p.data.status === 'pilot' ? <span class="pilot-badge">בפיילוט</span> : null} <TempBadge show={p.data.placeholder} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div class="empty">
+          <p>Event Pro Studio, מערכת עבודה לצלמי אירועים, נמצאת בפיילוט סגור. עמוד המוצר יעלה בקרוב.</p>
+          <a class="link-arrow" href={url('/contact/')}>
+            ספרו לי על הפרויקט
+          </a>
+        </div>
+      )
+    }
+  </div>
+</Base>

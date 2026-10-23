@@ -1,0 +1,111 @@
+---
+import { Picture } from 'astro:assets';
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import Process from '../../components/Process.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import TempBadge from '../../components/TempBadge.astro';
+import { VAT_LABEL } from '../../lib/enums';
+import { getServices, getWorks, type Service } from '../../lib/content';
+import { absolute } from '../../lib/url';
+
+export const getStaticPaths = (async () => {
+  const services = await getServices();
+  return services.map((service) => ({ params: { slug: service.id }, props: { service } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  service: Service;
+}
+const { service } = Astro.props;
+const d = service.data;
+const works = (await getWorks()).filter((w) => w.data.disciplines.some((x) => d.relatedDisciplines.includes(x))).slice(0, 3);
+const serviceLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: d.title,
+  description: d.summary,
+  provider: { '@id': `${absolute('/', Astro.site)}#studio` },
+  areaServed: { '@type': 'Country', name: 'Israel' },
+};
+---
+
+<Base title={d.title} description={d.summary.slice(0, 155)} path={`/services/${service.id}/`} jsonLd={[serviceLd]}>
+  <div class="wrap">
+    <header class="page-head">
+      <h1>{d.title}</h1>
+      <p class="lead">{d.summary}</p>
+      <div><TempBadge show={d.placeholder} label="חומר זמני, הטקסט לבדיקה" /></div>
+      {
+        d.price ? (
+          <p class="price">
+            {d.price.text} {VAT_LABEL[d.price.vat]}
+          </p>
+        ) : null
+      }
+    </header>
+
+    <div class="cover">
+      <Picture
+        src={d.cover}
+        alt={d.coverAlt}
+        formats={['avif', 'webp']}
+        widths={[480, 800, 1200, 1600]}
+        sizes="(max-width: 1240px) 100vw, 1240px"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+
+    <section class="section" aria-labelledby="svc-for">
+      <div class="split">
+        <div>
+          <h2 class="h3 split__title" id="svc-for">למי זה מתאים</h2>
+          <ul class="checklist">
+            {d.whoFor.map((x) => <li>{x}</li>)}
+          </ul>
+        </div>
+        <div>
+          <h2 class="h3 split__title" id="svc-get">מה מקבלים</h2>
+          <ul class="checklist">
+            {d.whatYouGet.map((x) => <li>{x}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    {d.process.length ? <Process steps={d.process} headingId="svc-process" heading="התהליך" /> : <Process />}
+
+    <section class="section" aria-labelledby="svc-after">
+      <div class="section__head">
+        <h2 class="h2" id="svc-after">אחרי המסירה</h2>
+        <p class="lead">מה האחריות שלי אחרי שהעבודה נמסרה. הכול נכתב גם בהצעה.</p>
+      </div>
+      <ul class="checklist">
+        {d.afterDelivery.map((x) => <li>{x}</li>)}
+      </ul>
+    </section>
+
+    {
+      works.length ? (
+        <section class="section" aria-labelledby="svc-works">
+          <div class="section__head">
+            <h2 class="h2" id="svc-works">עבודות רלוונטיות</h2>
+          </div>
+          <div class="related related--flat">
+            <ul>
+              {works.map((w) => (
+                <li>
+                  <WorkCard work={w} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null
+    }
+
+    <CtaBand />
+  </div>
+</Base>

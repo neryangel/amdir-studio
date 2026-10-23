@@ -1,0 +1,103 @@
+---
+import '@fontsource/heebo/hebrew-400.css';
+import '@fontsource/heebo/hebrew-500.css';
+import '@fontsource/heebo/hebrew-700.css';
+import '@fontsource/heebo/latin-400.css';
+import '@fontsource/heebo/latin-700.css';
+import '@fontsource/karantina/hebrew-700.css';
+import '@fontsource/karantina/latin-700.css';
+import '@fontsource/ibm-plex-sans-hebrew/hebrew-400.css';
+import '@fontsource/ibm-plex-sans-hebrew/hebrew-500.css';
+import '@fontsource/ibm-plex-sans-hebrew/hebrew-700.css';
+import '@fontsource/ibm-plex-sans-hebrew/latin-400.css';
+import '@fontsource/ibm-plex-sans-hebrew/latin-700.css';
+import '@fontsource/ibm-plex-mono/latin-400.css';
+import '@fontsource/ibm-plex-mono/latin-500.css';
+import '../styles/global.css';
+
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ReviewSwitcher from '../components/ReviewSwitcher.astro';
+import { REVIEW_MODE } from '../lib/config';
+import { getSettings } from '../lib/content';
+import { absolute, asset } from '../lib/url';
+import { ldJson, organizationLd } from '../lib/seo';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Path without base, e.g. "/work/". Used for canonical + OG url. */
+  path: string;
+  ogImage?: string | undefined;
+  ogType?: 'website' | 'article';
+  jsonLd?: unknown[];
+  noindex?: boolean;
+}
+
+const { title, description, path, ogImage, ogType = 'website', jsonLd = [], noindex = false } = Astro.props;
+const settings = await getSettings();
+const site = Astro.site;
+const canonical = absolute(path, site);
+const fullTitle = path === '/' ? `${settings.studioName} · ${settings.subline}` : `${title} | ${settings.studioName}`;
+const image = ogImage ?? absolute('/og-default.png', site);
+const studioLd = organizationLd({
+  studioName: settings.studioName,
+  ownerName: settings.ownerName,
+  url: absolute('/', site),
+  logo: absolute('/og-default.png', site),
+  email: settings.email,
+  telephone: settings.whatsappNumber ? `+${settings.whatsappNumber}` : undefined,
+  description: settings.headline,
+});
+const direction = settings.defaultDirection;
+---
+
+<!doctype html>
+<html lang="he" dir="rtl" data-direction={direction}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex || REVIEW_MODE ? <meta name="robots" content="noindex, nofollow" /> : null}
+    <meta name="color-scheme" content={direction === 'stage' ? 'dark' : 'light dark'} />
+    <meta name="theme-color" content="#131417" />
+    <link rel="icon" href={asset('/favicon.svg')} type="image/svg+xml" />
+    <link rel="sitemap" href={asset('/sitemap.xml')} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:locale" content="he_IL" />
+    <meta property="og:site_name" content={settings.studioName} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    {REVIEW_MODE ? (
+      <script is:inline>
+        // Review mode only: apply the saved direction/theme before first paint.
+        try {
+          var q = new URLSearchParams(location.search);
+          var d = q.get('direction') || localStorage.getItem('amdir-review-direction');
+          var t = q.get('theme') || localStorage.getItem('amdir-review-theme');
+          if (d === 'stage' || d === 'index') document.documentElement.dataset.direction = d;
+          if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      </script>
+    ) : null}
+
+    <script type="application/ld+json" set:html={ldJson(studioLd)} />
+    {jsonLd.map((ld) => <script type="application/ld+json" set:html={ldJson(ld)} />)}
+  </head>
+  <body class={REVIEW_MODE ? 'has-review-bar' : undefined}>
+    <a class="skip-link" href="#main">דילוג לתוכן</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    {REVIEW_MODE ? <ReviewSwitcher /> : null}
+  </body>
+</html>

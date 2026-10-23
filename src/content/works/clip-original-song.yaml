@@ -1,0 +1,47 @@
+title: קליפ לשיר מקורי
+artist: '[שם האמן]'
+client: ''
+type: personal
+disciplines:
+  - clips
+  - motion
+  - ai
+year: 2026
+summary: >-
+  טקסט זמני. כאן ייכתב בשתיים או שלוש שורות מה היה צריך לקרות: למי השיר מיועד,
+  איזה רגש הקליפ צריך להעביר ואיפה הוא יוצג.
+deliverables:
+  - גרסה מלאה לרוחב
+  - שלוש גרסאות קצרות 9:16 לרשתות
+  - סטילס לקאבר
+credits:
+  - רעיון והפקה
+  - עריכה
+  - מושן ואפקטים
+  - יצירת תמונות ב-AI
+tools:
+  - Premiere
+  - After Effects
+aiUsed: true
+aiNote: טקסט זמני. למשל, תמונות רקע לשתי סצנות נוצרו ב-AI ועובדו ב-After Effects.
+outcome:
+  text: ''
+  source: ''
+poster: ../../assets/works/clip-original-song/poster.png
+posterAlt: תמונת פתיחה זמנית, אלומות אור ורודות ולבנות על במה חשוכה
+video:
+  discriminant: file
+  value:
+    id: /media/placeholder-reel.mp4
+    captions: /media/placeholder-reel.he.vtt
+gallery:
+  - image: ../../assets/works/clip-original-song/gallery-1.png
+    alt: סטיל זמני, אלומות אור על רקע כהה
+  - image: ../../assets/works/clip-original-song/gallery-2.png
+    alt: סטיל זמני מרובע, כתמי אור רכים
+websiteUrl: ''
+permissionToShow: false
+musicLicensed: true
+featured: true
+order: 1
+placeholder: true

@@ -1,0 +1,10 @@
+---
+// Visible marker on anything that is placeholder content.
+interface Props {
+  show: boolean;
+  label?: string;
+}
+const { show, label = 'חומר זמני' } = Astro.props;
+---
+
+{show ? <span class="badge-temp">{label}</span> : null}

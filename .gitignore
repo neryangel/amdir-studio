@@ -1,0 +1,11 @@
+node_modules/
+dist/
+dist-review/
+dist-*/
+.astro/
+.env
+.env.*
+!.env.example
+qa-report.json
+lighthouse-*.json
+qa-shots/

@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/url';
+---
+
+<Base title="העמוד לא נמצא" description="העמוד שחיפשתם לא נמצא." path="/404/" noindex>
+  <div class="wrap">
+    <header class="page-head">
+      <h1>העמוד לא נמצא</h1>
+      <p class="lead">אולי הקישור השתנה, או שהעמוד הוסר. אפשר להמשיך מכאן:</p>
+      <div class="ctas">
+        <a class="btn" href={url('/work/')}>לעבודות</a>
+        <a class="btn" href={url('/')}>לדף הבית</a>
+      </div>
+    </header>
+  </div>
+</Base>

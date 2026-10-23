@@ -1,0 +1,54 @@
+---
+import Base from '../layouts/Base.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { TODO } from '../lib/config';
+import { getSettings } from '../lib/content';
+import { whatsappHref } from '../lib/url';
+
+const settings = await getSettings();
+const wa = whatsappHref(settings.whatsappNumber);
+---
+
+<Base
+  title="יצירת קשר"
+  description="ספרו לי על הפרויקט: קליפ, וידאו, מושן, AI או אתר. אפשר בטופס או בוואטסאפ."
+  path="/contact/"
+>
+  <div class="wrap">
+    <header class="page-head">
+      <h1>ספרו לי על הפרויקט</h1>
+      <p class="lead">כמה פרטים מספיקים כדי להתחיל. אחזור אליכם עם שאלות, או עם הצעה לשיחת היכרות.</p>
+    </header>
+
+    <section aria-labelledby="form-title">
+      <h2 class="visually-hidden" id="form-title">טופס פנייה</h2>
+      <ContactForm />
+    </section>
+
+    <section class="section" id="whatsapp" aria-labelledby="direct-title">
+      <div class="section__head">
+        <h2 class="h3" id="direct-title">פנייה ישירה</h2>
+      </div>
+      <dl class="meta-strip">
+        <div>
+          <dt>וואטסאפ</dt>
+          <dd>
+            {
+              wa ? (
+                <a href={wa} rel="noopener" target="_blank">
+                  לשיחה בוואטסאפ<span class="visually-hidden"> (נפתח בחלון חדש)</span>
+                </a>
+              ) : (
+                <span class="todo">{TODO} מספר וואטסאפ</span>
+              )
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>אימייל</dt>
+          <dd>{settings.email ? <a href={`mailto:${settings.email}`}>{settings.email}</a> : <span class="todo">{TODO} אימייל</span>}</dd>
+        </div>
+      </dl>
+    </section>
+  </div>
+</Base>

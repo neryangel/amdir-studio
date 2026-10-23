@@ -1,0 +1,31 @@
+---
+import { Picture } from 'astro:assets';
+import TempBadge from './TempBadge.astro';
+import TypeLabel from './TypeLabel.astro';
+import { DISCIPLINE_LABEL } from '../lib/enums';
+import { workTitle, type Work } from '../lib/content';
+import { url } from '../lib/url';
+
+interface Props {
+  work: Work;
+  sizes?: string | undefined;
+  headingLevel?: 'h2' | 'h3';
+}
+const { work, sizes = '(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw', headingLevel = 'h3' } = Astro.props;
+const d = work.data;
+const Heading = headingLevel;
+---
+
+<a class="work-card" href={url(`/work/${work.id}/`)}>
+  <div class="work-card__media">
+    <Picture src={d.poster} alt="" formats={['avif', 'webp']} widths={[480, 800, 1200]} sizes={sizes} />
+  </div>
+  <div>
+    <Heading class="work-card__title">{workTitle(work)}</Heading>
+    <p class="work-card__meta">
+      <TypeLabel type={d.type} />
+      <span>{d.disciplines.map((x) => DISCIPLINE_LABEL[x]).join(', ')}</span>
+      <TempBadge show={d.placeholder} />
+    </p>
+  </div>
+</a>

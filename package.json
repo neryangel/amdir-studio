@@ -1,0 +1,39 @@
+{
+  "name": "amdir-studio",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "check": "astro check",
+    "build": "astro build",
+    "build:review": "node scripts/build-review.mjs",
+    "preview": "astro preview",
+    "posters": "node scripts/gen-placeholders.mjs",
+    "qa": "node scripts/qa.mjs"
+  },
+  "dependencies": {
+    "@fontsource/heebo": "5.3.0",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@fontsource/ibm-plex-sans-hebrew": "5.3.0",
+    "@fontsource/karantina": "5.3.0",
+    "astro": "7.4.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@astrojs/node": "11.1.9",
+    "@astrojs/react": "5.0.7",
+    "@axe-core/playwright": "4.14.0",
+    "@keystatic/astro": "6.0.0",
+    "@keystatic/core": "0.6.9",
+    "@playwright/test": "1.59.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "lighthouse": "13.5.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "serve-handler": "6.1.7",
+    "sharp": "0.35.5",
+    "typescript": "6.0.3"
+  }
+}

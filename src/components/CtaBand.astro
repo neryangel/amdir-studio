@@ -1,0 +1,25 @@
+---
+import { getSettings } from '../lib/content';
+import { url, whatsappHref } from '../lib/url';
+
+const settings = await getSettings();
+const wa = whatsappHref(settings.whatsappNumber);
+---
+
+<section class="cta-band" aria-labelledby="cta-title">
+  <h2 class="cta-band__big" id="cta-title">יש פרויקט? ספרו לי עליו.</h2>
+  <div class="ctas">
+    <a class="btn btn--primary" href={url('/contact/')}>ספרו לי על הפרויקט</a>
+    {
+      wa ? (
+        <a class="btn" href={wa} rel="noopener" target="_blank">
+          וואטסאפ<span class="visually-hidden"> (נפתח בחלון חדש)</span>
+        </a>
+      ) : (
+        <a class="btn" href={url('/contact/#whatsapp')}>
+          וואטסאפ
+        </a>
+      )
+    }
+  </div>
+</section>

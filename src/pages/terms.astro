@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+import DraftNotice from '../components/DraftNotice.astro';
+import { TODO } from '../lib/config';
+import { getSettings } from '../lib/content';
+
+const s = await getSettings();
+const todo = (what: string) => `${TODO} ${what}`;
+---
+
+<Base title="תנאי שימוש ושירות" description="תנאי השירות של AMDIR: שירותים, תשלום, ביטול, זכויות יוצרים ושימוש ב-AI." path="/terms/">
+  <div class="wrap">
+    <header class="page-head">
+      <h1>תנאי שימוש ושירות</h1>
+      <DraftNotice />
+    </header>
+    <div class="prose">
+      <h2>מי נותן את השירות</h2>
+      <p>
+        {s.business.legalName ?? <span class="todo">{todo('שם העסק')}</span>}, עוסק מס׳
+        {s.business.osekNumber ?? <span class="todo">{todo('מספר עוסק')}</span>}, בבעלות {s.ownerName}.
+      </p>
+
+      <h2>השירותים</h2>
+      <p>
+        <span class="todo">{todo('תיאור קצר: הפקת קליפים, עריכה, מושן ואפקטים, AI, עיצוב ובניית אתרים. ההיקף המדויק נקבע בהצעה בכתב לכל פרויקט.')}</span>
+      </p>
+
+      <h2>תשלום</h2>
+      <p>
+        <span class="todo">{todo('מקדמה, אבני דרך, מועדי תשלום ואמצעי תשלום. כל מחיר יצוין עם "+מע״מ" או "כולל מע״מ".')}</span>
+      </p>
+
+      <h2>ביטול ושינויים</h2>
+      <p><span class="todo">{todo('מה קורה בביטול לפני תחילת העבודה ובמהלכה, וסבבי תיקון הכלולים במחיר.')}</span></p>
+
+      <h2>זכויות יוצרים ורישיון להצגה בתיק העבודות</h2>
+      <p>
+        <span class="todo">{todo('למי שייכות הזכויות בתוצר הסופי ובקבצי העבודה, ומתי הזכויות עוברות.')}</span>
+      </p>
+      <p>
+        <span class="todo">{todo('האם ובאיזה אופן מותר להציג את העבודה בתיק העבודות. עבודת לקוח מוצגת באתר רק אחרי אישור בכתב.')}</span>
+      </p>
+      <p><span class="todo">{todo('רישוי מוזיקה בקליפים: באחריות מי.')}</span></p>
+
+      <h2>שימוש ב-AI</h2>
+      <p>
+        <span class="todo">{todo('באילו כלים נעשה שימוש, איך זה מסומן בקרדיטים, ומה מעמד הזכויות בתוצרים שנוצרו בעזרת AI.')}</span>
+      </p>
+
+      <h2>שימוש באתר</h2>
+      <p><span class="todo">{todo('תנאי שימוש כלליים באתר: תוכן האתר, קישורים חיצוניים, הגבלת אחריות.')}</span></p>
+
+      <h2>עדכון אחרון</h2>
+      <p><span class="todo">{todo('תאריך')}</span></p>
+    </div>
+  </div>
+</Base>
