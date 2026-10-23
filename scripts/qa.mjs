@@ -6,9 +6,10 @@
 // Usage: node scripts/qa.mjs [distDir=dist-review] [shotsDir]
 import http from 'node:http';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import handler from 'serve-handler';
+import { applyVercelHeaders } from './vercel-headers.mjs';
 import { chromium } from '@playwright/test';
 import { AxeBuilder } from '@axe-core/playwright';
 
@@ -16,11 +17,13 @@ const root = path.resolve(import.meta.dirname, '..');
 const dist = path.resolve(root, process.argv[2] ?? 'dist-review');
 const shots = path.resolve(process.argv[3] ?? path.join(root, 'qa-shots'));
 const base = (process.env.QA_BASE ?? '/').replace(/\/?$/, '/');
-const chromeDir = readdirSync('/opt/pw-browsers').find((d) => /^chromium-\d+$/.test(d));
-const executablePath = process.env.CHROME_PATH ?? `/opt/pw-browsers/${chromeDir}/chrome-linux/chrome`;
+// Local sandbox: system Chromium under /opt/pw-browsers. CI: browsers installed by `npx playwright install`.
+const chromeDir = existsSync('/opt/pw-browsers') ? readdirSync('/opt/pw-browsers').find((d) => /^chromium-\d+$/.test(d)) : undefined;
+const executablePath = process.env.CHROME_PATH ?? (chromeDir ? `/opt/pw-browsers/${chromeDir}/chrome-linux/chrome` : undefined);
 
 const server = http.createServer((req, res) => {
   if (base !== '/' && req.url?.startsWith(base)) req.url = req.url.slice(base.length - 1);
+  applyVercelHeaders((req.url ?? '/').split('?')[0], res);
   return handler(req, res, { public: dist, trailingSlash: true });
 });
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
@@ -41,7 +44,7 @@ const themes = [
 const widths = [390, 1440];
 
 await mkdir(shots, { recursive: true });
-const browser = await chromium.launch({ executablePath, args: ['--no-sandbox'] });
+const browser = await chromium.launch({ ...(executablePath ? { executablePath } : {}), args: ['--no-sandbox'] });
 const report = { site, pages: pages.length, overflow: [], axe: [], thirdParty: [], functional: [], consoleErrors: [] };
 const slug = (p) => (p === '/' ? 'home' : p.replace(/^\/|\/$/g, '').replace(/[/.]/g, '-'));
 
@@ -76,7 +79,12 @@ for (const theme of themes) {
           new Promise((r) => setTimeout(r, 3000)),
         ]);
       });
-      await page.addStyleTag({ content: '.review-bar{position:static!important}body.has-review-bar{padding-bottom:0!important}' });
+      // CSP forbids injected <style>; CSSOM changes are allowed.
+      await page.evaluate(() => {
+        const bar = document.querySelector('.review-bar');
+        if (bar instanceof HTMLElement) bar.style.setProperty('position', 'static', 'important');
+        document.body.style.setProperty('padding-bottom', '0', 'important');
+      });
       const dims = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
       if (dims.sw > dims.cw + 1) report.overflow.push({ page: p, theme: theme.key, width, ...dims });
       // screenshots: both directions at both widths; index-dark at 1440 only
@@ -152,6 +160,68 @@ if (!process.env.QA_SKIP_FUNCTIONAL) {
   check('no third-party requests during functional run', external.length === 0, external.join(', '));
   await ctx.close();
 
+  // ---- muted preview loops ----
+  const mediaReq = (ctxReqs) => ctxReqs.filter((u) => /\/media\/works\/.+\/preview\.(mp4|webm)/.test(u));
+  {
+    const c = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const reqs = [];
+    c.on('request', (r) => reqs.push(r.url()));
+    const p = await c.newPage();
+    await p.goto(`${site}?direction=stage`, { waitUntil: 'networkidle' });
+    const lcpTag = await p.evaluate(() => new Promise((res) => {
+      new PerformanceObserver((l) => { const e = l.getEntries().at(-1); res(e?.element?.tagName ?? 'none'); }).observe({ type: 'largest-contentful-paint', buffered: true });
+      setTimeout(() => res('timeout'), 3000);
+    }));
+    const before = mediaReq(reqs).length;
+    const card = p.locator('.work-card:has(video.work-card__preview)').first();
+    await card.hover();
+    await p.waitForSelector('video.work-card__preview[data-playing]', { timeout: 8000 }).catch(() => {});
+    const playing = await p.locator('video.work-card__preview[data-playing]').count();
+    check('previews (desktop): nothing loaded before hover, plays muted on hover, LCP is an image',
+      before === 0 && playing === 1 && mediaReq(reqs).length > 0 && lcpTag === 'IMG', `before=${before} playing=${playing} lcp=${lcpTag}`);
+    await p.mouse.move(5, 5);
+    await p.waitForTimeout(300);
+    check('previews (desktop): stops on leave', (await p.locator('video.work-card__preview[data-playing]').count()) === 0);
+    await c.close();
+  }
+  {
+    const c = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+    const reqs = [];
+    c.on('request', (r) => reqs.push(r.url()));
+    const p = await c.newPage();
+    await p.goto(`${site}?direction=stage`, { waitUntil: 'networkidle' });
+    await p.locator('.work-card:has(video.work-card__preview)').first().hover();
+    await p.waitForTimeout(1200);
+    check('previews: never play under prefers-reduced-motion', mediaReq(reqs).length === 0 && (await p.locator('video[data-playing]').count()) === 0);
+    await c.close();
+  }
+  {
+    const c = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    await c.addInitScript(() => Object.defineProperty(navigator, 'connection', { value: { saveData: true } }));
+    const reqs = [];
+    c.on('request', (r) => reqs.push(r.url()));
+    const p = await c.newPage();
+    await p.goto(`${site}?direction=stage`, { waitUntil: 'networkidle' });
+    await p.locator('.work-card:has(video.work-card__preview)').first().hover();
+    await p.waitForTimeout(1200);
+    check('previews: never play with Save-Data', mediaReq(reqs).length === 0);
+    await c.close();
+  }
+  {
+    const c = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    const reqs = [];
+    c.on('request', (r) => reqs.push(r.url()));
+    const p = await c.newPage();
+    await p.goto(`${site}?direction=stage`, { waitUntil: 'networkidle' });
+    const before = mediaReq(reqs).length;
+    await p.locator('video.work-card__preview').first().scrollIntoViewIfNeeded();
+    await p.evaluate(() => window.scrollBy(0, 0));
+    await p.waitForSelector('video.work-card__preview[data-playing]', { timeout: 8000 }).catch(() => {});
+    const playing = await p.locator('video.work-card__preview[data-playing]').count();
+    check('previews (mobile): nothing before view, one plays when >=60% in view', before === 0 && playing === 1, `before=${before} playing=${playing}`);
+    await c.close();
+  }
+
   // Filters without JS (pure CSS)
   const noJs = await browser.newContext({ viewport: { width: 1440, height: 900 }, javaScriptEnabled: false });
   const p2 = await noJs.newPage();
@@ -183,6 +253,9 @@ const summary = {
 };
 await writeFile(path.join(root, process.env.QA_REPORT ?? 'qa-report.json'), JSON.stringify({ summary, ...report }, null, 2));
 console.log(JSON.stringify(summary, null, 2));
+const failed = report.functional.filter((f) => !f.ok).length;
+const seriousAxe = report.axe.filter((v) => v.impact === 'serious' || v.impact === 'critical').length;
+if (failed || seriousAxe || report.overflow.length || report.consoleErrors.length || report.thirdParty.length) process.exitCode = 1;
 if (report.overflow.length) console.log('OVERFLOW:', JSON.stringify(report.overflow, null, 1));
 if (report.axe.length) console.log('AXE:', JSON.stringify(report.axe.slice(0, 30), null, 1));
 if (report.consoleErrors.length) console.log('CONSOLE:', JSON.stringify(report.consoleErrors.slice(0, 10), null, 1));

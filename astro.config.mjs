@@ -17,6 +17,29 @@ const site = env.PUBLIC_SITE_URL || 'https://studio.amdir.example';
 // Base path for hosting under a sub-folder (e.g. "/review/"). Default "/".
 const base = env.PUBLIC_BASE_PATH || '/';
 
+// Lead endpoint: same-origin by default ("/api/lead"). If absolute, allow its origin in connect-src.
+const leadEndpoint = env.PUBLIC_LEAD_ENDPOINT || '';
+const leadOrigin = /^https?:\/\//.test(leadEndpoint) ? new URL(leadEndpoint).origin : '';
+
+// Content-Security-Policy (production builds only; Keystatic in dev needs a looser policy).
+// Astro emits it as a <meta> tag with sha256 hashes for every script/style it renders.
+// frame-ancestors cannot live in <meta>, so it is sent as a header from vercel.json.
+const VIDEO_FRAMES = ['https://iframe.mediadelivery.net', 'https://player.vimeo.com', 'https://www.youtube-nocookie.com'];
+/** @type {NonNullable<Exclude<NonNullable<import('astro').AstroUserConfig['security']>['csp'], boolean>>} */
+const csp = {
+  directives: [
+    "default-src 'self'",
+    "img-src 'self' data:",
+    "font-src 'self'",
+    "media-src 'self'",
+    `frame-src ${VIDEO_FRAMES.join(' ')}`,
+    `connect-src 'self'${leadOrigin ? ` ${leadOrigin}` : ''}`,
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ],
+};
+
 /** @type {import('astro').AstroIntegration[]} */
 const devIntegrations = [];
 /** @type {import('astro').AstroUserConfig['adapter']} */
@@ -47,7 +70,9 @@ export default defineConfig({
     responsiveStyles: true,
   },
   // In dev, /api/lead is proxied to `npm run dev:api` (scripts/local-server.ts, JSONL store).
-  vite: isDev ? { server: { proxy: { '/api/lead': 'http://127.0.0.1:8787' } } } : {},
+  // Builds: never inline assets as data: URIs (keeps CSP font-src/img-src strict).
+  vite: isDev ? { server: { proxy: { '/api/lead': 'http://127.0.0.1:8787' } } } : { build: { assetsInlineLimit: 0 } },
   prefetch: false,
+  ...(isDev ? {} : { security: { csp } }),
   devToolbar: { enabled: false },
 });

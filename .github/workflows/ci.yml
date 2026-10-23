@@ -1,0 +1,67 @@
+# CI for the studio site. Runs on pull requests and pushes to main.
+# Nothing here deploys: Vercel's Git integration builds previews/production separately.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-test-build-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ASTRO_TELEMETRY_DISABLED: '1'
+      PUBLIC_SITE_URL: https://amdir.co.il
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Type check (astro check)
+        run: npm run check
+
+      - name: Unit tests (vitest)
+        run: npm run test
+
+      - name: Production build
+        run: npm run build
+
+      - name: Review build (placeholders + direction switcher)
+        run: npm run build:review
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright + axe on every page (both directions, 390 and 1440)
+        run: node scripts/qa.mjs dist-review qa-shots/review
+
+      - name: Playwright + axe on the production build
+        run: QA_SKIP_FUNCTIONAL=1 QA_REPORT=qa-report-prod.json node scripts/qa.mjs dist qa-shots/prod
+
+      - name: Lead form end to end (local handler, JSONL store)
+        run: npm run e2e:lead -- qa-shots/lead
+
+      - name: Upload screenshots and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa
+          path: |
+            qa-shots/
+            qa-report*.json
+          retention-days: 14
