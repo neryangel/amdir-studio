@@ -212,6 +212,7 @@ export default config({
         defaultDirection: fields.select({ label: 'כיוון עיצוב', options: opts(DIRECTIONS, DIRECTION_LABEL), defaultValue: 'stage' }),
         email: fields.text({ label: 'אימייל ליצירת קשר', description: '[להשלמה]' }),
         whatsappNumber: fields.text({ label: 'מספר וואטסאפ', description: 'בפורמט בינלאומי בלי + ובלי רווחים, למשל 9725XXXXXXXX. [להשלמה]' }),
+        replyTime: fields.text({ label: 'זמן מענה', description: 'מופיע אחרי שליחת טופס, למשל: תוך יומיים בימי עבודה' }),
         showreel: video('שואוריל'),
         showreelPoster: fields.image({ label: 'תמונת פתיחה לשואוריל', directory: 'src/assets/site', publicPath: '../../assets/site/' }),
         showreelPosterAlt: fields.text({ label: 'טקסט חלופי לשואוריל' }),

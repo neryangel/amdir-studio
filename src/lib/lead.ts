@@ -1,55 +1,72 @@
 // THE single place where a form submission leaves the browser.
-// Today there is no backend, so submitLead() never reports success.
 //
-// To connect a real endpoint later (Supabase Edge Function, Resend, etc.):
-//   1. set PUBLIC_LEAD_ENDPOINT in .env (read below as LEAD_ENDPOINT)
-//   2. make that endpoint validate the same fields server-side, store the lead,
-//      and respond { ok: true } only AFTER it was stored.
-//   3. add the endpoint's origin to the CSP `connect-src`.
-// Nothing else in the UI has to change: ContactForm already renders success
-// only when this function returns { ok: true }.
+// PUBLIC_LEAD_ENDPOINT unset  → submitLead() returns { ok:false, reason:'not-connected' } (honest message, no fake success)
+// PUBLIC_LEAD_ENDPOINT=/api/lead → GET it once for a signed render token (time-trap), then POST JSON.
+// The server (api/lead.ts → server/lead/handler.ts) answers 200 { ok:true, id } only AFTER the lead was stored.
+import { NOTICE_VERSION, contactKind, type LeadNeed, type LeadSource } from './lead-shared';
+
+export const LEAD_ENDPOINT: string | undefined = import.meta.env.PUBLIC_LEAD_ENDPOINT || undefined;
 
 export interface LeadPayload {
-  form: 'contact' | 'pilot';
+  source: LeadSource;
   name: string;
   /** Phone or email, as typed. */
-  reach: string;
-  need: string;
+  contact: string;
+  need: LeadNeed;
   details: string;
   /** Required checkbox: agreed to the privacy policy. */
   privacyConsent: true;
   /** Separate, optional, never pre-ticked. */
   marketingOptIn: boolean;
-  /** ISO timestamp, client side (the server should set its own too). */
-  submittedAt: string;
+  /** Honeypot. People never see it, so it stays empty. */
+  website: string;
 }
 
-export type SubmitResult = { ok: true } | { ok: false; reason: 'not-connected' | 'network' | 'server' };
+export type FailReason = 'not-connected' | 'network' | 'server' | 'too-fast' | 'invalid' | 'rate-limited';
+export type SubmitResult = { ok: true; id: string } | { ok: false; reason: FailReason; fields?: string[] };
 
-const LEAD_ENDPOINT: string | undefined = import.meta.env.PUBLIC_LEAD_ENDPOINT || undefined;
+let tokenPromise: Promise<string | undefined> | undefined;
+
+function fetchToken(endpoint: string): Promise<string | undefined> {
+  return fetch(endpoint, { headers: { accept: 'application/json' }, cache: 'no-store' })
+    .then((r) => (r.ok ? (r.json() as Promise<{ token?: unknown }>) : null))
+    .then((b) => (b && typeof b.token === 'string' ? b.token : undefined))
+    .catch(() => undefined);
+}
+
+/** Call when the form is rendered: starts the time-trap clock. */
+export function prefetchToken(): void {
+  if (LEAD_ENDPOINT) tokenPromise ??= fetchToken(LEAD_ENDPOINT);
+}
 
 export async function submitLead(payload: LeadPayload): Promise<SubmitResult> {
   if (!LEAD_ENDPOINT) return { ok: false, reason: 'not-connected' };
+  prefetchToken();
+  let token = await tokenPromise;
+  if (!token) {
+    tokenPromise = fetchToken(LEAD_ENDPOINT);
+    token = await tokenPromise;
+    if (!token) return { ok: false, reason: 'network' };
+  }
+  let res: Response;
   try {
-    const res = await fetch(LEAD_ENDPOINT, {
+    res = await fetch(LEAD_ENDPOINT, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload),
+      headers: { 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({ ...payload, token, noticeVersion: NOTICE_VERSION }),
     });
-    if (!res.ok) return { ok: false, reason: 'server' };
-    const body: unknown = await res.json().catch(() => null);
-    return body && typeof body === 'object' && (body as { ok?: unknown }).ok === true
-      ? { ok: true }
-      : { ok: false, reason: 'server' };
   } catch {
     return { ok: false, reason: 'network' };
   }
+  const body = (await res.json().catch(() => null)) as { ok?: boolean; id?: string; error?: string; fields?: string[] } | null;
+  if (res.ok && body?.ok === true && body.id) return { ok: true, id: body.id };
+  if (res.status === 429) return { ok: false, reason: 'rate-limited' };
+  if (res.status === 400 && body?.error === 'too_fast') return { ok: false, reason: 'too-fast' };
+  if (res.status === 400 && body?.error === 'invalid') return { ok: false, reason: 'invalid', fields: body.fields ?? [] };
+  if (res.status === 400 && body?.error === 'token') tokenPromise = undefined;
+  return { ok: false, reason: 'server' };
 }
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const PHONE = /^\+?[\d\s\-()]{9,16}$/;
-
 export function isReach(value: string): boolean {
-  const v = value.trim();
-  return EMAIL.test(v) || (PHONE.test(v) && v.replace(/\D/g, '').length >= 9);
+  return contactKind(value) !== null;
 }

@@ -12,7 +12,9 @@
     "posters": "node scripts/gen-placeholders.mjs",
     "qa": "node scripts/qa.mjs dist-review",
     "serve": "node scripts/serve.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "dev:api": "tsx scripts/local-server.ts - 8787",
+    "e2e:lead": "PUBLIC_LEAD_ENDPOINT=/api/lead PUBLIC_SHOW_PLACEHOLDERS=true PUBLIC_REVIEW_MODE=true astro build --outDir dist-e2e && tsx scripts/e2e-lead.ts"
   },
   "dependencies": {
     "@fontsource/heebo": "5.3.0",

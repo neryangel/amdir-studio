@@ -11,3 +11,4 @@ lighthouse-*.json
 qa-shots/
 qa-report*.json
 .leads/
+dist-e2e/

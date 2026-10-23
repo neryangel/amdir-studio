@@ -275,7 +275,8 @@ ol {
   color: var(--accent-ink);
 }
 .btn--primary:hover {
-  background: color-mix(in srgb, var(--accent) 88%, var(--fg));
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 .ctas {
   display: flex;
@@ -1387,4 +1388,19 @@ body.has-review-bar {
 }
 :root[data-direction='index'] .hero--solo h1 {
   max-width: 18ch;
+}
+/* Honeypot: clipped to nothing but not display:none (some bots skip hidden fields). */
+.hp {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+.form-status:focus {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
 }

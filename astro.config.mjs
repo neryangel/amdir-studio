@@ -46,6 +46,8 @@ export default defineConfig({
     layout: 'constrained',
     responsiveStyles: true,
   },
+  // In dev, /api/lead is proxied to `npm run dev:api` (scripts/local-server.ts, JSONL store).
+  vite: isDev ? { server: { proxy: { '/api/lead': 'http://127.0.0.1:8787' } } } : {},
   prefetch: false,
   devToolbar: { enabled: false },
 });

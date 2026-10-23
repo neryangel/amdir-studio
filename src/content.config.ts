@@ -143,6 +143,8 @@ const settings = defineCollection({
       email: optText,
       /** International format without "+" or spaces, e.g. 9725XXXXXXXX. Empty = not set yet. */
       whatsappNumber: optText,
+      /** Shown after a successful form submission, e.g. "תוך יומיים בימי עבודה". */
+      replyTime: optText,
       showreel: video,
       showreelPoster: image(),
       showreelPosterAlt: z.string().min(1),

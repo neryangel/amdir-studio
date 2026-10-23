@@ -38,6 +38,7 @@ const detailsHelp =
   data-lead-form
   data-form={variant}
   data-wa={wa}
+  data-reply={settings.replyTime}
   novalidate
   aria-describedby={id('status')}
 >
@@ -119,6 +120,11 @@ const detailsHelp =
     </div>
   </div>
 
+  <div class="hp" aria-hidden="true">
+    <label for={id('website')}>אתר אינטרנט (להשאיר ריק)</label>
+    <input id={id('website')} name="website" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
   <div class="field">
     <button class="btn btn--primary" type="submit">{variant === 'pilot' ? 'שליחת בקשה לפיילוט' : 'שליחה'}</button>
   </div>
@@ -132,7 +138,8 @@ const detailsHelp =
 </form>
 
 <script>
-  import { isReach, submitLead, type LeadPayload } from '../lib/lead';
+  import { isReach, prefetchToken, submitLead, type FailReason, type LeadPayload } from '../lib/lead';
+  import { LEAD_NEEDS, type LeadNeed } from '../lib/lead-shared';
 
   const MESSAGES: Record<string, string> = {
     name: 'נא למלא שם.',
@@ -141,6 +148,17 @@ const detailsHelp =
     need: 'נא לבחור במה אפשר לעזור.',
     details: 'נא לכתוב כמה מילים על הפרויקט.',
     privacyConsent: 'כדי לשלוח צריך לאשר את מדיניות הפרטיות.',
+  };
+  // Server field names → form field names
+  const FIELD_MAP: Record<string, string> = { contact: 'reach', name: 'name', need: 'need', details: 'details', privacyConsent: 'privacyConsent' };
+
+  const FAIL_TEXT: Record<FailReason, string> = {
+    'not-connected': 'הטופס עדיין לא מחובר. בינתיים אפשר לפנות ',
+    network: 'לא הצלחנו להתחבר לשרת, והפרטים לא נשלחו. אפשר לנסות שוב, או לפנות ',
+    server: 'השליחה לא הצליחה, והפרטים לא נשמרו. אפשר לנסות שוב בעוד כמה דקות, או לפנות ',
+    'too-fast': 'רגע אחד. נסו לשלוח שוב בעוד כמה שניות, או פנו ',
+    'rate-limited': 'נשלחו כבר כמה פניות מהחיבור הזה. אפשר לנסות שוב מאוחר יותר, או לפנות ',
+    invalid: 'יש שדות לתיקון. אפשר גם לפנות ',
   };
 
   function setError(form: HTMLFormElement, name: string, message: string) {
@@ -153,7 +171,19 @@ const detailsHelp =
     if (err) err.textContent = message;
   }
 
+  function showStatus(status: HTMLElement, build: (p: HTMLParagraphElement) => void, focus: boolean) {
+    status.replaceChildren();
+    const p = document.createElement('p');
+    build(p);
+    status.append(p);
+    if (focus) {
+      status.tabIndex = -1;
+      status.focus();
+    }
+  }
+
   document.querySelectorAll<HTMLFormElement>('form[data-lead-form]').forEach((form) => {
+    prefetchToken();
     const status = form.querySelector<HTMLElement>('.form-status[role="status"]');
     const get = (n: string) => {
       const el = form.elements.namedItem(n);
@@ -171,18 +201,20 @@ const detailsHelp =
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (form.dataset.busy === 'true') return;
       const name = get('name')?.value.trim() ?? '';
       const reach = get('reach')?.value.trim() ?? '';
       const need = get('need')?.value ?? '';
       const details = get('details')?.value.trim() ?? '';
       const privacy = (get('privacyConsent') as HTMLInputElement | null)?.checked ?? false;
       const marketing = (get('marketingOptIn') as HTMLInputElement | null)?.checked ?? false;
+      const website = get('website')?.value ?? '';
 
       const errors: [string, string][] = [];
       if (!name) errors.push(['name', MESSAGES.name ?? '']);
       if (!reach) errors.push(['reach', MESSAGES.reach ?? '']);
       else if (!isReach(reach)) errors.push(['reach', MESSAGES.reachInvalid ?? '']);
-      if (!need) errors.push(['need', MESSAGES.need ?? '']);
+      if (!(LEAD_NEEDS as readonly string[]).includes(need)) errors.push(['need', MESSAGES.need ?? '']);
       if (!details) errors.push(['details', MESSAGES.details ?? '']);
       if (!privacy) errors.push(['privacyConsent', MESSAGES.privacyConsent ?? '']);
 
@@ -196,44 +228,70 @@ const detailsHelp =
       }
 
       const payload: LeadPayload = {
-        form: form.dataset.form === 'pilot' ? 'pilot' : 'contact',
+        source: form.dataset.form === 'pilot' ? 'pilot' : 'contact',
         name,
-        reach,
-        need,
+        contact: reach,
+        need: need as LeadNeed,
         details,
         privacyConsent: true,
         marketingOptIn: marketing,
-        submittedAt: new Date().toISOString(),
+        website,
       };
       const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-      if (button) button.disabled = true;
+      const label = button?.textContent ?? '';
+      form.dataset.busy = 'true';
+      if (button) {
+        button.setAttribute('aria-disabled', 'true');
+        button.textContent = 'שולחים...';
+      }
       const result = await submitLead(payload);
-      if (button) button.disabled = false;
+      form.dataset.busy = 'false';
+      if (button) {
+        button.removeAttribute('aria-disabled');
+        button.textContent = label;
+      }
       if (!status) return;
 
       if (result.ok) {
-        status.textContent = 'הפנייה נשמרה. אחזור אליכם בהקדם.';
+        const reply = form.dataset.reply;
+        showStatus(
+          status,
+          (p) => {
+            const strong = document.createElement('strong');
+            strong.textContent = 'הפנייה התקבלה ונשמרה.';
+            p.append(strong, ` אחזור אליכם ${reply ? `${reply}` : 'בהקדם'}, בטלפון או באימייל שהשארתם.`);
+          },
+          true,
+        );
+        form.dataset.state = 'sent';
         form.reset();
         return;
       }
+
+      if (result.reason === 'invalid') {
+        for (const f of result.fields ?? []) {
+          const local = FIELD_MAP[f];
+          if (local) setError(form, local, MESSAGES[local] ?? 'נא לבדוק את השדה.');
+        }
+      }
       // Never claim success. Keep everything the visitor typed.
       const wa = form.dataset.wa ?? '#';
-      status.replaceChildren();
-      const p = document.createElement('p');
-      p.append(
-        result.reason === 'not-connected'
-          ? 'הטופס עדיין לא מחובר. בינתיים אפשר לפנות '
-          : 'השליחה לא הצליחה, והפרטים לא נשמרו. אפשר לנסות שוב, או לפנות ',
+      showStatus(
+        status,
+        (p) => {
+          p.append(FAIL_TEXT[result.reason]);
+          const a = document.createElement('a');
+          a.href = wa;
+          a.textContent = 'בוואטסאפ';
+          if (wa.startsWith('http')) {
+            a.target = '_blank';
+            a.rel = 'noopener';
+          }
+          p.append(a, '. מה שכתבתם נשאר בטופס.');
+        },
+        result.reason !== 'not-connected',
       );
-      const a = document.createElement('a');
-      a.href = wa;
-      a.textContent = 'בוואטסאפ';
-      if (wa.startsWith('http')) {
-        a.target = '_blank';
-        a.rel = 'noopener';
-      }
-      p.append(a, '. מה שכתבתם נשאר בטופס.');
-      status.append(p);
+      form.dataset.state = 'error';
     });
   });
 </script>
