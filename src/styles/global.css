@@ -161,7 +161,7 @@ ol {
   gap: 4px;
 }
 .todo {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.85em;
   background: var(--badge-bg);
   color: var(--badge-fg);
@@ -294,7 +294,7 @@ ol {
 /* ---------- badges / labels ---------- */
 .badge-temp {
   display: inline-block;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 12px;
   line-height: 1.5;
   padding: 1px 8px;
@@ -309,7 +309,7 @@ ol {
 }
 .type-label {
   display: inline-block;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 12px;
   line-height: 1.5;
   padding: 1px 8px;
@@ -323,7 +323,7 @@ ol {
 }
 .pilot-badge {
   display: inline-block;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 12px;
   line-height: 1.5;
   padding: 1px 8px;
@@ -398,6 +398,7 @@ ol {
   grid-area: media;
 }
 :root[data-direction='stage'] .hero.hero--solo {
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas: 'title' 'sub' 'ctas';
 }
 :root[data-direction='stage'] .hero h1 .h1-tail {
@@ -779,12 +780,15 @@ ol {
   height: 100%;
   object-fit: cover;
 }
-.index-row__year,
-.index-row__roles {
+.index-row__year {
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+}
+.index-row__roles {
+  font-size: 14px;
+  color: var(--muted);
 }
 .index-row__title a {
   text-decoration: none;
@@ -824,7 +828,6 @@ ol {
   display: grid;
   grid-template-columns: 4.5em minmax(0, 1.6fr) minmax(0, 1.2fr) auto;
   gap: 20px;
-  font-family: var(--font-mono);
   font-size: 12px;
   color: var(--muted);
   padding-block: 10px;
@@ -881,7 +884,7 @@ ol {
   gap: 14px;
 }
 .crumbs {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 13px;
   color: var(--muted);
 }
@@ -921,7 +924,7 @@ ol {
   min-width: 0;
 }
 .meta-strip dt {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 12px;
   color: var(--muted);
 }
@@ -957,7 +960,7 @@ ol {
   gap: 6px;
 }
 .credits-box h3 {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 13px;
   font-weight: 500;
   color: var(--accent-text);
@@ -1011,7 +1014,7 @@ ol {
   gap: 2px;
 }
 .pager small {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   color: var(--muted);
   font-size: 12px;
 }
@@ -1382,6 +1385,6 @@ body.has-review-bar {
   grid-template-columns: minmax(0, 1fr);
   padding-block: 64px 48px;
 }
-.hero--solo h1 {
+:root[data-direction='index'] .hero--solo h1 {
   max-width: 18ch;
 }

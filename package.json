@@ -10,7 +10,8 @@
     "build:review": "node scripts/build-review.mjs",
     "preview": "astro preview",
     "posters": "node scripts/gen-placeholders.mjs",
-    "qa": "node scripts/qa.mjs"
+    "qa": "node scripts/qa.mjs dist-review",
+    "serve": "node scripts/serve.mjs"
   },
   "dependencies": {
     "@fontsource/heebo": "5.3.0",

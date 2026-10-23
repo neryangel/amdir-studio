@@ -36,7 +36,8 @@ export default defineConfig({
   site,
   base,
   output: 'static',
-  trailingSlash: 'always',
+  // Keystatic's API routes have no trailing slash, so dev must not enforce one.
+  trailingSlash: isDev ? 'ignore' : 'always',
   build: { format: 'directory' },
   ...(adapter ? { adapter } : {}),
   integrations: devIntegrations,

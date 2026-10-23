@@ -20,7 +20,11 @@ npm run build          # בניית ייצור ל-dist/  (בלי חומר זמנ
 npm run build:review   # בניית סקירה ל-dist-review/ (עם חומר זמני ומתג כיווני עיצוב)
 npm run preview        # צפייה בבנייה האחרונה
 npm run qa             # צילומי מסך, גלישה אופקית, axe ובדיקות פונקציונליות על dist-review
+npm run serve -- dist 4321   # שרת סטטי מקומי לבדיקה של תיקיית בנייה
 ```
+
+הערה: Astro נעול על 7.4.1, כי 7.4.2 דורש Node 22.23.4 ומעלה. עם Node חדש יותר אפשר לעדכן.
+Lighthouse (מובייל) מריצים כך: `CHROME_PATH=<נתיב לכרום> npx lighthouse http://127.0.0.1:4321/`.
 
 ### הגדרות (קובץ `.env`, ראו `.env.example`)
 

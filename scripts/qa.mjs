@@ -96,7 +96,7 @@ for (const theme of themes) {
 
 // ---------- functional checks ----------
 const check = (name, ok, detail = '') => report.functional.push({ name, ok, detail });
-{
+if (!process.env.QA_SKIP_FUNCTIONAL) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await ctx.newPage();
   const external = [];
@@ -181,7 +181,7 @@ const summary = {
   consoleErrors: report.consoleErrors.length,
   functional: report.functional.map((f) => `${f.ok ? 'PASS' : 'FAIL'} ${f.name}${f.ok ? '' : ` :: ${f.detail}`}`),
 };
-await writeFile(path.join(root, 'qa-report.json'), JSON.stringify({ summary, ...report }, null, 2));
+await writeFile(path.join(root, process.env.QA_REPORT ?? 'qa-report.json'), JSON.stringify({ summary, ...report }, null, 2));
 console.log(JSON.stringify(summary, null, 2));
 if (report.overflow.length) console.log('OVERFLOW:', JSON.stringify(report.overflow, null, 1));
 if (report.axe.length) console.log('AXE:', JSON.stringify(report.axe.slice(0, 30), null, 1));

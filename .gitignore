@@ -9,3 +9,4 @@ dist-*/
 qa-report.json
 lighthouse-*.json
 qa-shots/
+qa-report*.json
