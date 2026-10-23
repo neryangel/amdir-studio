@@ -69,12 +69,12 @@ const ld = creativeWorkLd({
       <header class="work-head">
         <p class="crumbs"><a href={url('/work/')}>עבודות</a> / {disciplines}</p>
         <h1 class="work-title" id="work-title">{title}</h1>
-        <div class="work-labels">
-          <TypeLabel type={d.type} />
-          {d.aiUsed ? <span class="type-label">כולל AI</span> : null}
-          <TempBadge show={d.placeholder} label="עבודה זמנית, התוכן לא אמיתי" />
-          <TempBadge show={d.needsReview} label="ממתין לבדיקה, נוצר אוטומטית" />
-        </div>
+        <ul class="work-labels" aria-label="תוויות">
+          <li><TypeLabel type={d.type} /></li>
+          {d.aiUsed ? <li><span class="type-label">כולל AI</span></li> : null}
+          {d.placeholder ? <li><TempBadge show label="עבודה זמנית, התוכן לא אמיתי" /></li> : null}
+          {d.needsReview ? <li><TempBadge show label="ממתין לבדיקה, נוצר אוטומטית" /></li> : null}
+        </ul>
       </header>
 
       <div class="work-media">
@@ -98,7 +98,7 @@ const ld = creativeWorkLd({
       </div>
 
       <dl class="meta-strip">
-        <div><dt>סוג</dt><dd><TypeLabel type={d.type} /></dd></div>
+        <div><dt>סוג</dt><dd><TypeLabel type={d.type} prefix={false} /></dd></div>
         <div><dt>שנה</dt><dd>{d.year}</dd></div>
         <div><dt>תחום</dt><dd>{disciplines}</dd></div>
         <div><dt>{d.artist ? 'אמן' : d.client ? 'לקוח' : 'הקשר'}</dt><dd>{d.artist ?? d.client ?? (d.type === 'personal' ? 'עבודה אישית' : d.type === 'demo' ? 'דמו' : 'קונספט')}</dd></div>

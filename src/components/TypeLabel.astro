@@ -2,10 +2,12 @@
 import { WORK_TYPE_LABEL, type WorkType } from '../lib/enums';
 interface Props {
   type: WorkType;
+  /** Adds a visually hidden "סוג העבודה:" prefix (off when a visible label already says it). */
+  prefix?: boolean;
 }
-const { type } = Astro.props;
+const { type, prefix = true } = Astro.props;
 ---
 
 <span class:list={['type-label', { 'type-label--client': type === 'client' }]}>
-  <span class="visually-hidden">סוג העבודה: </span>{WORK_TYPE_LABEL[type]}
+  {prefix ? <span class="visually-hidden">סוג העבודה: </span> : null}{WORK_TYPE_LABEL[type]}
 </span>

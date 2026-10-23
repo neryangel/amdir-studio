@@ -48,9 +48,9 @@ const captions = video?.captions ? (/^https?:/.test(video.captions) ? video.capt
   />
   {
     kind && src ? (
-      <button type="button" class="facade__play">
+      <button type="button" class="facade__play" aria-label={`צפייה עם קול: ${title}`}>
         <span class="facade__tri" aria-hidden="true" />
-        צפייה עם קול<span class="visually-hidden">: {title}</span>
+        צפייה עם קול
       </button>
     ) : null
   }

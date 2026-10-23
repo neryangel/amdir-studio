@@ -19,10 +19,9 @@ const isCurrent = (match: string) => current.startsWith(url(match));
 
 <header class="site-header">
   <div class="wrap">
-    <a class="brand" href={url('/')}>
+    <a class="brand" href={url('/')} aria-label={`${settings.studioName} סטודיו, לדף הבית`}>
       <span class="brand__mark">{settings.studioName}</span>
       <span class="brand__sub">סטודיו</span>
-      <span class="visually-hidden">, לדף הבית</span>
     </a>
     <nav class="nav" aria-label="ניווט ראשי">
       <ul>

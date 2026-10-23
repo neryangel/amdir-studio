@@ -53,6 +53,9 @@ jobs:
       - name: Playwright + axe on the production build
         run: QA_SKIP_FUNCTIONAL=1 QA_REPORT=qa-report-prod.json node scripts/qa.mjs dist qa-shots/prod
 
+      - name: Accessibility tree (headings, landmarks, filter state, form errors)
+        run: node scripts/a11y-tree.mjs dist-review qa-shots/aria
+
       - name: Lead form end to end (local handler, JSONL store)
         run: npm run e2e:lead -- qa-shots/lead
 

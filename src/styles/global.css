@@ -1477,3 +1477,8 @@ body.has-review-bar {
 .notfound__more {
   color: var(--muted);
 }
+ul.work-labels {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
