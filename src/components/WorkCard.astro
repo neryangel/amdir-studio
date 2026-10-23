@@ -4,7 +4,7 @@ import TempBadge from './TempBadge.astro';
 import TypeLabel from './TypeLabel.astro';
 import { DISCIPLINE_LABEL } from '../lib/enums';
 import { workTitle, type Work } from '../lib/content';
-import { url } from '../lib/url';
+import { asset, url } from '../lib/url';
 
 interface Props {
   work: Work;
@@ -14,11 +14,28 @@ interface Props {
 const { work, sizes = '(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw', headingLevel = 'h3' } = Astro.props;
 const d = work.data;
 const Heading = headingLevel;
+const preview = d.preview ? { mp4: asset(d.preview.mp4), webm: d.preview.webm ? asset(d.preview.webm) : undefined } : undefined;
 ---
 
 <a class="work-card" href={url(`/work/${work.id}/`)}>
   <div class="work-card__media">
     <Picture src={d.poster} alt="" formats={['avif', 'webp']} widths={[480, 800, 1200]} sizes={sizes} />
+    {
+      preview ? (
+        <video
+          class="work-card__preview"
+          muted
+          loop
+          playsinline
+          preload="none"
+          disablepictureinpicture
+          aria-hidden="true"
+          tabindex="-1"
+          data-mp4={preview.mp4}
+          data-webm={preview.webm}
+        />
+      ) : null
+    }
   </div>
   <div>
     <Heading class="work-card__title">{workTitle(work)}</Heading>
@@ -30,3 +47,7 @@ const Heading = headingLevel;
     </p>
   </div>
 </a>
+
+<script>
+  import '../scripts/previews';
+</script>

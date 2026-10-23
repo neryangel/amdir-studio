@@ -6,7 +6,7 @@ import TypeLabel from '../../components/TypeLabel.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import { DISCIPLINE_LABEL, WORK_FILTERS } from '../../lib/enums';
 import { filterKeys, getSettings, getWorks, workTitle } from '../../lib/content';
-import { url, whatsappHref } from '../../lib/url';
+import { asset, url, whatsappHref } from '../../lib/url';
 
 const works = await getWorks();
 const settings = await getSettings();
@@ -56,6 +56,20 @@ const counts = Object.fromEntries(
               <li class="index-row" data-f={filterKeys(w).join(' ')}>
                 <div class="index-row__thumb">
                   <Picture src={w.data.poster} alt="" formats={['avif', 'webp']} widths={[200, 400]} sizes="180px" />
+                  {w.data.preview ? (
+                    <video
+                      class="work-card__preview"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      disablepictureinpicture
+                      aria-hidden="true"
+                      tabindex="-1"
+                      data-mp4={asset(w.data.preview.mp4)}
+                      data-webm={w.data.preview.webm ? asset(w.data.preview.webm) : undefined}
+                    />
+                  ) : null}
                 </div>
                 <span class="index-row__year">{w.data.year}</span>
                 <div class="index-row__title">
@@ -93,6 +107,7 @@ const counts = Object.fromEntries(
 </Base>
 
 <script>
+  import '../../scripts/previews';
   // Progressive enhancement only. Filtering itself is pure CSS (:has + :checked).
   // JS adds: ?d=clips deep links, and a live count for screen readers.
   const root = document.querySelector<HTMLElement>('[data-work-index]');

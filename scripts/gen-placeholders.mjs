@@ -146,3 +146,13 @@ await writeFile(
   'WEBVTT\n\n00:00:00.000 --> 00:00:04.000\nחומר זמני: סרטון מופשט במקום השואוריל\n\n00:00:04.000 --> 00:00:08.000\nאין בסרטון הזה עבודה אמיתית\n',
 );
 console.log('wrote public/media/placeholder-reel.he.vtt');
+
+// Muted preview loop for the placeholder clip (same settings as scripts/ingest.mjs).
+const pv = path.join(root, 'public/media/works/clip-original-song');
+if (existsSync(video) && !existsSync(path.join(pv, 'preview.mp4'))) {
+  await mkdir(pv, { recursive: true });
+  const base = ['-y', '-hide_banner', '-loglevel', 'error', '-ss', '0.5', '-t', '7', '-i', video, '-an'];
+  execFileSync('ffmpeg', [...base, '-vf', "scale=-2:'min(720,ih)',format=yuv420p", '-c:v', 'libx264', '-crf', '28', '-preset', 'slow', '-movflags', '+faststart', path.join(pv, 'preview.mp4')]);
+  execFileSync('ffmpeg', [...base, '-vf', "scale=-2:'min(720,ih)'", '-c:v', 'libvpx-vp9', '-crf', '36', '-b:v', '0', '-row-mt', '1', '-deadline', 'good', '-cpu-used', '4', path.join(pv, 'preview.webm')]);
+  console.log('wrote public/media/works/clip-original-song/preview.{mp4,webm}');
+}

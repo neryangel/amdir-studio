@@ -1404,3 +1404,29 @@ body.has-review-bar {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
+
+/* ---------- muted preview loops on work cards ---------- */
+.work-card__media {
+  position: relative;
+}
+.work-card__preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-med) var(--ease-out);
+}
+.work-card__preview[data-playing] {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .work-card__preview {
+    display: none;
+  }
+}
+.index-row__thumb {
+  position: relative;
+}

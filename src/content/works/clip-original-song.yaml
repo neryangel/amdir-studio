@@ -34,6 +34,9 @@ video:
   value:
     id: /media/placeholder-reel.mp4
     captions: /media/placeholder-reel.he.vtt
+preview:
+  mp4: /media/works/clip-original-song/preview.mp4
+  webm: /media/works/clip-original-song/preview.webm
 gallery:
   - image: ../../assets/works/clip-original-song/gallery-1.png
     alt: סטיל זמני, אלומות אור על רקע כהה
