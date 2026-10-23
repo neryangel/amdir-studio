@@ -1482,3 +1482,25 @@ ul.work-labels {
   padding: 0;
   margin: 0;
 }
+
+/* Work card: stretched link (the whole card is clickable, the link name is the title). */
+.work-card {
+  position: relative;
+}
+.work-card__link {
+  text-decoration: none;
+  color: inherit;
+}
+.work-card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.work-card__link:focus-visible {
+  outline: none;
+}
+.work-card:has(.work-card__link:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}

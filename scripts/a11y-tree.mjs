@@ -82,14 +82,15 @@ for (const dir of ['stage', 'index']) {
       .filter((n) => / [,:.;]/.test(n));
     check(`[${dir}] ${name}: accessible names have clean punctuation`, badNames.length === 0, badNames.join(' | '));
     if (name === 'home') {
-      const card = page.locator('a.work-card').first();
-      const title = ((await card.locator('.work-card__title').textContent()) ?? '').trim();
+      const card = page.locator('article.work-card').first();
+      const link = card.locator('a.work-card__link');
+      const title = ((await link.textContent()) ?? '').trim();
+      const meta = ((await card.locator('.work-card__meta').textContent()) ?? '').replace(/\s+/g, ' ').trim();
       try {
-        await expect(card).toHaveAccessibleName(title);
-        await expect(card).toHaveAccessibleDescription(/סוג העבודה:/);
-        check(`[${dir}] work card: link name is the title, metadata is the description`, true);
+        await expect(link).toHaveAccessibleName(title);
+        check(`[${dir}] work card: link name is the title, metadata follows as text`, /סוג העבודה:/.test(meta) && /תחום:/.test(meta), meta);
       } catch (e) {
-        check(`[${dir}] work card: link name is the title, metadata is the description`, false, e instanceof Error ? e.message.split('\n')[0] : '');
+        check(`[${dir}] work card: link name is the title, metadata follows as text`, false, e instanceof Error ? e.message.split('\n')[0] : '');
       }
     }
 

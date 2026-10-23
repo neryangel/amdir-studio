@@ -14,13 +14,12 @@ interface Props {
 const { work, sizes = '(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw', headingLevel = 'h3' } = Astro.props;
 const d = work.data;
 const Heading = headingLevel;
-// Link name = the title only; type, disciplines and badges are its description.
-const titleId = `card-${work.id}-title`;
-const metaId = `card-${work.id}-meta`;
 const preview = d.preview ? { mp4: asset(d.preview.mp4), webm: d.preview.webm ? asset(d.preview.webm) : undefined } : undefined;
 ---
 
-<a class="work-card" href={url(`/work/${work.id}/`)} aria-labelledby={titleId} aria-describedby={metaId}>
+<!-- Card = article; the link sits in the heading and is stretched over the card (::after),
+     so its accessible name is just the title and the metadata is read as plain text after it. -->
+<article class="work-card">
   <div class="work-card__media">
     <Picture src={d.poster} alt="" formats={['avif', 'webp']} widths={[480, 800, 1200]} sizes={sizes} />
     {
@@ -41,15 +40,15 @@ const preview = d.preview ? { mp4: asset(d.preview.mp4), webm: d.preview.webm ? 
     }
   </div>
   <div>
-    <Heading class="work-card__title" id={titleId}>{workTitle(work)}</Heading>
-    <p class="work-card__meta" id={metaId}>
+    <Heading class="work-card__title"><a class="work-card__link" href={url(`/work/${work.id}/`)}>{workTitle(work)}</a></Heading>
+    <p class="work-card__meta">
       <TypeLabel type={d.type} />
       <span><span class="visually-hidden">תחום: </span>{d.disciplines.map((x) => DISCIPLINE_LABEL[x]).join(', ')}</span>
       <TempBadge show={d.placeholder} />
       <TempBadge show={d.needsReview} label="ממתין לבדיקה" />
     </p>
   </div>
-</a>
+</article>
 
 <script>
   import '../scripts/previews';
