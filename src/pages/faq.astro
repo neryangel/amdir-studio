@@ -1,0 +1,112 @@
+---
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import FaqList from '../components/FaqList.astro';
+import CtaBand from '../components/CtaBand.astro';
+import TempBadge from '../components/TempBadge.astro';
+import { getServices } from '../lib/content';
+import { HOME_CRUMB, faqPageLd, type Crumb, type QA } from '../lib/seo';
+import { absolute, url } from '../lib/url';
+
+// General questions: draft copy, flip DRAFT after the owner approves. Service questions come
+// from each service's `faq` field (Keystatic), so they appear here only if that service is in the build.
+const DRAFT = true;
+const general: QA[] = [
+  {
+    question: 'כמה זה עולה?',
+    answer: 'כל פרויקט מתומחר לפי ההיקף. אחרי שיחה קצרה מקבלים הצעה בכתב עם מחיר, לפני שמתחילים.',
+  },
+  {
+    question: 'כמה זמן לוקח פרויקט?',
+    answer: 'תלוי בסוג ובהיקף. בכל עמוד שירות יש לוח זמנים טיפוסי, ובהצעה מקבלים לוח זמנים בכתב.',
+  },
+  {
+    question: 'איך משאירים הערות על גרסה?',
+    answer: 'כל גרסה מגיעה בקישור צפייה פרטי. כותבים הערה ליד הרגע בסרטון שהיא מתייחסת אליו, ואני מקבץ את כל ההערות לסבב אחד.',
+  },
+  {
+    question: 'מה קורה אם צריך עוד סבב תיקונים?',
+    answer: 'מספר הסבבים הכלולים כתוב בהצעה. אם צריך יותר, מדברים על זה קודם, ורק אז ממשיכים.',
+  },
+  {
+    question: 'אתה משתמש ב-AI?',
+    answer: 'כן, ככלי אחד מתוך כמה, כשזה משרת את הרעיון. התוצאה עוברת עריכה ידנית, ובכל עבודה באתר כתוב בקרדיטים אם נעשה בה שימוש ב-AI.',
+  },
+  {
+    question: 'אפשר לעבוד מרחוק?',
+    answer: 'עריכה, מושן, ויזואלים ואתרים, כן, הכול בקישורים ובשיחות וידאו. צילום נקבע לפי המיקום, בהצעה.',
+  },
+];
+
+const services = await getServices();
+const groups = [
+  { id: 'faq-general', title: 'כללי', href: undefined as string | undefined, items: general, draft: DRAFT },
+  ...services
+    .filter((s) => s.data.faq.length)
+    .map((s) => ({
+      id: `faq-${s.id}`,
+      title: s.data.title,
+      href: url(`/services/${s.id}/`),
+      items: s.data.faq,
+      draft: s.data.placeholder,
+    })),
+];
+
+const path = '/faq/';
+const crumbs: Crumb[] = [HOME_CRUMB, { name: 'שאלות נפוצות', path }];
+const ld = faqPageLd(
+  groups.flatMap((g) => g.items),
+  absolute(path, Astro.site),
+);
+---
+
+<Base
+  title="שאלות נפוצות"
+  description="תשובות קצרות על מחיר, לוחות זמנים, סבבי תיקונים, AI, ועל כל שירות: קליפים, עריכה ומושן, ויזואלים ואתרים."
+  path={path}
+  crumbs={crumbs}
+  jsonLd={ld ? [ld] : []}
+>
+  <div class="wrap">
+    <header class="page-head">
+      <Crumbs items={crumbs} />
+      <h1>שאלות נפוצות</h1>
+      <p class="lead">תשובות קצרות. אם השאלה שלכם לא כאן, אפשר לשאול אותי ישירות.</p>
+    </header>
+
+    {
+      groups.length > 1 ? (
+        <nav class="faq-index" aria-label="נושאים">
+          <ul>
+            {groups.map((g) => (
+              <li>
+                <a href={`#${g.id}`}>{g.title}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : null
+    }
+
+    {
+      groups.map((g) => (
+        <section class="section faq-group" aria-labelledby={g.id}>
+          <div class="faq-group__head">
+            <h2 class="h3" id={g.id}>
+              {g.title}
+            </h2>
+            <TempBadge show={g.draft} label="טיוטה, הטקסט לבדיקה" />
+            {g.href ? (
+              <a class="link-arrow faq-group__more" href={g.href}>
+                לעמוד השירות<span class="visually-hidden">: {g.title}</span>
+              </a>
+            ) : null}
+          </div>
+          <FaqList items={g.items} />
+        </section>
+      ))
+    }
+
+    <CtaBand />
+  </div>
+</Base>

@@ -1,0 +1,220 @@
+---
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import CtaBand from '../components/CtaBand.astro';
+import TempBadge from '../components/TempBadge.astro';
+import { getRoutes } from '../lib/content';
+import { HOME_CRUMB, type Crumb } from '../lib/seo';
+import { url } from '../lib/url';
+
+// Draft copy written from the owner's described workflow. Flip to false after the owner approves the text.
+const DRAFT = true;
+
+const routes = await getRoutes();
+const path = '/process/';
+const crumbs: Crumb[] = [HOME_CRUMB, { name: 'איך אני עובד', path }];
+
+interface Step {
+  id: string;
+  title: string;
+  /** One short line for the overview list. */
+  short: string;
+  body: string[];
+  /** What comes out of this step. */
+  out?: string[];
+  /** What I need from you at this step. */
+  you?: string[];
+}
+
+const steps: Step[] = [
+  {
+    id: 'brief',
+    title: 'פנייה ובריף',
+    short: 'שיחה קצרה, ומה המטרה',
+    body: [
+      'כותבים לי בטופס או בוואטסאפ. בשיחה קצרה אני שואל מה המטרה, למי זה מיועד, מה כבר קיים ומה התאריך שחשוב לכם.',
+      'אם הפרויקט לא מתאים לי, או שהלוח זמנים לא מסתדר, אגיד את זה כבר כאן.',
+    ],
+    out: ['סיכום בריף קצר בכתב, כדי ששנינו נדבר על אותו דבר'],
+    you: ['רפרנסים, קישורים וחומרים שכבר יש', 'תאריך יעד, אם יש'],
+  },
+  {
+    id: 'proposal',
+    title: 'הצעה בכתב',
+    short: 'היקף, תוצרים, זמנים ומחיר',
+    body: [
+      'הצעה אחת, בכתב, לפני שמתחילים: מה בדיוק נוצר, באילו פורמטים, לוח זמנים, כמה סבבי תיקונים כלולים, זכויות שימוש ומחיר.',
+      'אחרי שההצעה מאושרת קובעים תאריך התחלה.',
+    ],
+    out: ['הצעת מחיר ולוח זמנים בכתב'],
+  },
+  {
+    id: 'pre-production',
+    title: 'פרה-פרודקשן',
+    short: 'קונספט ותכנון, לפני הצילום או הקוד',
+    body: [
+      'כאן מתקבלות רוב ההחלטות, כדי שבהמשך לא יהיו הפתעות. בקליפ או בסרטון: קונספט, תסריט או שוט ליסט, לוקיישנים ולוח צילום. באתר: מבנה עמודים, תוכן ועיצוב לאישור.',
+    ],
+    out: ['מסמך קונספט או שוט ליסט, או עיצוב לאישור'],
+    you: ['אישור על הקונספט לפני שממשיכים'],
+  },
+  {
+    id: 'production',
+    title: 'הפקה',
+    short: 'צילום, יצירה או בנייה',
+    body: [
+      'צילום, יצירת החומרים או בניית האתר, לפי התכנון שאושר. אני מעדכן בנקודות שסוכמו מראש, לא רק בסוף.',
+      'אם משתמשים ב-AI, זה רק כשזה משרת את הרעיון, והתוצאה עוברת עריכה ידנית. זה מצוין בקרדיטים.',
+    ],
+  },
+  {
+    id: 'review',
+    title: 'סבבי עריכה',
+    short: 'קישור צפייה פרטי והערות לפי זמן',
+    body: [
+      'כל גרסה מגיעה בקישור צפייה פרטי. כותבים הערות ליד הרגע בסרטון שהן מתייחסות אליו (או ליד העמוד באתר), ואני מקבץ את כל ההערות לסבב אחד.',
+      'מספר הסבבים נקבע בהצעה. אם צריך יותר, מדברים על זה קודם.',
+    ],
+    you: ['הערות מרוכזות מאדם אחד, בכל סבב'],
+  },
+  {
+    id: 'delivery',
+    title: 'מסירה',
+    short: 'הקבצים בפורמטים שסוכמו',
+    body: ['הקבצים הסופיים, מסודרים ובשמות ברורים, בקישור הורדה. מה בדיוק נמסר נקבע בהצעה, למשל:'],
+    out: [
+      'גרסה מלאה לרוחב (16:9)',
+      'גרסאות 9:16 ו-1:1 לרשתות',
+      'קובץ איכותי לארכיון',
+      'קובץ כתוביות (SRT או VTT)',
+      'באתרים: האתר באוויר, גישה לעריכת תוכן והדרכה קצרה',
+    ],
+  },
+  {
+    id: 'after',
+    title: 'אחרי המסירה',
+    short: 'קבצים שמורים, תיקונים ותחזוקה',
+    body: [
+      'הקבצים נשמרים אצלי לתקופה שסוכמה. צריך גרסה נוספת, גודל אחר או עדכון קטן? כותבים לי.',
+      'באתרים, תקופת התיקונים אחרי העלייה לאוויר מוגדרת בהצעה, ותחזוקה שוטפת היא הסכם נפרד.',
+    ],
+  },
+];
+---
+
+<Base
+  title="איך אני עובד"
+  description="מהפנייה הראשונה ועד אחרי המסירה: בריף, הצעה בכתב, פרה-פרודקשן, הפקה, סבבי עריכה עם קישור צפייה, מסירה בפורמטים שסוכמו."
+  path={path}
+  crumbs={crumbs}
+>
+  <div class="wrap">
+    <header class="page-head">
+      <Crumbs items={crumbs} />
+      <h1>איך אני עובד</h1>
+      <p class="lead">
+        מהפנייה הראשונה ועד אחרי המסירה. אותו סדר בקליפ, בסרטון ובאתר, עם איש קשר אחד לאורך כל הדרך.
+      </p>
+      <div><TempBadge show={DRAFT} label="טיוטה, הטקסט לבדיקה" /></div>
+    </header>
+
+    <div class="flow">
+      <nav class="flow__nav" aria-labelledby="flow-nav-title">
+        <h2 class="flow__nav-title" id="flow-nav-title">בקיצור</h2>
+        <ol>
+          {
+            steps.map((s, i) => (
+              <li>
+                <a href={`#${s.id}`}>
+                  <span class="mono" aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span>
+                    <strong>{s.title}</strong>
+                    <span class="flow__short">{s.short}</span>
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+
+      <ol class="flow__steps">
+        {
+          steps.map((s, i) => (
+            <li class="flow__step" id={s.id}>
+              <p class="flow__num mono" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </p>
+              <h2 class="h3" id={`${s.id}-title`}>
+                <span class="visually-hidden">שלב {i + 1}: </span>
+                {s.title}
+              </h2>
+              <div class="flow__body">
+                {s.body.map((p) => (
+                  <p>{p}</p>
+                ))}
+              </div>
+              {s.out || s.you ? (
+                <dl class="flow__meta">
+                  {s.out ? (
+                    <div>
+                      <dt>{s.id === 'delivery' ? 'פורמטים לדוגמה' : 'מה יוצא מהשלב'}</dt>
+                      {s.out.map((x) => (
+                        <dd>{x}</dd>
+                      ))}
+                    </div>
+                  ) : null}
+                  {s.you ? (
+                    <div>
+                      <dt>מה אני צריך ממך</dt>
+                      {s.you.map((x) => (
+                        <dd>{x}</dd>
+                      ))}
+                    </div>
+                  ) : null}
+                </dl>
+              ) : null}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    {
+      routes.services.length ? (
+        <section class="section" aria-labelledby="process-next">
+          <div class="section__head">
+            <h2 class="h2" id="process-next">
+              לפי שירות
+            </h2>
+            <p class="lead">לכל שירות יש לוח זמנים טיפוסי, רשימת תוצרים ומה צריך ממך כדי להתחיל.</p>
+          </div>
+          <ul class="checklist">
+            {routes.services.map((s) => (
+              <li>
+                <a class="link-arrow" href={url(s.href)}>
+                  {s.title}
+                </a>
+              </li>
+            ))}
+            <li>
+              <a class="link-arrow" href={url('/faq/')}>
+                שאלות נפוצות
+              </a>
+            </li>
+          </ul>
+        </section>
+      ) : (
+        <p class="section__more">
+          <a class="link-arrow" href={url('/faq/')}>
+            שאלות נפוצות
+          </a>
+        </p>
+      )
+    }
+
+    <CtaBand />
+  </div>
+</Base>

@@ -14,32 +14,41 @@ import '@fontsource/ibm-plex-sans-hebrew/latin-700.css';
 import '@fontsource/ibm-plex-mono/latin-400.css';
 import '@fontsource/ibm-plex-mono/latin-500.css';
 import '../styles/global.css';
+import '../styles/services.css';
 
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ReviewSwitcher from '../components/ReviewSwitcher.astro';
 import { REVIEW_MODE } from '../lib/config';
-import { getSettings } from '../lib/content';
+import { getServices, getSettings } from '../lib/content';
+import { OG_HEIGHT, OG_WIDTH } from '../lib/og';
+import { ogImageFor } from '../lib/og-pages';
 import { absolute, asset } from '../lib/url';
-import { ldJson, organizationLd } from '../lib/seo';
+import { autoCrumbs, breadcrumbLd, ldJson, organizationLd, type Crumb } from '../lib/seo';
 
 interface Props {
   title: string;
   description: string;
   /** Path without base, e.g. "/work/". Used for canonical + OG url. */
   path: string;
+  /** Absolute URL. Default: the page's generated card (/og/<key>.png), else /og-default.png. */
   ogImage?: string | undefined;
   ogType?: 'website' | 'article';
   jsonLd?: unknown[];
   noindex?: boolean;
+  /** Breadcrumb trail for JSON-LD. Default: derived from `path` (none on the home page). */
+  crumbs?: Crumb[] | undefined;
 }
 
-const { title, description, path, ogImage, ogType = 'website', jsonLd = [], noindex = false } = Astro.props;
-const settings = await getSettings();
+const { title, description, path, ogImage, ogType = 'website', jsonLd = [], noindex = false, crumbs } = Astro.props;
+const [settings, services] = await Promise.all([getSettings(), getServices()]);
 const site = Astro.site;
 const canonical = absolute(path, site);
 const fullTitle = path === '/' ? `${settings.studioName} · ${settings.subline}` : `${title} | ${settings.studioName}`;
-const image = ogImage ?? absolute('/og-default.png', site);
+const generatedOg = ogImage ? undefined : await ogImageFor(path);
+const image = ogImage ?? absolute(generatedOg ?? '/og-default.png', site);
+// Dimensions are known for the generated cards and the default image (both 1200x630).
+const imageSized = !ogImage;
 const studioLd = organizationLd({
   studioName: settings.studioName,
   ownerName: settings.ownerName,
@@ -47,8 +56,12 @@ const studioLd = organizationLd({
   logo: absolute('/og-default.png', site),
   email: settings.email,
   telephone: settings.whatsappNumber ? `+${settings.whatsappNumber}` : undefined,
+  address: settings.business.address,
   description: settings.headline,
+  services: services.map((s) => s.data.title),
 });
+const trail = noindex ? [] : (crumbs ?? autoCrumbs(path, title));
+const crumbsLd = trail.length > 1 ? breadcrumbLd(trail, site) : undefined;
 const direction = settings.defaultDirection;
 ---
 
@@ -73,6 +86,9 @@ const direction = settings.defaultDirection;
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={image} />
+    {imageSized ? <meta property="og:image:width" content={String(OG_WIDTH)} /> : null}
+    {imageSized ? <meta property="og:image:height" content={String(OG_HEIGHT)} /> : null}
+    <meta property="og:image:alt" content={fullTitle} />
     <meta name="twitter:card" content="summary_large_image" />
 
     {REVIEW_MODE ? (
@@ -89,6 +105,7 @@ const direction = settings.defaultDirection;
     ) : null}
 
     <script type="application/ld+json" set:html={ldJson(studioLd)} />
+    {crumbsLd ? <script type="application/ld+json" set:html={ldJson(crumbsLd)} /> : null}
     {jsonLd.map((ld) => <script type="application/ld+json" set:html={ldJson(ld)} />)}
   </head>
   <body class={REVIEW_MODE ? 'has-review-bar' : undefined}>

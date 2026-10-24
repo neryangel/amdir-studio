@@ -7,6 +7,8 @@ import {
   DIRECTIONS,
   DISCIPLINE_LABEL,
   DISCIPLINES,
+  DURATION_UNIT_LABEL,
+  DURATION_UNITS,
   VAT_LABEL,
   VAT_MODES,
   WORK_TYPE_LABEL,
@@ -156,12 +158,37 @@ export default config({
         }),
         coverAlt: fields.text({ label: 'טקסט חלופי', validation: { length: { min: 1 } } }),
         whoFor: textList('למי זה מתאים', 'שורה'),
-        whatYouGet: textList('מה מקבלים', 'שורה'),
+        whatYouGet: textList('מה מקבלים (תוצרים)', 'שורה'),
+        timeline: fields.array(
+          fields.object({
+            stage: fields.text({ label: 'שלב' }),
+            min: fields.integer({ label: 'משך מינימלי', validation: { min: 1 } }),
+            max: fields.integer({ label: 'משך מקסימלי', description: 'ריק = אותו מספר כמו המינימלי', validation: { min: 1 } }),
+            unit: fields.select({ label: 'יחידה', options: opts(DURATION_UNITS, DURATION_UNIT_LABEL), defaultValue: 'days' }),
+          }),
+          {
+            label: 'לוח זמנים טיפוסי',
+            description: 'שלבים עם טווח זמן. מוצג כהערכה, לא כהתחייבות. לוח הזמנים המדויק נקבע בהצעה.',
+            itemLabel: (props) => props.fields.stage.value || 'שלב',
+          },
+        ),
         process: fields.array(
           fields.object({ title: fields.text({ label: 'שלב' }), text: fields.text({ label: 'פירוט', multiline: true }) }),
           { label: 'תהליך', itemLabel: (props) => props.fields.title.value || 'שלב' },
         ),
+        needFromYou: textList('מה אני צריך ממך', 'שורה'),
         afterDelivery: textList('אחרי המסירה', 'שורה'),
+        faq: fields.array(
+          fields.object({
+            question: fields.text({ label: 'שאלה' }),
+            answer: fields.text({ label: 'תשובה', multiline: true }),
+          }),
+          {
+            label: 'שאלות נפוצות',
+            description: 'מוצגות בעמוד השירות ומרוכזות גם בעמוד השאלות הנפוצות.',
+            itemLabel: (props) => props.fields.question.value || 'שאלה',
+          },
+        ),
         relatedDisciplines: fields.multiselect({ label: 'עבודות רלוונטיות מהתחומים', options: opts(DISCIPLINES, DISCIPLINE_LABEL) }),
         price: fields.object(
           {

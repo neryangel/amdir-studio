@@ -6,6 +6,7 @@
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
 import { SHOW_PLACEHOLDERS } from './config';
 import { WORK_FILTERS, type FilterKey } from './enums';
+import { formatWorkTitle } from './titles';
 
 export type Work = CollectionEntry<'works'>;
 export type Service = CollectionEntry<'services'>;
@@ -60,10 +61,7 @@ export async function getSettings() {
 
 /** "אמן - שיר" for clips, "פרויקט ל־לקוח" for client work, otherwise the title. */
 export function workTitle(work: Work): string {
-  const { title, artist, client } = work.data;
-  if (artist) return `${artist} - ${title}`;
-  if (client) return `${title} ל־${client}`;
-  return title;
+  return formatWorkTitle(work.data);
 }
 
 /** Filter keys a work belongs to (used by the CSS-only filter + its JS enhancement). */

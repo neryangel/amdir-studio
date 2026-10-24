@@ -4,9 +4,13 @@ interface Step {
   text: string;
 }
 interface Props {
-  steps?: Step[];
+  steps?: Step[] | undefined;
   headingId?: string;
   heading?: string;
+  /** Optional intro line under the heading. */
+  lead?: string | undefined;
+  /** Optional "read more" link under the steps, e.g. to /process/. */
+  more?: { href: string; label: string } | undefined;
 }
 const defaults: Step[] = [
   { title: 'שיחת היכרות', text: 'מה המטרה, למי זה מיועד ומה כבר קיים.' },
@@ -14,12 +18,13 @@ const defaults: Step[] = [
   { title: 'עבודה עם נקודות אישור', text: 'גרסה לבדיקה בכל שלב מוסכם.' },
   { title: 'מסירה וליווי', text: 'קבצים סופיים, הדרכה ותקופת תיקונים מוגדרת.' },
 ];
-const { steps = defaults, headingId = 'process-title', heading = 'איך עובדים יחד' } = Astro.props;
+const { steps = defaults, headingId = 'process-title', heading = 'איך עובדים יחד', lead, more } = Astro.props;
 ---
 
 <section class="section" aria-labelledby={headingId}>
   <div class="section__head">
     <h2 class="h2" id={headingId}>{heading}</h2>
+    {lead ? <p class="lead">{lead}</p> : null}
   </div>
   <ol class="steps">
     {
@@ -31,4 +36,13 @@ const { steps = defaults, headingId = 'process-title', heading = 'איך עוב�
       ))
     }
   </ol>
+  {
+    more ? (
+      <p class="section__more">
+        <a class="link-arrow" href={more.href}>
+          {more.label}
+        </a>
+      </p>
+    ) : null
+  }
 </section>

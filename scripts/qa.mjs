@@ -45,7 +45,7 @@ const widths = [390, 1440];
 
 await mkdir(shots, { recursive: true });
 const browser = await chromium.launch({ ...(executablePath ? { executablePath } : {}), args: ['--no-sandbox'] });
-const report = { site, pages: pages.length, overflow: [], axe: [], thirdParty: [], functional: [], consoleErrors: [] };
+const report = { site, pages: pages.length, overflow: [], axe: [], thirdParty: [], functional: [], consoleErrors: [], jsonLd: [], jsonLdErrors: [] };
 const slug = (p) => (p === '/' ? 'home' : p.replace(/^\/|\/$/g, '').replace(/[/.]/g, '-'));
 
 for (const theme of themes) {
@@ -85,6 +85,21 @@ for (const theme of themes) {
         if (bar instanceof HTMLElement) bar.style.setProperty('position', 'static', 'important');
         document.body.style.setProperty('padding-bottom', '0', 'important');
       });
+      if (theme.key === 'stage' && width === 1440) {
+        // Every JSON-LD block must parse; collect @types for the summary.
+        const ld = await page.evaluate(() =>
+          [...document.querySelectorAll('script[type="application/ld+json"]')].map((s) => {
+            try {
+              const j = JSON.parse(s.textContent ?? '');
+              return { ok: true, type: [].concat(j['@type']).join('+') };
+            } catch (e) {
+              return { ok: false, type: String(e) };
+            }
+          }),
+        );
+        report.jsonLd.push({ page: p, blocks: ld.length, types: ld.map((b) => b.type) });
+        for (const b of ld) if (!b.ok) report.jsonLdErrors.push({ page: p, error: b.type });
+      }
       const dims = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
       if (dims.sw > dims.cw + 1) report.overflow.push({ page: p, theme: theme.key, width, ...dims });
       // screenshots: both directions at both widths; index-dark at 1440 only
@@ -187,6 +202,46 @@ if (!process.env.QA_SKIP_FUNCTIONAL) {
   const kept = await page.inputValue('#contact-name');
   check('form: not-connected message, no success claim, data kept', msg.includes('הטופס עדיין לא מחובר') && !msg.includes('נשלח') && kept === 'בדיקה', msg);
   check('form: marketing checkbox unticked by default', marketingDefault === false);
+
+  // FAQ: native <details> opens and closes from the keyboard; FAQPage JSON-LD lists exactly the visible questions.
+  await page.goto(`${site}faq/`, { waitUntil: 'networkidle' });
+  const faqCount = await page.locator('details.faq__item').count();
+  const firstFaq = page.locator('details.faq__item').first();
+  await firstFaq.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  const faqOpened = await firstFaq.evaluate((d) => d instanceof HTMLDetailsElement && d.open);
+  await page.keyboard.press('Space');
+  const faqClosed = await firstFaq.evaluate((d) => d instanceof HTMLDetailsElement && !d.open);
+  const faqLd = await page.evaluate(() => {
+    const blocks = [...document.querySelectorAll('script[type="application/ld+json"]')].map((s) => JSON.parse(s.textContent ?? '{}'));
+    const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+    const visible = [...document.querySelectorAll('.faq__q')].map((q) => q.textContent?.trim());
+    return { count: faq?.mainEntity?.length ?? 0, same: !!faq && faq.mainEntity.every((q, i) => q.name === visible[i]) };
+  });
+  check('faq: <details> toggles with Enter/Space, FAQPage JSON-LD matches visible questions',
+    faqCount > 0 && faqOpened && faqClosed && faqLd.count === faqCount && faqLd.same, `items=${faqCount} open=${faqOpened} closed=${faqClosed} ld=${JSON.stringify(faqLd)}`);
+
+  // Service page: Service + BreadcrumbList JSON-LD, in-page links land on their sections.
+  const svcHref = await page.evaluate(() => document.querySelector('.site-footer a[href*="/services/"]')?.getAttribute('href'));
+  if (svcHref) {
+    await page.goto(new URL(svcHref, site).toString(), { waitUntil: 'networkidle' });
+    const svc = await page.evaluate(() => {
+      const types = [...document.querySelectorAll('script[type="application/ld+json"]')].map((s) => JSON.parse(s.textContent ?? '{}')['@type']);
+      const broken = [...document.querySelectorAll('.svc-toc a')].map((a) => a.getAttribute('href')).filter((h) => !h || !document.getElementById(h.slice(1)));
+      return { service: types.includes('Service'), crumbs: types.includes('BreadcrumbList'), broken };
+    });
+    check('service page: Service + BreadcrumbList JSON-LD, all in-page links resolve', svc.service && svc.crumbs && svc.broken.length === 0, JSON.stringify(svc));
+  } else {
+    check('service page: footer links to at least one service', false, 'no /services/ link in footer');
+  }
+
+  // Process page: every overview link points at a step.
+  await page.goto(`${site}process/`, { waitUntil: 'networkidle' });
+  const flow = await page.evaluate(() => {
+    const links = [...document.querySelectorAll('.flow__nav a')].map((a) => a.getAttribute('href') ?? '');
+    return { links: links.length, broken: links.filter((h) => !document.getElementById(h.slice(1))) };
+  });
+  check('process: overview links resolve to steps', flow.links >= 6 && flow.broken.length === 0, JSON.stringify(flow));
   check('no third-party requests during functional run', external.length === 0, external.join(', '));
   await ctx.close();
 
@@ -284,13 +339,16 @@ const summary = {
   axeRules: [...new Set(report.axe.map((v) => `${v.id}(${v.impact})`))],
   thirdPartyRequests: report.thirdParty.length,
   consoleErrors: report.consoleErrors.length,
+  jsonLdBlocks: report.jsonLd.reduce((n, p) => n + p.blocks, 0),
+  jsonLdErrors: report.jsonLdErrors.length,
   functional: report.functional.map((f) => `${f.ok ? 'PASS' : 'FAIL'} ${f.name}${f.ok ? '' : ` :: ${f.detail}`}`),
 };
 await writeFile(path.join(root, process.env.QA_REPORT ?? 'qa-report.json'), JSON.stringify({ summary, ...report }, null, 2));
 console.log(JSON.stringify(summary, null, 2));
 const failed = report.functional.filter((f) => !f.ok).length;
 const seriousAxe = report.axe.filter((v) => v.impact === 'serious' || v.impact === 'critical').length;
-if (failed || seriousAxe || report.overflow.length || report.consoleErrors.length || report.thirdParty.length) process.exitCode = 1;
+if (failed || seriousAxe || report.overflow.length || report.consoleErrors.length || report.thirdParty.length || report.jsonLdErrors.length) process.exitCode = 1;
+if (report.jsonLdErrors.length) console.log('JSON-LD:', JSON.stringify(report.jsonLdErrors, null, 1));
 if (report.overflow.length) console.log('OVERFLOW:', JSON.stringify(report.overflow, null, 1));
 if (report.axe.length) console.log('AXE:', JSON.stringify(report.axe.slice(0, 30), null, 1));
 if (report.consoleErrors.length) console.log('CONSOLE:', JSON.stringify(report.consoleErrors.slice(0, 10), null, 1));

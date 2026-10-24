@@ -1,0 +1,35 @@
+---
+// Typical timeline: an ordered list of stages with their ranges. The coloured bar above each stage
+// is decorative (aria-hidden) and only hints at relative length; the text carries the real range.
+import { formatDuration, formatTimelineTotal, stageWeights, type TimelineStage } from '../lib/timeline';
+
+interface Props {
+  stages: TimelineStage[];
+  headingId: string;
+}
+const { stages, headingId } = Astro.props;
+// CSP has no 'unsafe-inline' for style attributes, so relative length is a 1-10 bucket in data-g.
+const grow = stageWeights(stages).map((w) => Math.min(10, Math.max(1, Math.round(w / 10))));
+const total = formatTimelineTotal(stages);
+---
+
+<section class="section" aria-labelledby={headingId}>
+  <div class="section__head">
+    <h2 class="h2" id={headingId}>לוח זמנים טיפוסי</h2>
+    <p class="lead">
+      {total ? <>בדרך כלל {total} מהאישור ועד המסירה. </> : null}לוח הזמנים המדויק נקבע בהצעה, לפי ההיקף ולפי
+      מהירות האישורים.
+    </p>
+  </div>
+  <ol class="timeline">
+    {
+      stages.map((s, i) => (
+        <li data-g={grow[i] ?? 1}>
+          <span class="timeline__bar" aria-hidden="true" />
+          <span class="timeline__stage">{s.stage}</span>
+          <span class="timeline__dur">{formatDuration(s.min, s.max, s.unit)}</span>
+        </li>
+      ))
+    }
+  </ol>
+</section>
