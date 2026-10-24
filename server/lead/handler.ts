@@ -1,5 +1,7 @@
 // POST /api/lead  (JSON, ≤16 KB) → validate → time-trap → rate limit → STORE → notify.
 // GET  /api/lead  → { token } for the time-trap.
+// Rate limit: in-memory per instance first (cheap), then a durable count of recent leads with the
+// same ip_hash in the store. If the count fails the lead is still stored (a real lead beats the limit).
 // Response rules:
 //   200 { ok: true, id }      only after the store succeeded (even if the notification then failed)
 //   4xx { ok: false, error }  bad input / too fast / rate limited
@@ -7,7 +9,7 @@
 import { LIMITS, NOTICE_VERSION, contactKind } from '../../src/lib/lead-shared';
 import { LeadInput, invalidFields } from './schema';
 import { checkToken, issueToken } from './token';
-import { clientIp, type RateLimiter } from './rateLimit';
+import { clientIp, rateKey, type RateLimiter } from './rateLimit';
 import { hashIp, maskContact, maskName, maskText } from './mask';
 import type { LeadRecord, LeadStore } from './store';
 import type { Notifier } from './notify';
@@ -104,11 +106,22 @@ export function createLeadHandler(deps: LeadDeps) {
       return reply(400, { ok: false, error: token.reason === 'too_fast' ? 'too_fast' : 'token' });
     }
 
-    const ip = clientIp(request);
+    // IPv6 is keyed on its /64, so ip_hash is per /64 too (the durable check counts by ip_hash).
+    const ip = rateKey(clientIp(request));
     const wait = deps.rateLimiter.hit(ip, t);
     if (wait > 0) {
       log.info('lead_rejected', { reason: 'rate_limited' });
       return reply(429, { ok: false, error: 'rate_limited' }, { 'retry-after': String(wait) });
+    }
+    const ipHash = hashIp(ip, deps.secret);
+    try {
+      const recent = await deps.store.countRecent(ipHash, new Date(t - deps.rateLimiter.windowMs).toISOString());
+      if (recent >= deps.rateLimiter.limit) {
+        log.info('lead_rejected', { reason: 'rate_limited', scope: 'store' });
+        return reply(429, { ok: false, error: 'rate_limited' }, { 'retry-after': String(Math.ceil(deps.rateLimiter.windowMs / 1000)) });
+      }
+    } catch (e) {
+      log.error('lead_rate_count_failed', { store: deps.store.kind, error: e instanceof Error ? e.message : 'unknown' });
     }
 
     const brief = input.brief
@@ -126,7 +139,7 @@ export function createLeadHandler(deps: LeadDeps) {
       marketing_opt_in: input.marketingOptIn,
       notice_version: input.noticeVersion,
       consent_at: new Date(t).toISOString(),
-      ip_hash: hashIp(ip, deps.secret),
+      ip_hash: ipHash,
     };
     const masked = {
       source: record.source,

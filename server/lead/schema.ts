@@ -34,14 +34,22 @@ export const Brief = z.strictObject({
 });
 export type Brief = z.infer<typeof Brief>;
 
+/**
+ * Control characters (incl. CR/LF) and Unicode line/paragraph separators. Rejected in single-line
+ * fields so visitor text cannot forge lines in the owner's plain-text notification email.
+ */
+const isControl = (c: number) => c < 0x20 || (c >= 0x7f && c <= 0x9f) || c === 0x2028 || c === 0x2029;
+const noControlChars = (v: string) => ![...v].some((ch) => isControl(ch.codePointAt(0) ?? 0));
+
 /** Exactly the fields the form may send. Unknown keys are rejected (strictObject). */
 export const LeadInput = z.strictObject({
-  name: z.string().trim().min(1).max(LIMITS.name),
+  name: z.string().trim().min(1).max(LIMITS.name).refine(noControlChars, { message: 'name must be a single line' }),
   contact: z
     .string()
     .trim()
     .min(1)
     .max(LIMITS.contact)
+    .refine(noControlChars, { message: 'contact must be a single line' })
     .refine((v) => contactKind(v) !== null, { message: 'contact must be a phone number or an email' }),
   need: z.enum(LEAD_NEEDS),
   details: z.string().trim().min(1).max(LIMITS.details),

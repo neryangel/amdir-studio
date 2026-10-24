@@ -116,6 +116,14 @@ if (!process.env.QA_SKIP_FUNCTIONAL) {
   await page.goto(`${site}?direction=stage`, { waitUntil: 'networkidle' });
   const before = await page.evaluate(() => document.querySelectorAll('.facade video, .facade iframe').length);
   const mp4Before = await page.evaluate(() => performance.getEntriesByType('resource').some((e) => e.name.endsWith('.mp4')));
+  // Playwright's Chromium has no H.264, and an undecodable file now (correctly) falls back to the poster.
+  // So the happy path gets a WebM preview from the build in place of the hero MP4; the fallback is checked below.
+  const worksDir = path.join(dist, 'media', 'works');
+  const webmDir = existsSync(worksDir) ? readdirSync(worksDir).find((d) => existsSync(path.join(worksDir, d, 'preview.webm'))) : undefined;
+  if (webmDir) {
+    const webm = await readFile(path.join(worksDir, webmDir, 'preview.webm'));
+    await page.route(/\/media\/[^/]+\.mp4$/, (r) => r.fulfill({ status: 200, contentType: 'video/webm', body: webm }));
+  }
   await page.click('.hero .facade__play');
   await page.waitForSelector('.hero .facade video');
   const after = await page.evaluate(() => {
@@ -124,6 +132,28 @@ if (!process.env.QA_SKIP_FUNCTIONAL) {
   });
   check('facade: no player before click', before === 0 && !mp4Before, `players=${before} mp4Loaded=${mp4Before}`);
   check('facade: <video> + Hebrew captions after click, focus moved', after.tracks === 1 && after.focused, JSON.stringify(after));
+
+  // Facade, file that fails (404 / codec): player removed, play button back + focused, polite message with a direct link.
+  await page.unrouteAll();
+  await page.route(/\/media\/[^/]+\.mp4$/, (r) => r.fulfill({ status: 404, body: '' }));
+  await page.goto(`${site}?direction=stage`, { waitUntil: 'networkidle' });
+  await page.click('.hero .facade__play');
+  await page.waitForSelector('.hero .facade__error a', { timeout: 8000 }).catch(() => {});
+  const failed = await page.evaluate(() => {
+    const root = document.querySelector('.hero .facade');
+    const msg = root?.querySelector('.facade__error');
+    const btn = root?.querySelector('.facade__play');
+    return {
+      players: root?.querySelectorAll('video').length,
+      role: msg?.getAttribute('role'),
+      href: msg?.querySelector('a')?.getAttribute('href'),
+      btnVisible: btn instanceof HTMLElement && btn.offsetParent !== null,
+      focused: document.activeElement === btn,
+    };
+  });
+  check('facade: failed file falls back to poster + play button, message with direct link',
+    failed.players === 0 && failed.role === 'status' && !!failed.href?.endsWith('.mp4') && failed.btnVisible && failed.focused, JSON.stringify(failed));
+  await page.unrouteAll();
 
   // Work filters (JS on): URL sync + count announcement
   await page.goto(`${site}work/`, { waitUntil: 'networkidle' });
@@ -218,7 +248,12 @@ if (!process.env.QA_SKIP_FUNCTIONAL) {
     await p.evaluate(() => window.scrollBy(0, 0));
     await p.waitForSelector('video.work-card__preview[data-playing]', { timeout: 8000 }).catch(() => {});
     const playing = await p.locator('video.work-card__preview[data-playing]').count();
-    check('previews (mobile): nothing before view, one plays when >=60% in view', before === 0 && playing === 1, `before=${before} playing=${playing}`);
+    // WCAG 2.2.2: no pause control on touch, so it plays once (no loop) for at most 5s, then back to the poster.
+    const loops = await p.locator('video.work-card__preview').first().evaluate((v) => v.loop);
+    await p.waitForTimeout(5500);
+    const stillPlaying = await p.locator('video.work-card__preview[data-playing]').count();
+    check('previews (mobile): nothing before view, one plays when >=60% in view, stops on the poster within 5s',
+      before === 0 && playing === 1 && !loops && stillPlaying === 0, `before=${before} playing=${playing} loop=${loops} after5s=${stillPlaying}`);
     await c.close();
   }
 

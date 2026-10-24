@@ -31,7 +31,7 @@
 | `PUBLIC_SITE_URL` | Production + Preview | `https://amdir.co.il` (או הדומיין שנבחר) |
 | `PUBLIC_LEAD_ENDPOINT` | Production + Preview | `/api/lead`. בלי זה הטופס מציג "עדיין לא מחובר". |
 | `PUBLIC_SHOW_PLACEHOLDERS` | Preview בלבד, אם רוצים | `true` רק לסקירה. **לעולם לא ב-Production.** |
-| `LEAD_SECRET` | Production + Preview | מחרוזת אקראית של 32 תווים ומעלה. **חובה.** בלעדיה הטופס מחזיר שגיאה. |
+| `LEAD_SECRET` | Production + Preview | מחרוזת אקראית של 32 תווים ומעלה (למשל `openssl rand -hex 32`). **חובה.** בלעדיה, או אם היא קצרה מ-32 תווים, הטופס מחזיר שגיאה. |
 | `SUPABASE_URL` | Production (+ Preview אם רוצים) | מהשלב הבא |
 | `SUPABASE_SERVICE_KEY` | Production | מפתח `sb_secret_...`. **סודי, בצד השרת בלבד.** לסמן Sensitive. |
 | `LEAD_TABLE` | לא חובה | ברירת מחדל `studio_leads` |

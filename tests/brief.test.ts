@@ -91,7 +91,7 @@ describe('brief through the handler', () => {
     const lines: string[] = [];
     const logger: Logger = { info: (e, d) => lines.push(JSON.stringify({ e, ...d })), error: (e, d) => lines.push(JSON.stringify({ e, ...d })) };
     const stored: LeadRecord[] = [];
-    const store: LeadStore = { kind: 'mem', insert: async (r) => (stored.push(r), { id: 'x' }) };
+    const store: LeadStore = { kind: 'mem', insert: async (r) => (stored.push(r), { id: 'x' }), countRecent: async () => 0 };
     const handle = createLeadHandler({ store, notifier: new NoopNotifier(), rateLimiter: createRateLimiter({ limit: 100 }), secret: SECRET, now: () => T0 + 4000, logger });
     return { handle, lines, stored };
   }

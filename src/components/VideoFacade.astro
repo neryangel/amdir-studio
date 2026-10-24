@@ -54,6 +54,7 @@ const captions = video?.captions ? (/^https?:/.test(video.captions) ? video.capt
       </button>
     ) : null
   }
+  {kind === 'file' && src ? <p class="facade__error" role="status" /> : null}
   {
     kind && src ? (
       <noscript>
@@ -66,6 +67,22 @@ const captions = video?.captions ? (/^https?:/.test(video.captions) ? video.capt
 </div>
 
 <script>
+  // The file could not play (404, unsupported codec): back to the poster + play button,
+  // with a polite message and a direct link to the file.
+  function fail(root: HTMLElement, v: HTMLVideoElement, src: string) {
+    const hadFocus = document.activeElement === v;
+    v.remove();
+    delete root.dataset.state;
+    const msg = root.querySelector<HTMLElement>('.facade__error');
+    if (msg) {
+      const a = document.createElement('a');
+      a.href = src;
+      a.textContent = 'לפתוח את הקובץ ישירות';
+      msg.replaceChildren('הסרטון לא נטען כאן. אפשר ', a, '.');
+    }
+    if (hadFocus) root.querySelector<HTMLElement>('.facade__play')?.focus();
+  }
+
   function activate(root: HTMLElement) {
     const { kind, src, captions, title } = root.dataset;
     if (!kind || !src || root.dataset.state === 'playing') return;
@@ -77,6 +94,8 @@ const captions = video?.captions ? (/^https?:/.test(video.captions) ? video.capt
       v.playsInline = true;
       v.preload = 'auto';
       v.setAttribute('aria-label', title ?? 'סרטון');
+      v.addEventListener('error', () => fail(root, v, src), { once: true });
+      root.querySelector('.facade__error')?.replaceChildren();
       if (captions) {
         const t = document.createElement('track');
         t.kind = 'captions';

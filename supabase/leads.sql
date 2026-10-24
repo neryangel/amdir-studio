@@ -5,7 +5,8 @@
 -- Privacy:
 --   * RLS is enabled and there are NO policies: anon/authenticated clients can neither read nor write.
 --     Only the server function (service_role, which bypasses RLS) inserts rows.
---   * No raw IP is stored, only a salted hash (ip_hash) for abuse review.
+--   * No raw IP is stored, only a salted hash (ip_hash) for abuse review. IPv6 is hashed per /64
+--     prefix. The server also counts recent rows per ip_hash as a durable rate limit.
 --   * Soft delete: set deleted_at instead of DELETE (matches the AMDIR convention).
 --
 -- Retention (24 months): leads older than 24 months are purged. Suggested monthly job
@@ -57,3 +58,5 @@ create index if not exists studio_leads_source_idx on public.studio_leads (sourc
 -- Lets the studio filter by brief answers (e.g. siteGoal) without scanning every row.
 create index if not exists studio_leads_brief_idx on public.studio_leads using gin (brief jsonb_path_ops) where brief is not null;
 create index if not exists studio_leads_retention_idx on public.studio_leads (created_at) where deleted_at is null;
+-- Durable rate limit: the server counts rows per ip_hash in the last 10 minutes (HEAD + count=exact).
+create index if not exists studio_leads_ip_hash_idx on public.studio_leads (ip_hash, created_at desc) where ip_hash is not null;

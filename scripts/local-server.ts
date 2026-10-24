@@ -22,6 +22,7 @@ export async function startLocalServer(opts: { dir?: string | undefined; port?: 
   const store: LeadStore = {
     kind: 'local',
     insert: (r) => (mode === 'ok' ? jsonl.insert(r) : Promise.reject(new Error('simulated store outage'))),
+    countRecent: (ipHash, sinceIso) => jsonl.countRecent(ipHash, sinceIso),
   };
   const deps: LeadDeps = {
     store,

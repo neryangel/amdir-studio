@@ -1,5 +1,5 @@
 // Notification adapters. Notification happens only AFTER the lead is stored.
-import type { LeadRecord } from './store';
+import { TIMEOUT_MS, type LeadRecord } from './store';
 import { BRIEF_FIELD_LABEL, EVENTS_PER_YEAR_LABEL, SITE_GOAL_LABEL } from '../../src/lib/lead-shared';
 
 export interface Notifier {
@@ -24,7 +24,7 @@ export class ResendNotifier implements Notifier {
   constructor(private readonly opts: { apiKey: string; from: string; to: string; fetch?: FetchLike; timeoutMs?: number }) {}
 
   async notify(id: string, r: LeadRecord): Promise<void> {
-    const { apiKey, from, to, fetch: f = fetch, timeoutMs = 8000 } = this.opts;
+    const { apiKey, from, to, fetch: f = fetch, timeoutMs = TIMEOUT_MS.notify } = this.opts;
     const text = [
       `פנייה חדשה (${r.source === 'pilot' ? 'פיילוט' : 'טופס יצירת קשר'})`,
       `שם: ${r.name}`,

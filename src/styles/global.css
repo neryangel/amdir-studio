@@ -470,6 +470,24 @@ ol {
   gap: 6px 10px;
   align-items: center;
 }
+.facade__error {
+  position: absolute;
+  inset-inline: 16px;
+  top: 16px;
+  margin: 0;
+}
+.facade__error:not(:empty) {
+  padding: 10px 14px;
+  background: var(--bg);
+  color: var(--fg);
+  border-inline-start: 3px solid var(--accent);
+  border-radius: var(--radius);
+  font-size: 15px;
+}
+.facade__error a {
+  color: var(--accent-text);
+  font-weight: 700;
+}
 .facade[data-state='playing'] .facade__play,
 .facade[data-state='playing'] picture {
   display: none;

@@ -49,8 +49,6 @@ const GROUP_TITLE = { media: 'על הקליפ או הסרטון', web: 'על ה�
     <input
       id={id('reach')}
       name="reach"
-      inputmode="email"
-      autocomplete="email"
       dir="ltr"
       required
       aria-describedby={`${id('reach-help')} ${id('reach-err')}`}
@@ -389,6 +387,8 @@ const GROUP_TITLE = { media: 'על הקליפ או הסרטון', web: 'על ה�
       const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
       const label = button?.textContent ?? '';
       form.dataset.busy = 'true';
+      delete form.dataset.state;
+      if (status) status.textContent = 'שולחים את הפנייה…';
       if (button) {
         button.setAttribute('aria-disabled', 'true');
         button.textContent = 'שולחים...';
@@ -418,12 +418,16 @@ const GROUP_TITLE = { media: 'על הקליפ או הסרטון', web: 'על ה�
         return;
       }
 
+      // Server-side field errors: same treatment as client validation (message + focus on the first).
       if (result.reason === 'invalid') {
         for (const f of result.fields ?? []) {
           const local = FIELD_MAP[f];
-          if (local) setError(form, local, MESSAGES[local] ?? (local.startsWith('brief.') ? (/Url$/.test(local) ? URL_ERROR : MONTH_ERROR) : 'בדקו את השדה.'));
+          if (!local) continue;
+          const message = local === 'reach' ? MESSAGES.reachInvalid : MESSAGES[local];
+          setError(form, local, message ?? (local.startsWith('brief.') ? (/Url$/.test(local) ? URL_ERROR : MONTH_ERROR) : 'בדקו את השדה.'));
         }
       }
+      const firstInvalid = form.querySelector<HTMLElement>('[aria-invalid="true"]');
       // Never claim success. Keep everything the visitor typed.
       const wa = form.dataset.wa ?? '#';
       showStatus(
@@ -439,8 +443,9 @@ const GROUP_TITLE = { media: 'על הקליפ או הסרטון', web: 'על ה�
           }
           p.append(a, '. מה שכתבתם נשאר בטופס.');
         },
-        result.reason !== 'not-connected',
+        result.reason !== 'not-connected' && !firstInvalid,
       );
+      firstInvalid?.focus();
       form.dataset.state = 'error';
     });
   });

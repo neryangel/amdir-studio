@@ -3,7 +3,7 @@
 //   LEAD_DEV_JSONL=path (local dev/tests only)           → JsonlFileStore
 //   otherwise                                            → UnconfiguredStore (503, never fake success)
 //   RESEND_API_KEY + LEAD_NOTIFY_FROM + LEAD_NOTIFY_TO   → ResendNotifier, else NoopNotifier
-//   LEAD_SECRET                                          → HMAC secret (required in production)
+//   LEAD_SECRET (≥ 32 chars)                             → HMAC secret (required in production)
 import { randomBytes } from 'node:crypto';
 import { createRateLimiter } from './rateLimit';
 import { NoopNotifier, ResendNotifier, type Notifier } from './notify';
@@ -11,6 +11,8 @@ import { SupabaseRestStore, UnconfiguredStore, type LeadStore } from './store';
 import type { LeadDeps } from './handler';
 
 type Env = Record<string, string | undefined>;
+
+export const MIN_SECRET_LENGTH = 32;
 
 export async function depsFromEnv(env: Env): Promise<LeadDeps> {
   let store: LeadStore;
@@ -33,9 +35,11 @@ export async function depsFromEnv(env: Env): Promise<LeadDeps> {
       : new NoopNotifier();
 
   // Without LEAD_SECRET a random per-instance secret is used: tokens then only verify on the
-  // same warm instance, so production MUST set LEAD_SECRET (see DEPLOY.he.md).
-  const secret = env.LEAD_SECRET || randomBytes(32).toString('hex');
-  if (!env.LEAD_SECRET && env.VERCEL) store = new UnconfiguredStore();
+  // same warm instance, so production MUST set LEAD_SECRET (see DEPLOY.he.md). A secret shorter
+  // than MIN_SECRET_LENGTH counts as missing (guessable HMAC key → forgeable tokens).
+  const configured = env.LEAD_SECRET !== undefined && env.LEAD_SECRET.length >= MIN_SECRET_LENGTH ? env.LEAD_SECRET : undefined;
+  const secret = configured ?? randomBytes(32).toString('hex');
+  if (!configured && env.VERCEL) store = new UnconfiguredStore();
 
   return { store, notifier, secret, rateLimiter: createRateLimiter() };
 }

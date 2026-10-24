@@ -1,4 +1,5 @@
-// Muted preview loops. Desktop: hover/focus. Touch: the card that is >=60% in view (one at a time).
+// Muted preview loops. Desktop: hover/focus. Touch: the card that is >=60% in view (one at a time),
+// played once for at most 5s, then back to the poster (no pause control on touch: WCAG 2.2.2).
 // Never under prefers-reduced-motion or Save-Data. Nothing is fetched before hover/view:
 // the <video> has no src until then (preload="none"), and the poster <picture> stays the LCP element.
 type Conn = { saveData?: boolean };
@@ -50,10 +51,23 @@ if (videos.length && !saveData) {
     }
   } else {
     const ratios = new Map<HTMLVideoElement, number>();
+    const done = (v: HTMLVideoElement) => {
+      stop(v);
+      v.dataset.played = '1';
+      ratios.set(v, 0);
+    };
+    for (const v of videos) {
+      v.loop = false;
+      v.addEventListener('ended', () => done(v));
+      v.addEventListener('playing', () => setTimeout(() => done(v), 5000), { once: true });
+    }
     let current: HTMLVideoElement | undefined;
     const io = new IntersectionObserver(
       (entries) => {
-        for (const e of entries) ratios.set(e.target as HTMLVideoElement, e.intersectionRatio);
+        for (const e of entries) {
+          const v = e.target as HTMLVideoElement;
+          ratios.set(v, v.dataset.played ? 0 : e.intersectionRatio);
+        }
         let best: HTMLVideoElement | undefined;
         let bestRatio = 0.6;
         for (const [v, r] of ratios) if (r >= bestRatio) (best = v), (bestRatio = r);
