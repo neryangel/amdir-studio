@@ -1,0 +1,128 @@
+/*
+ * COPIED VERBATIM from the public site: ../src/styles/tokens.css. Studio OS uses the 'index' direction
+ * (IBM Plex Sans Hebrew + Mono, orange accent, light/dark). Keep in sync when the brand tokens change;
+ * OS-only semantic tokens live in app.css, not here.
+ */
+/*
+ * Design tokens. ONE markup, TWO directions, switched by <html data-direction="stage|index">.
+ *  stage ("במה"):   single dark world, Karantina display + Heebo body, magenta gel accent, sharp corners.
+ *  index ("אינדקס"): light + dark (prefers-color-scheme, or forced with data-theme), IBM Plex Sans Hebrew
+ *                   + IBM Plex Mono, orange accent, 4px corners.
+ * One accent per direction. --accent-text is the same hue tuned for small text (AA 4.5:1).
+ */
+:root,
+:root[data-direction='stage'] {
+  color-scheme: dark;
+  --bg: #131417;
+  --surface: #1c1e23;
+  --surface-2: #24272d;
+  --fg: #ece8e1;
+  --muted: #a8a39b;
+  --line: #34373e;
+  --line-strong: #ece8e1;
+  --accent: #d6286f;
+  --accent-hover: #bb1f5f;
+  --accent-text: #f2709f;
+  --accent-ink: #ffffff;
+  --focus: #ece8e1;
+  --badge-bg: #2a2c32;
+  --badge-fg: #d8d3cb;
+  --danger: #ff8b8b;
+
+  --font-display: 'Karantina', 'Heebo', system-ui, sans-serif;
+  --font-body: 'Heebo', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Heebo', ui-monospace, Menlo, monospace;
+  --display-weight: 700;
+  --display-leading: 0.9;
+  --display-tracking: 0.005em;
+  --h1-size: clamp(54px, 7.4vw, 108px);
+  --h2-size: clamp(46px, 5.6vw, 80px);
+  --h3-size: clamp(30px, 3vw, 42px);
+  --title-size: clamp(64px, 11vw, 160px);
+  --row-title-size: clamp(26px, 2.6vw, 36px);
+  --radius: 0px;
+  --radius-pill: 0px;
+  --btn-weight: 700;
+}
+
+:root[data-direction='index'] {
+  color-scheme: light;
+  --bg: #f1f3f5;
+  --surface: #ffffff;
+  --surface-2: #e6ebf1;
+  --fg: #0e1b2c;
+  --muted: #4f5e72;
+  --line: #cbd3dd;
+  --line-strong: #0e1b2c;
+  --accent: #c2410c;
+  --accent-hover: #a2360a;
+  --accent-text: #b13a09;
+  --accent-ink: #ffffff;
+  --focus: #0e1b2c;
+  --badge-bg: #e1e7ee;
+  --badge-fg: #2f3d50;
+  --danger: #b42318;
+
+  --font-display: 'IBM Plex Sans Hebrew', 'Heebo', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans Hebrew', 'Heebo', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'IBM Plex Sans Hebrew', ui-monospace, Menlo, monospace;
+  --display-weight: 700;
+  --display-leading: 1.1;
+  --display-tracking: -0.01em;
+  --h1-size: clamp(36px, 4.6vw, 60px);
+  --h2-size: clamp(28px, 3vw, 38px);
+  --h3-size: clamp(21px, 2vw, 24px);
+  --title-size: clamp(34px, 4.4vw, 56px);
+  --row-title-size: 18px;
+  --radius: 4px;
+  --radius-pill: 999px;
+  --btn-weight: 500;
+}
+
+/* Index, dark: follows the OS unless forced light. */
+@media (prefers-color-scheme: dark) {
+  :root[data-direction='index']:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #0e141b;
+    --surface: #151d27;
+    --surface-2: #1b2531;
+    --fg: #e6eaf0;
+    --muted: #9aa8ba;
+    --line: #2b3746;
+    --line-strong: #e6eaf0;
+    --accent: #ff8a4c;
+    --accent-hover: #ffa06e;
+    --accent-text: #ff9a63;
+    --accent-ink: #1a0d05;
+    --focus: #e6eaf0;
+    --badge-bg: #1f2a37;
+    --badge-fg: #c9d3df;
+    --danger: #ff9b8f;
+  }
+}
+:root[data-direction='index'][data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0e141b;
+  --surface: #151d27;
+  --surface-2: #1b2531;
+  --fg: #e6eaf0;
+  --muted: #9aa8ba;
+  --line: #2b3746;
+  --line-strong: #e6eaf0;
+  --accent: #ff8a4c;
+  --accent-hover: #ffa06e;
+  --accent-text: #ff9a63;
+  --accent-ink: #1a0d05;
+  --focus: #e6eaf0;
+  --badge-bg: #1f2a37;
+  --badge-fg: #c9d3df;
+  --danger: #ff9b8f;
+}
+
+:root {
+  --gutter: max(16px, env(safe-area-inset-left, 0px));
+  --max: 1240px;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --t-fast: 160ms;
+  --t-med: 220ms;
+}
