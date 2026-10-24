@@ -1,52 +1,133 @@
 ---
-import { Picture } from 'astro:assets';
+import { Picture, getImage } from 'astro:assets';
 import type { GetStaticPaths } from 'astro';
 import Base from '../../layouts/Base.astro';
+import Crumbs from '../../components/Crumbs.astro';
 import WorkCard from '../../components/WorkCard.astro';
 import Process from '../../components/Process.astro';
+import Timeline from '../../components/Timeline.astro';
+import FaqList from '../../components/FaqList.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import TempBadge from '../../components/TempBadge.astro';
-import { VAT_LABEL } from '../../lib/enums';
+import { DISCIPLINE_LABEL, VAT_LABEL } from '../../lib/enums';
 import { getServices, getWorks, type Service } from '../../lib/content';
-import { absolute } from '../../lib/url';
+import { HOME_CRUMB, serviceLd, type Crumb } from '../../lib/seo';
+import { formatTimelineTotal } from '../../lib/timeline';
+import { absolute, url } from '../../lib/url';
 
 export const getStaticPaths = (async () => {
   const services = await getServices();
-  return services.map((service) => ({ params: { slug: service.id }, props: { service } }));
+  return services.map((service, i) => ({
+    params: { slug: service.id },
+    props: { service, index: i, all: services },
+  }));
 }) satisfies GetStaticPaths;
 
 interface Props {
   service: Service;
+  index: number;
+  all: Service[];
 }
-const { service } = Astro.props;
+const { service, index, all } = Astro.props;
 const d = service.data;
+const path = `/services/${service.id}/`;
+const crumbs: Crumb[] = [HOME_CRUMB, { name: d.title, path }];
+
+// Related works: only what this build includes (placeholders only in review builds), by discipline.
 const works = (await getWorks()).filter((w) => w.data.disciplines.some((x) => d.relatedDisciplines.includes(x))).slice(0, 3);
-const serviceLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Service',
+const others = all.filter((s) => s.id !== service.id);
+const total = formatTimelineTotal(d.timeline);
+const disciplines = d.relatedDisciplines.map((x) => DISCIPLINE_LABEL[x]);
+const pad = (n: number) => String(n).padStart(2, '0');
+
+const cover = await getImage({ src: d.cover, width: 1200, format: 'jpeg' });
+const ld = serviceLd({
   name: d.title,
   description: d.summary,
-  provider: { '@id': `${absolute('/', Astro.site)}#studio` },
-  areaServed: { '@type': 'Country', name: 'Israel' },
-};
+  url: absolute(path, Astro.site),
+  image: new URL(cover.src, Astro.site ?? 'https://studio.amdir.example').toString(),
+  siteUrl: absolute('/', Astro.site),
+  deliverables: d.whatYouGet,
+  audience: d.whoFor,
+});
+
+const toc = [
+  d.whoFor.length || d.whatYouGet.length ? { id: 'svc-fit', label: 'למי ומה מקבלים' } : undefined,
+  d.timeline.length ? { id: 'svc-timeline', label: 'לוח זמנים' } : undefined,
+  { id: 'svc-process', label: 'תהליך' },
+  d.needFromYou.length ? { id: 'svc-need', label: 'מה אני צריך ממך' } : undefined,
+  works.length ? { id: 'svc-works', label: 'עבודות' } : undefined,
+  d.faq.length ? { id: 'svc-faq', label: 'שאלות' } : undefined,
+].filter((x): x is { id: string; label: string } => !!x);
 ---
 
-<Base title={d.title} description={d.summary.slice(0, 155)} path={`/services/${service.id}/`} jsonLd={[serviceLd]}>
+<Base title={d.title} description={d.summary.slice(0, 155)} path={path} jsonLd={[ld]} crumbs={crumbs}>
   <div class="wrap">
-    <header class="page-head">
+    <header class="svc-hero">
+      <Crumbs items={crumbs} />
+      <p class="kicker">
+        <span class="mono">{pad(index + 1)}/{pad(all.length)}</span> שירות
+      </p>
       <h1>{d.title}</h1>
-      <p class="lead">{d.summary}</p>
-      <div><TempBadge show={d.placeholder} label="חומר זמני, הטקסט לבדיקה" /></div>
+      <p class="lead svc-hero__lead">{d.summary}</p>
+      <div class="svc-hero__badges">
+        <TempBadge show={d.placeholder} label="חומר זמני, הטקסט לבדיקה" />
+      </div>
+
+      <dl class="svc-facts">
+        {
+          total ? (
+            <div>
+              <dt>זמן טיפוסי</dt>
+              <dd>{total}</dd>
+            </div>
+          ) : null
+        }
+        {
+          disciplines.length ? (
+            <div>
+              <dt>תחומים</dt>
+              <dd>{disciplines.join(', ')}</dd>
+            </div>
+          ) : null
+        }
+        <div>
+          <dt>מחיר</dt>
+          <dd>
+            {
+              d.price ? (
+                <>
+                  {d.price.text} {VAT_LABEL[d.price.vat]}
+                </>
+              ) : (
+                'לפי היקף, בהצעה בכתב'
+              )
+            }
+          </dd>
+        </div>
+      </dl>
+
+      <div class="ctas">
+        <a class="btn btn--primary" href={url('/contact/')}>ספרו לי על הפרויקט</a>
+        <a class="btn" href={url('/process/')}>איך אני עובד</a>
+      </div>
+
       {
-        d.price ? (
-          <p class="price">
-            {d.price.text} {VAT_LABEL[d.price.vat]}
-          </p>
+        toc.length > 2 ? (
+          <nav class="svc-toc" aria-label="בעמוד הזה">
+            <ul>
+              {toc.map((t) => (
+                <li>
+                  <a href={`#${t.id}`}>{t.label}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
         ) : null
       }
     </header>
 
-    <div class="cover">
+    <div class="cover cover--band">
       <Picture
         src={d.cover}
         alt={d.coverAlt}
@@ -58,40 +139,89 @@ const serviceLd = {
       />
     </div>
 
-    <section class="section" aria-labelledby="svc-for">
-      <div class="split">
-        <div>
-          <h2 class="h3 split__title" id="svc-for">למי זה מתאים</h2>
-          <ul class="checklist">
-            {d.whoFor.map((x) => <li>{x}</li>)}
-          </ul>
-        </div>
-        <div>
-          <h2 class="h3 split__title" id="svc-get">מה מקבלים</h2>
-          <ul class="checklist">
-            {d.whatYouGet.map((x) => <li>{x}</li>)}
-          </ul>
-        </div>
-      </div>
-    </section>
+    {
+      d.whoFor.length || d.whatYouGet.length ? (
+        <section class="section" aria-labelledby="svc-fit">
+          <h2 class="visually-hidden" id="svc-fit">
+            למי זה מתאים ומה מקבלים
+          </h2>
+          <div class="svc-pair">
+            {d.whoFor.length ? (
+              <div class="svc-card">
+                <h3 class="h3 svc-card__title">למי זה מתאים</h3>
+                <ul class="checklist">
+                  {d.whoFor.map((x) => (
+                    <li>{x}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {d.whatYouGet.length ? (
+              <div class="svc-card svc-card--accent">
+                <h3 class="h3 svc-card__title">מה מקבלים</h3>
+                <ol class="deliverables">
+                  {d.whatYouGet.map((x) => (
+                    <li>{x}</li>
+                  ))}
+                </ol>
+              </div>
+            ) : null}
+          </div>
+        </section>
+      ) : null
+    }
 
-    {d.process.length ? <Process steps={d.process} headingId="svc-process" heading="התהליך" /> : <Process />}
+    {d.timeline.length ? <Timeline stages={d.timeline} headingId="svc-timeline" /> : null}
 
-    <section class="section" aria-labelledby="svc-after">
-      <div class="section__head">
-        <h2 class="h2" id="svc-after">אחרי המסירה</h2>
-        <p class="lead">זו האחריות שלי אחרי שהעבודה נמסרה. הכול נכתב גם בהצעה.</p>
-      </div>
-      <ul class="checklist">
-        {d.afterDelivery.map((x) => <li>{x}</li>)}
-      </ul>
-    </section>
+    <Process
+      steps={d.process.length ? d.process : undefined}
+      headingId="svc-process"
+      heading="התהליך"
+      more={{ href: url('/process/'), label: 'כל השלבים, מהפנייה ועד אחרי המסירה' }}
+    />
+
+    {
+      d.needFromYou.length || d.afterDelivery.length ? (
+        <section class="section" aria-labelledby={d.needFromYou.length ? 'svc-need' : 'svc-after'}>
+          <div class="svc-pair">
+            {d.needFromYou.length ? (
+              <div>
+                <h2 class="h3 split__title" id="svc-need">
+                  מה אני צריך ממך
+                </h2>
+                <p class="svc-note">כדי להתחיל בזמן, כדאי שאלה יהיו מוכנים.</p>
+                <ul class="checklist">
+                  {d.needFromYou.map((x) => (
+                    <li>{x}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {d.afterDelivery.length ? (
+              <div>
+                <h2 class="h3 split__title" id="svc-after">
+                  אחרי המסירה
+                </h2>
+                <p class="svc-note">מה קורה אחרי שהעבודה נמסרה. הכול נכתב גם בהצעה.</p>
+                <ul class="checklist">
+                  {d.afterDelivery.map((x) => (
+                    <li>{x}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        </section>
+      ) : null
+    }
 
     {
       works.length ? (
         <section class="section" aria-labelledby="svc-works">
           <div class="section__head">
-            <h2 class="h2" id="svc-works">עבודות רלוונטיות</h2>
+            <h2 class="h2" id="svc-works">
+              עבודות רלוונטיות
+            </h2>
           </div>
           <div class="related related--flat">
             <ul>
@@ -102,7 +232,52 @@ const serviceLd = {
               ))}
             </ul>
           </div>
+          <p class="section__more">
+            <a class="link-arrow" href={url('/work/')}>
+              לכל העבודות
+            </a>
+          </p>
         </section>
+      ) : null
+    }
+
+    {
+      d.faq.length ? (
+        <section class="section" aria-labelledby="svc-faq">
+          <div class="svc-faq">
+            <div class="section__head">
+              <h2 class="h2" id="svc-faq">
+                שאלות על {d.title}
+              </h2>
+              <p class="section__more">
+                <a class="link-arrow" href={url('/faq/')}>
+                  כל השאלות הנפוצות
+                </a>
+              </p>
+            </div>
+            <FaqList items={d.faq} />
+          </div>
+        </section>
+      ) : null
+    }
+
+    {
+      others.length ? (
+        <nav class="section svc-others" aria-labelledby="svc-others">
+          <h2 class="h3 split__title" id="svc-others">
+            שירותים נוספים
+          </h2>
+          <ul>
+            {others.map((s) => (
+              <li>
+                <a href={url(`/services/${s.id}/`)}>
+                  <span class="svc-others__title">{s.data.title}</span>
+                  <span class="svc-others__summary">{s.data.summary}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
       ) : null
     }
 

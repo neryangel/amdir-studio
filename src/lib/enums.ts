@@ -42,6 +42,14 @@ export const DIRECTION_LABEL: Record<Direction, string> = {
   index: 'ב׳ אינדקס',
 };
 
+/** Units for typical-timeline ranges on service pages. */
+export const DURATION_UNITS = ['days', 'weeks'] as const;
+export type DurationUnit = (typeof DURATION_UNITS)[number];
+export const DURATION_UNIT_LABEL: Record<DurationUnit, string> = {
+  days: 'ימי עבודה',
+  weeks: 'שבועות',
+};
+
 export const VAT_MODES = ['plus', 'incl'] as const;
 export type VatMode = (typeof VAT_MODES)[number];
 export const VAT_LABEL: Record<VatMode, string> = {

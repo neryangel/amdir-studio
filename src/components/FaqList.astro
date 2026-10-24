@@ -1,0 +1,30 @@
+---
+// Questions as native <details>/<summary> disclosures: keyboard and screen-reader support
+// come from the browser (summary is exposed as a button with expanded state), the answer is
+// in the DOM (findable with Ctrl+F), and nothing needs JS. The question is plain text, not a
+// heading, because a summary's children are presentational for assistive tech.
+import type { QA } from '../lib/seo';
+
+interface Props {
+  items: QA[];
+}
+const { items } = Astro.props;
+---
+
+<ul class="faq">
+  {
+    items.map((f) => (
+      <li>
+        <details class="faq__item">
+          <summary>
+            <span class="faq__q">{f.question}</span>
+            <span class="faq__icon" aria-hidden="true" />
+          </summary>
+          <div class="faq__a">
+            <p>{f.answer}</p>
+          </div>
+        </details>
+      </li>
+    ))
+  }
+</ul>

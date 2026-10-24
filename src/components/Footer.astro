@@ -1,13 +1,13 @@
 ---
 import { TODO } from '../lib/config';
-import { getSettings } from '../lib/content';
+import { getRoutes, getSettings } from '../lib/content';
 import { url, whatsappHref } from '../lib/url';
 
-const s = await getSettings();
+const [s, routes] = await Promise.all([getSettings(), getRoutes()]);
 const wa = whatsappHref(s.whatsappNumber);
 ---
 
-<footer class="site-footer">
+<footer class:list={['site-footer', { 'site-footer--services': routes.services.length > 0 }]}>
   <div class="wrap">
     <section aria-labelledby="footer-biz">
       <h2 id="footer-biz">{s.studioName}, {s.subline}</h2>
@@ -28,6 +28,8 @@ const wa = whatsappHref(s.whatsappNumber);
       <h2 id="footer-site">באתר</h2>
       <ul>
         <li><a href={url('/work/')}>עבודות</a></li>
+        <li><a href={url('/process/')}>איך אני עובד</a></li>
+        <li><a href={url('/faq/')}>שאלות נפוצות</a></li>
         <li><a href={url('/about/')}>סטודיו</a></li>
         <li><a href={url('/contact/')}>יצירת קשר</a></li>
         <li>
@@ -43,6 +45,20 @@ const wa = whatsappHref(s.whatsappNumber);
         </li>
       </ul>
     </nav>
+    {
+      routes.services.length ? (
+        <nav aria-labelledby="footer-services">
+          <h2 id="footer-services">שירותים</h2>
+          <ul>
+            {routes.services.map((r) => (
+              <li>
+                <a href={url(r.href)}>{r.title}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : null
+    }
     <nav aria-labelledby="footer-legal">
       <h2 id="footer-legal">מידע משפטי</h2>
       <ul>

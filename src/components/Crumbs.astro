@@ -1,0 +1,28 @@
+---
+// Visible breadcrumb trail. Pass the same items to <Base crumbs> so the JSON-LD matches what is shown.
+import type { Crumb } from '../lib/seo';
+import { url } from '../lib/url';
+
+interface Props {
+  items: Crumb[];
+}
+const { items } = Astro.props;
+---
+
+{
+  items.length > 1 ? (
+    <nav class="trail" aria-label="נתיב">
+      <ol>
+        {items.map((c, i) =>
+          i === items.length - 1 ? (
+            <li aria-current="page">{c.name}</li>
+          ) : (
+            <li>
+              <a href={url(c.path)}>{c.name}</a>
+            </li>
+          ),
+        )}
+      </ol>
+    </nav>
+  ) : null
+}

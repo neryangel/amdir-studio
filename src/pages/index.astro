@@ -6,13 +6,14 @@ import WorkCard from '../components/WorkCard.astro';
 import Process from '../components/Process.astro';
 import CtaBand from '../components/CtaBand.astro';
 import TempBadge from '../components/TempBadge.astro';
-import { getFeaturedWorks, getProducts, getSettings } from '../lib/content';
+import { getFeaturedWorks, getProducts, getServices, getSettings } from '../lib/content';
 import { SHOW_PLACEHOLDERS } from '../lib/config';
 import { url, whatsappHref } from '../lib/url';
 
 const settings = await getSettings();
 const works = await getFeaturedWorks(6);
 const [product] = await getProducts();
+const services = await getServices();
 const showReel = !settings.showreelPlaceholder || SHOW_PLACEHOLDERS;
 const wa = whatsappHref(settings.whatsappNumber) ?? url('/contact/#whatsapp');
 
@@ -98,12 +99,38 @@ const crafts = [
       <div class="section__head">
         <h2 class="h2" id="crafts-title">מה אני עושה</h2>
       </div>
-      <ul class="crafts">
-        {crafts.map((c) => <li>{c}</li>)}
-      </ul>
+      {
+        services.length ? (
+          <ul class="svc-strip">
+            {services.map((s, i) => (
+              <li class="svc-strip__item">
+                <span class="svc-strip__num mono" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3 class="svc-strip__title">
+                  <a class="svc-strip__link" href={url(`/services/${s.id}/`)}>
+                    {s.data.title}
+                  </a>
+                </h3>
+                <p class="svc-strip__summary">{s.data.summary}</p>
+                <TempBadge show={s.data.placeholder} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <ul class="crafts">
+            {crafts.map((c) => (
+              <li>{c}</li>
+            ))}
+          </ul>
+        )
+      }
     </section>
 
-    <Process />
+    <Process
+      lead="אותו סדר בכל פרויקט, עם נקודות אישור ברורות."
+      more={{ href: url('/process/'), label: 'איך אני עובד, שלב אחר שלב' }}
+    />
 
     {
       product ? (

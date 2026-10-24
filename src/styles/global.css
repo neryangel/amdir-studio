@@ -592,7 +592,8 @@ ol {
 .steps {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* 4 across for the default steps, 5 across when a service has 5 */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
   gap: 24px;
   counter-reset: step;
   border-top: 1px solid var(--line-strong);

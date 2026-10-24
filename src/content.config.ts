@@ -3,7 +3,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
-import { DIRECTIONS, DISCIPLINES, VAT_MODES, VIDEO_PROVIDERS, WORK_TYPES } from './lib/enums';
+import { DIRECTIONS, DISCIPLINES, DURATION_UNITS, VAT_MODES, VIDEO_PROVIDERS, WORK_TYPES } from './lib/enums';
 import type { VideoProvider } from './lib/enums';
 
 /** Keystatic stores empty text fields as "". Treat blank as "not set". */
@@ -101,10 +101,46 @@ const services = defineCollection({
       summary: z.string().min(1),
       cover: image(),
       coverAlt: z.string().min(1),
+      /** Who it's for. */
       whoFor: textList,
+      /** What you get (deliverables). */
       whatYouGet: textList,
+      /** Typical timeline: stages with a duration range. Blank stages are dropped. */
+      timeline: z
+        .array(
+          z
+            .object({
+              stage: z.string().default(''),
+              min: z.number().int().min(1).nullish(),
+              max: z.number().int().min(1).nullish(),
+              unit: z.enum(DURATION_UNITS).default('days'),
+            })
+            .refine((t) => t.min == null || t.max == null || t.max >= t.min, {
+              message: 'הטווח העליון חייב להיות גדול מהתחתון או שווה לו',
+            }),
+        )
+        .default([])
+        .transform((list) =>
+          list.flatMap((t) => {
+            const stage = t.stage.trim();
+            const min = t.min ?? t.max;
+            if (!stage || min == null) return [];
+            return [{ stage, min, max: t.max ?? min, unit: t.unit }];
+          }),
+        ),
       process: z.array(z.object({ title: z.string().min(1), text: z.string().default('') })).default([]),
+      /** What I need from you. */
+      needFromYou: textList,
       afterDelivery: textList,
+      /** Question/answer pairs. Shown on the service page and aggregated on /faq/. */
+      faq: z
+        .array(z.object({ question: z.string().default(''), answer: z.string().default('') }))
+        .default([])
+        .transform((list) =>
+          list
+            .map((f) => ({ question: f.question.trim(), answer: f.answer.trim() }))
+            .filter((f) => f.question && f.answer),
+        ),
       /** Disciplines whose works appear as "relevant works". */
       relatedDisciplines: z.array(z.enum(DISCIPLINES)).default([]),
       /** No prices on the site for now. If ever filled, VAT wording is mandatory. */
