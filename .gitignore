@@ -17,3 +17,6 @@ inbox/
 inbox-sample/
 qa-report-aria.json
 .claude/
+# Studio OS (os/) build output and deps
+os/node_modules/
+os/dist/
