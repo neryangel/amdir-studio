@@ -10,7 +10,9 @@
     "qa-shots",
     "node_modules",
     "inbox",
-    "inbox-sample"
+    "inbox-sample",
+    "os",
+    ".claude"
   ],
   "compilerOptions": {
     "jsx": "react-jsx",

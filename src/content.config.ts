@@ -3,7 +3,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
-import { DIRECTIONS, DISCIPLINES, DURATION_UNITS, VAT_MODES, VIDEO_PROVIDERS, WORK_TYPES } from './lib/enums';
+import { ASPECTS, DIRECTIONS, DISCIPLINES, DURATION_UNITS, VAT_MODES, VIDEO_PROVIDERS, WORK_TYPES } from './lib/enums';
 import type { VideoProvider } from './lib/enums';
 
 /** Keystatic stores empty text fields as "". Treat blank as "not set". */
@@ -11,6 +11,8 @@ const optText = z
   .string()
   .nullish()
   .transform((v) => (v && v.trim() ? v.trim() : undefined));
+
+const altText = z.string().min(1, 'חובה למלא טקסט חלופי לכל תמונה');
 
 const textList = z
   .array(z.string())
@@ -80,6 +82,46 @@ const works = defineCollection({
         )
         .default([]),
       websiteUrl: optText,
+
+      // ---- Case study (all optional; a work without them renders the short layout) ----
+      /** One line under the title: what this is, in plain words. */
+      logline: optText,
+      /** Main delivery aspect. 9:16 gets a vertical hero. */
+      aspect: z
+        .union([z.enum(ASPECTS), z.literal('')])
+        .nullish()
+        .transform((a) => (a ? a : undefined)),
+      /** The challenge / brief: the situation and the constraint. */
+      brief: optText,
+      /** The approach: the idea and how it was carried out. */
+      approach: optText,
+      /** Process stills (storyboard, timeline, node graph...) with captions. */
+      process: z.array(z.object({ image: image(), alt: altText, caption: optText })).default([]),
+      /** Before/after pairs for edit, colour or VFX work. Rendered as an accessible comparison slider. */
+      compare: z
+        .array(
+          z.object({
+            before: image(),
+            beforeAlt: altText,
+            beforeLabel: optText,
+            after: image(),
+            afterAlt: altText,
+            afterLabel: optText,
+            caption: optText,
+          }),
+        )
+        .default([]),
+      /** Format variants shown as one set: 16:9 master, 9:16 and 1:1 social cuts. */
+      formats: z
+        .array(z.object({ aspect: z.enum(ASPECTS), image: image(), alt: altText, note: optText }))
+        .default([]),
+      /** Behind the scenes. */
+      bts: z.array(z.object({ image: image(), alt: altText, caption: optText })).default([]),
+      /** Other people's roles. Name is optional (shown as "לא צוין" when empty). `credits` stays the owner's roles. */
+      crew: z
+        .array(z.object({ role: z.string().trim().min(1), name: optText }))
+        .default([]),
+
       /** Required to be true for type=client, otherwise the work is excluded from the build. */
       permissionToShow: z.boolean().default(false),
       /** For clips: was the music licensed / cleared? Missing or false on a client/personal clip triggers a build warning. */

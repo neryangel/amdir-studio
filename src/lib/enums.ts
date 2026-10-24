@@ -49,6 +49,18 @@ export const DURATION_UNIT_LABEL: Record<DurationUnit, string> = {
   days: 'ימי עבודה',
   weeks: 'שבועות',
 };
+/** Delivery aspect ratios for format variants (16:9 master + social cuts). */
+
+export const ASPECTS = ['16:9', '9:16', '1:1', '4:5'] as const;
+export type Aspect = (typeof ASPECTS)[number];
+export const ASPECT_LABEL: Record<Aspect, string> = {
+  '16:9': 'מאסטר לרוחב',
+  '9:16': 'אנכי לסטוריז ורילס',
+  '1:1': 'ריבוע לפיד',
+  '4:5': 'אנכי לפיד',
+};
+/** CSS-safe key (no inline styles under the CSP): '16:9' -> '16x9'. */
+export const aspectKey = (a: Aspect): string => a.replace(':', 'x');
 
 export const VAT_MODES = ['plus', 'incl'] as const;
 export type VatMode = (typeof VAT_MODES)[number];

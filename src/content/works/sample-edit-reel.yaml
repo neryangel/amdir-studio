@@ -1,8 +1,8 @@
 # Created by scripts/ingest.mjs from inbox folder "sample-edit-reel". Review, then set needsReview: false.
-title: "sample edit reel"
+title: "בדיקת קליטה: ריל עריכה"
 artist: ""
 client: ""
-type: "personal"
+type: "demo"
 disciplines: 
   - "video"
 year: 2026
@@ -28,6 +28,6 @@ gallery:
 websiteUrl: ""
 permissionToShow: false
 featured: false
-order: 100
-placeholder: false
+order: 200
+placeholder: true
 needsReview: true

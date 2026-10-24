@@ -218,7 +218,7 @@ function absoluteMedia(ref: string, site: URL | undefined): string {
  * Uses only content fields. Deliberately omits uploadDate, duration and interaction counts
  * (we do not have them); dateCreated is the work's year as entered.
  *
- * Usage in src/pages/work/[slug].astro:
+ * Used by src/pages/work/[slug].astro:
  *   const ld = workJsonLd(work, { site: Astro.site, ownerName: settings.ownerName, image: ogImage });
  *   <Base ... jsonLd={[ld]} />
  */
@@ -265,47 +265,6 @@ export function workJsonLd(work: WorkLdInput, ctx: WorkLdContext) {
     publisher: { '@id': studioId(absolute('/', ctx.site)) },
     ...(d.websiteUrl ? { sameAs: d.websiteUrl } : {}),
     ...(video ? { video } : {}),
-  };
-}
-
-interface WorkFacts {
-  name: string;
-  description: string;
-  url: string;
-  image: string;
-  year: number;
-  studioId: string;
-  ownerName: string;
-  genre: string[];
-  video?: { contentUrl?: string | undefined; embedUrl?: string | undefined } | undefined;
-}
-
-/** Kept for the current work page. Prefer workJsonLd(work, ctx), which reads the entry directly. */
-export function creativeWorkLd(w: WorkFacts) {
-  return {
-    '@context': CONTEXT,
-    '@type': 'CreativeWork',
-    name: w.name,
-    description: w.description,
-    url: w.url,
-    image: w.image,
-    dateCreated: String(w.year),
-    inLanguage: 'he',
-    genre: w.genre,
-    creator: { '@type': 'Person', name: w.ownerName },
-    publisher: { '@id': w.studioId },
-    ...(w.video
-      ? {
-          video: {
-            '@type': 'VideoObject',
-            name: w.name,
-            description: w.description,
-            thumbnailUrl: w.image,
-            ...(w.video.contentUrl ? { contentUrl: w.video.contentUrl } : {}),
-            ...(w.video.embedUrl ? { embedUrl: w.video.embedUrl } : {}),
-          },
-        }
-      : {}),
   };
 }
 

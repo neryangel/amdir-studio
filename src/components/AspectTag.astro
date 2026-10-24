@@ -1,0 +1,23 @@
+---
+// Compact delivery-format indicator for cards and index rows, e.g. "16:9 · 9:16 · 1:1".
+import type { Aspect } from '../lib/enums';
+
+interface Props {
+  aspects: Aspect[];
+}
+const { aspects } = Astro.props;
+---
+
+{
+  aspects.length ? (
+    <span class="aspect-tag">
+      <span class="visually-hidden">{aspects.length === 1 ? 'פורמט: ' : 'פורמטים: '}</span>
+      {aspects.map((a, i) => (
+        <>
+          {i ? <span class="aspect-tag__sep" aria-hidden="true"> · </span> : null}
+          <span dir="ltr">{a}</span>
+        </>
+      ))}
+    </span>
+  ) : null
+}

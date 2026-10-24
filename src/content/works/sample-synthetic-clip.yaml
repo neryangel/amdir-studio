@@ -1,8 +1,8 @@
 # Created by scripts/ingest.mjs from inbox folder "קליפ בדיקה סינתטי". Review, then set needsReview: false.
-title: "קליפ בדיקה סינתטי"
+title: "בדיקת קליטה: קליפ סינתטי"
 artist: ""
 client: ""
-type: "personal"
+type: "demo"
 disciplines: 
   - "clips"
   - "motion"
@@ -29,8 +29,7 @@ preview:
 gallery: []
 websiteUrl: ""
 permissionToShow: false
-musicLicensed: false
 featured: false
-order: 100
-placeholder: false
+order: 200
+placeholder: true
 needsReview: true

@@ -1,0 +1,76 @@
+# DEMO work: sample material, not a real project. Media: scripts/gen-demo-media.mjs
+title: 'קונספט: סשן הופעה חיה'
+artist: ''
+client: ''
+type: concept
+disciplines:
+- clips
+- video
+year: 2026
+logline: ארבע מצלמות, טייק אחד, בלי לעצור את הנגנים.
+aspect: '16:9'
+summary: לתכנן צילום של שיר אחד בהופעה חיה, כך שהעריכה תרגיש כמו להיות בחדר.
+brief: 'בריף לדוגמה: הרכב של ארבעה נגנים, טייק חי וחדר קטן. אפשר לנגן את השיר לכל היותר פעמיים.'
+approach: ארבע מצלמות קבועות ומצלמה אחת ביד, כולן מסונכרנות לקול. מיקום המצלמות נקבע לפי מי שמוביל בכל חלק של השיר, כדי שבעריכה תמיד יהיה לאן לחתוך.
+deliverables:
+- סשן מלא 16:9
+- שלושה קטעים 9:16
+credits:
+- הפקה
+- צילום
+- עריכה מולטי-קאם
+crew:
+- role: הקלטת קול
+  name: ''
+tools:
+- Premiere
+aiUsed: false
+aiNote: ''
+outcome:
+  text: ''
+  source: ''
+poster: ../../assets/works/live-session/poster.avif
+posterAlt: 'פריים קונספט מופשט: אלומות ענבר על במה קטנה'
+video:
+  discriminant: file
+  value:
+    id: /media/works/live-session/film.mp4
+    captions: /media/works/demo-film.he.vtt
+preview:
+  mp4: /media/works/live-session/preview.mp4
+  webm: /media/works/live-session/preview.webm
+process:
+- image: ../../assets/works/live-session/process-1.avif
+  alt: 'תוכנית מצלמות מלמעלה: במה, ארבעה נגנים כעיגולים, ומצלמות עם שדות ראייה'
+  caption: 'תוכנית מצלמות: ארבע זוויות קבועות ומסלול של מצלמת יד'
+- image: ../../assets/works/live-session/process-2.avif
+  alt: סטוריבורד מופשט של שישה פריימים
+  caption: רשימת שוטים לפי חלקי השיר
+compare: []
+formats:
+- aspect: '16:9'
+  image: ../../assets/works/live-session/format-16x9.avif
+  alt: פריים הבמה לרוחב
+  note: הסשן המלא
+- aspect: '9:16'
+  image: ../../assets/works/live-session/format-9x16.avif
+  alt: אותו פריים בחיתוך אנכי
+  note: קטעים קצרים לרשתות
+bts:
+- image: ../../assets/works/live-session/bts-1.avif
+  alt: 'איור מופשט של סט: סופטבוקס ומצלמה על חצובה'
+  caption: אור רך מהצד, כדי לא לסנוור את הנגנים
+- image: ../../assets/works/live-session/bts-2.avif
+  alt: איור מופשט של סט עם רקע בגוון ענבר
+  caption: רקע חם לשוטים הקרובים
+- image: ../../assets/works/live-session/bts-3.avif
+  alt: איור מופשט של סט מזווית שנייה
+  caption: מצלמה קבועה בגובה העיניים
+gallery:
+- image: ../../assets/works/live-session/still-1.avif
+  alt: 'סטיל קונספט מופשט: אלומות ענבר על במה'
+websiteUrl: ''
+permissionToShow: false
+featured: false
+order: 9
+placeholder: true

@@ -7,10 +7,13 @@ import WorkCard from '../../components/WorkCard.astro';
 import TempBadge from '../../components/TempBadge.astro';
 import TypeLabel from '../../components/TypeLabel.astro';
 import CtaBand from '../../components/CtaBand.astro';
-import { DISCIPLINE_LABEL } from '../../lib/enums';
-import { getSettings, getWorks, relatedWorks, workTitle, type Work } from '../../lib/content';
-import { absolute, asset, url } from '../../lib/url';
-import { creativeWorkLd, videoEmbedUrl } from '../../lib/seo';
+import BeforeAfter from '../../components/BeforeAfter.astro';
+import FormatSet from '../../components/FormatSet.astro';
+import { DISCIPLINE_LABEL, WORK_TYPE_LABEL } from '../../lib/enums';
+import { getSettings, getWorks, relatedWorks, workAspects, workTitle, type Work } from '../../lib/content';
+import { creditRows, paragraphs, sectionNumber } from '../../lib/case-study';
+import { url } from '../../lib/url';
+import { workJsonLd } from '../../lib/seo';
 
 export const getStaticPaths = (async () => {
   const works = await getWorks();
@@ -35,89 +38,213 @@ const disciplines = d.disciplines.map((x) => DISCIPLINE_LABEL[x]).join(', ');
 const og = await getImage({ src: d.poster, width: 1200, format: 'jpeg' });
 const ogImage = new URL(og.src, Astro.site ?? 'https://studio.amdir.example').toString();
 
-// Credits line: roles + tools, AI appears as ONE credit when used.
-const creditLine = `${d.credits.join(', ')}: ${settings.ownerName}, ${settings.studioName}`;
-const toolLine = d.tools.length ? `כלים: ${d.tools.join(', ')}${d.aiUsed ? ', כלי AI' : ''}` : d.aiUsed ? 'כלים: כלי AI' : '';
+const aspects = workAspects(work);
+const vertical = d.aspect === '9:16';
+const isWeb = d.disciplines.includes('web') && !d.video;
+const roles = d.credits.length ? d.credits.join(', ') : undefined;
+const tools = [...d.tools, ...(d.aiUsed ? ['כלי AI'] : [])];
+const credits = creditRows(d.credits, settings.ownerName, d.crew);
+const briefParas = paragraphs(d.brief);
+const approachParas = paragraphs(d.approach);
+const context = d.artist ? { label: 'אמן', value: d.artist } : d.client ? { label: 'לקוח', value: d.client } : undefined;
 
-const ld = creativeWorkLd({
-  name: title,
-  description: d.summary,
-  url: absolute(`/work/${work.id}/`, Astro.site),
-  image: ogImage,
-  year: d.year,
-  studioId: `${absolute('/', Astro.site)}#studio`,
-  ownerName: settings.ownerName,
-  genre: d.disciplines.map((x) => DISCIPLINE_LABEL[x]),
-  video: d.video
-    ? d.video.provider === 'file'
-      ? { contentUrl: new URL(/^https?:/.test(d.video.id) ? d.video.id : asset(d.video.id), Astro.site ?? 'https://x').toString() }
-      : { embedUrl: videoEmbedUrl(d.video) }
-    : undefined,
-});
+// Narrative sections, in reading order. Only the ones with content are rendered and numbered.
+type Key = 'brief' | 'approach' | 'process' | 'compare' | 'formats' | 'deliverables' | 'stills' | 'bts' | 'credits' | 'outcome';
+const present: Record<Key, boolean> = {
+  brief: true,
+  approach: approachParas.length > 0,
+  process: d.process.length > 0,
+  compare: d.compare.length > 0,
+  formats: d.formats.length > 1,
+  deliverables: d.deliverables.length > 0 || !!d.websiteUrl,
+  stills: d.gallery.length > 0,
+  bts: d.bts.length > 0,
+  credits: true,
+  outcome: !!d.outcome,
+};
+const order = (Object.keys(present) as Key[]).filter((k) => present[k]);
+const num = (k: Key) => sectionNumber(order.indexOf(k));
+const isCaseStudy = briefParas.length > 0 || approachParas.length > 0 || d.process.length > 0 || d.compare.length > 0;
+
+const ld = workJsonLd(work, { site: Astro.site, ownerName: settings.ownerName, image: ogImage });
+const heroSizes = vertical ? '(max-width: 900px) 100vw, 480px' : '(max-width: 1240px) 100vw, 1240px';
 ---
 
 <Base
   title={title}
-  description={d.summary.slice(0, 155)}
+  description={(d.logline ?? d.summary).slice(0, 155)}
   path={`/work/${work.id}/`}
   ogImage={ogImage}
   ogType="article"
   jsonLd={[ld]}
 >
   <div class="wrap">
-    <article aria-labelledby="work-title">
-      <header class="work-head">
-        <p class="crumbs"><a href={url('/work/')}>עבודות</a> / {disciplines}</p>
-        <h1 class="work-title" id="work-title">{title}</h1>
-        <ul class="work-labels" aria-label="תוויות">
-          <li><TypeLabel type={d.type} /></li>
-          {d.aiUsed ? <li><span class="type-label">כולל AI</span></li> : null}
-          {d.placeholder ? <li><TempBadge show label="עבודה זמנית, התוכן לא אמיתי" /></li> : null}
-          {d.needsReview ? <li><TempBadge show label="ממתין לבדיקה, נוצר אוטומטית" /></li> : null}
-        </ul>
+    <article class:list={['cs', { 'cs--long': isCaseStudy }]} aria-labelledby="work-title">
+      <header class:list={['cs-hero', { 'cs-hero--vertical': vertical }]}>
+        <div class="cs-hero__head">
+          <p class="crumbs"><a href={url('/work/')}>עבודות</a> / {disciplines}</p>
+          <h1 class="work-title" id="work-title">{title}</h1>
+          {d.logline ? <p class="cs-hero__logline">{d.logline}</p> : null}
+          <ul class="work-labels" aria-label="תוויות">
+            <li><TypeLabel type={d.type} /></li>
+            {d.aiUsed ? <li><span class="type-label">כולל AI</span></li> : null}
+            {d.placeholder ? <li><TempBadge show label="עבודה זמנית, התוכן לא אמיתי" /></li> : null}
+            {d.needsReview ? <li><TempBadge show label="ממתין לבדיקה, נוצר אוטומטית" /></li> : null}
+          </ul>
+        </div>
+
+        <div class:list={['cs-hero__media', { 'cs-hero__media--browser': isWeb }]}>
+          {isWeb ? <span class="cs-browser" aria-hidden="true"><i /><i /><i /></span> : null}
+          {
+            d.video ? (
+              <VideoFacade video={d.video} poster={d.poster} posterAlt={d.posterAlt} title={title} eager sizes={heroSizes} />
+            ) : (
+              <div class="cover">
+                <Picture
+                  src={d.poster}
+                  alt={d.posterAlt}
+                  formats={['avif', 'webp']}
+                  widths={[480, 800, 1200, 1600]}
+                  sizes={heroSizes}
+                  loading="eager"
+                  fetchpriority="high"
+                />
+              </div>
+            )
+          }
+          {d.placeholder ? <span class="badge-temp cs-hero__badge" aria-hidden="true">חומר זמני</span> : null}
+        </div>
       </header>
 
-      <div class="work-media">
+      <dl class="cs-facts">
+        <div><dt>שנה</dt><dd class="cs-facts__num">{d.year}</dd></div>
+        <div><dt>סוג</dt><dd>{WORK_TYPE_LABEL[d.type]}</dd></div>
+        <div><dt>תחומים</dt><dd>{disciplines}</dd></div>
+        {context ? <div><dt>{context.label}</dt><dd>{context.value}</dd></div> : null}
+        <div><dt>התפקיד שלי</dt><dd>{roles ?? settings.ownerName}</dd></div>
+        {tools.length ? <div><dt>כלים</dt><dd>{tools.join(', ')}</dd></div> : null}
         {
-          d.video ? (
-            <VideoFacade video={d.video} poster={d.poster} posterAlt={d.posterAlt} title={title} eager sizes="(max-width: 1240px) 100vw, 1240px" />
-          ) : (
-            <div class="cover">
-              <Picture
-                src={d.poster}
-                alt={d.posterAlt}
-                formats={['avif', 'webp']}
-                widths={[480, 800, 1200, 1600]}
-                sizes="(max-width: 1240px) 100vw, 1240px"
-                loading="eager"
-                fetchpriority="high"
-              />
+          aspects.length ? (
+            <div>
+              <dt>פורמטים</dt>
+              <dd class="cs-facts__num">
+                {aspects.map((a, i) => (
+                  <>
+                    {i ? ' · ' : null}
+                    <span dir="ltr">{a}</span>
+                  </>
+                ))}
+              </dd>
             </div>
-          )
+          ) : null
         }
-      </div>
-
-      <dl class="meta-strip">
-        <div><dt>סוג</dt><dd><TypeLabel type={d.type} prefix={false} /></dd></div>
-        <div><dt>שנה</dt><dd>{d.year}</dd></div>
-        <div><dt>תחום</dt><dd>{disciplines}</dd></div>
-        <div><dt>{d.artist ? 'אמן' : d.client ? 'לקוח' : 'הקשר'}</dt><dd>{d.artist ?? d.client ?? (d.type === 'personal' ? 'עבודה אישית' : d.type === 'demo' ? 'דמו' : 'קונספט')}</dd></div>
       </dl>
 
-      <div class="work-body">
-        <h2>המטרה</h2>
-        <div><p>{d.summary}</p></div>
+      <div class="cs-body">
+        <section class="cs-sec" aria-labelledby="sec-brief">
+          <div class="cs-sec__label">
+            <span class="cs-num" aria-hidden="true">{num('brief')}</span>
+            <h2 id="sec-brief">{briefParas.length ? 'הבריף' : 'המטרה'}</h2>
+          </div>
+          <div class="cs-sec__text">
+            <p class="cs-goal">{d.summary}</p>
+            {briefParas.map((p) => <p>{p}</p>)}
+          </div>
+        </section>
 
         {
-          d.deliverables.length ? (
-            <>
-              <h2>מה נוצר</h2>
-              <div>
-                <ul>
-                  {d.deliverables.map((x) => (
-                    <li>{x}</li>
-                  ))}
-                </ul>
+          present.approach ? (
+            <section class="cs-sec" aria-labelledby="sec-approach">
+              <div class="cs-sec__label">
+                <span class="cs-num" aria-hidden="true">{num('approach')}</span>
+                <h2 id="sec-approach">הגישה</h2>
+              </div>
+              <div class="cs-sec__text">
+                {approachParas.map((p) => <p>{p}</p>)}
+              </div>
+            </section>
+          ) : null
+        }
+
+        {
+          present.process ? (
+            <section class="cs-sec cs-sec--media" aria-labelledby="sec-process">
+              <div class="cs-sec__label">
+                <span class="cs-num" aria-hidden="true">{num('process')}</span>
+                <h2 id="sec-process">התהליך</h2>
+              </div>
+              <ol class="cs-grid cs-grid--process">
+                {d.process.map((s, i) => (
+                  <li>
+                    <figure>
+                      <Picture src={s.image} alt={s.alt} formats={['avif', 'webp']} widths={[480, 800, 1200]} sizes="(max-width: 600px) 100vw, 50vw" />
+                      {s.caption ? (
+                        <figcaption>
+                          <span class="cs-step" aria-hidden="true">{sectionNumber(i)}</span>
+                          {s.caption}
+                        </figcaption>
+                      ) : null}
+                    </figure>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ) : null
+        }
+
+        {
+          present.compare ? (
+            <section class="cs-sec cs-sec--media" aria-labelledby="sec-compare">
+              <div class="cs-sec__label">
+                <span class="cs-num" aria-hidden="true">{num('compare')}</span>
+                <h2 id="sec-compare">לפני ואחרי</h2>
+              </div>
+              <div class="cs-stack">
+                {d.compare.map((c, i) => (
+                  <BeforeAfter
+                    id={`cmp-${i + 1}`}
+                    before={c.before}
+                    beforeAlt={c.beforeAlt}
+                    beforeLabel={c.beforeLabel}
+                    after={c.after}
+                    afterAlt={c.afterAlt}
+                    afterLabel={c.afterLabel}
+                    caption={c.caption}
+                  />
+                ))}
+              </div>
+            </section>
+          ) : null
+        }
+
+        {
+          present.formats ? (
+            <section class="cs-sec cs-sec--media" aria-labelledby="sec-formats">
+              <div class="cs-sec__label">
+                <span class="cs-num" aria-hidden="true">{num('formats')}</span>
+                <h2 id="sec-formats">פורמטים</h2>
+                <p class="cs-sec__aside">אותה עבודה, מותאמת לכל מסך.</p>
+              </div>
+              <FormatSet formats={d.formats} />
+            </section>
+          ) : null
+        }
+
+        {
+          present.deliverables ? (
+            <section class="cs-sec" aria-labelledby="sec-deliverables">
+              <div class="cs-sec__label">
+                <span class="cs-num" aria-hidden="true">{num('deliverables')}</span>
+                <h2 id="sec-deliverables">מה נמסר</h2>
+              </div>
+              <div class="cs-sec__text">
+                {d.deliverables.length ? (
+                  <ul class="cs-list">
+                    {d.deliverables.map((x) => (
+                      <li>{x}</li>
+                    ))}
+                  </ul>
+                ) : null}
                 {d.websiteUrl ? (
                   <p>
                     <a class="link-arrow" href={d.websiteUrl} rel="noopener" target="_blank">
@@ -126,54 +253,115 @@ const ld = creativeWorkLd({
                   </p>
                 ) : null}
               </div>
-            </>
+            </section>
           ) : null
         }
 
-        <h2>קרדיטים</h2>
-        <div>
-          <div class="credits-box">
-            <p>{creditLine}</p>
-            {toolLine ? <p>{toolLine}</p> : null}
-            {d.aiUsed && d.aiNote ? <p>שימוש ב-AI: {d.aiNote}</p> : null}
+        {
+          present.stills ? (
+            <section class="cs-sec cs-sec--media" aria-labelledby="sec-stills">
+              <div class="cs-sec__label">
+                <span class="cs-num" aria-hidden="true">{num('stills')}</span>
+                <h2 id="sec-stills">{isWeb ? 'מסכים' : 'סטילס'}</h2>
+              </div>
+              <ul class="cs-grid cs-grid--stills" role="list">
+                {d.gallery.map((g) => (
+                  <li>
+                    <figure>
+                      <Picture src={g.image} alt={g.alt} formats={['avif', 'webp']} widths={[480, 800, 1200]} sizes="(max-width: 600px) 100vw, 50vw" />
+                    </figure>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null
+        }
+
+        {
+          present.bts ? (
+            <section class="cs-sec cs-sec--media" aria-labelledby="sec-bts">
+              <div class="cs-sec__label">
+                <span class="cs-num" aria-hidden="true">{num('bts')}</span>
+                <h2 id="sec-bts">מאחורי הקלעים</h2>
+              </div>
+              <ul class="cs-grid cs-grid--bts" role="list">
+                {d.bts.map((b) => (
+                  <li>
+                    <figure>
+                      <Picture src={b.image} alt={b.alt} formats={['avif', 'webp']} widths={[400, 800]} sizes="(max-width: 600px) 100vw, 33vw" />
+                      {b.caption ? <figcaption>{b.caption}</figcaption> : null}
+                    </figure>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null
+        }
+
+        <section class="cs-sec" aria-labelledby="sec-credits">
+          <div class="cs-sec__label">
+            <span class="cs-num" aria-hidden="true">{num('credits')}</span>
+            <h2 id="sec-credits">קרדיטים</h2>
           </div>
-        </div>
+          <div class="cs-sec__text">
+            <dl class="cs-credits">
+              {credits.map((c) => (
+                <div class:list={{ 'is-owner': c.owner }}>
+                  <dt>{c.role}</dt>
+                  <dd>{c.name ?? <span class="cs-credits__none">לא צוין</span>}</dd>
+                </div>
+              ))}
+              {d.aiUsed ? (
+                <div>
+                  <dt>שימוש ב-AI</dt>
+                  <dd>{d.aiNote ?? 'כלי AI, כחלק מתהליך העבודה'}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </div>
+        </section>
 
         {
           d.outcome ? (
-            <>
-              <h2>התוצאה</h2>
-              <div>
-                <p>{d.outcome.text}</p>
+            <section class="cs-sec" aria-labelledby="sec-outcome">
+              <div class="cs-sec__label">
+                <span class="cs-num" aria-hidden="true">{num('outcome')}</span>
+                <h2 id="sec-outcome">התוצאה</h2>
+              </div>
+              <div class="cs-sec__text">
+                <p class="cs-goal">{d.outcome.text}</p>
                 <p class="outcome-source">מקור: {d.outcome.source}</p>
               </div>
-            </>
+            </section>
           ) : null
         }
       </div>
-
-      {
-        d.gallery.length ? (
-          <section aria-label="תמונות מהעבודה">
-            <ul class="gallery">
-              {d.gallery.map((g, i) => (
-                <li>
-                  <figure>
-                    <Picture
-                      src={g.image}
-                      alt={g.alt}
-                      formats={['avif', 'webp']}
-                      widths={i === 0 ? [480, 800, 1200] : [400, 600]}
-                      sizes={i === 0 ? '(max-width: 600px) 100vw, 66vw' : '(max-width: 600px) 100vw, 33vw'}
-                    />
-                  </figure>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null
-      }
     </article>
+
+    {
+      all.length > 1 && next && prev ? (
+        <nav class="cs-pager" aria-label="עבודות נוספות">
+          <a class="cs-pager__link" href={url(`/work/${prev.id}/`)} rel="prev">
+            <span class="cs-pager__thumb">
+              <Picture src={prev.data.poster} alt="" formats={['avif', 'webp']} widths={[240, 480]} sizes="200px" />
+            </span>
+            <span class="cs-pager__text">
+              <small>העבודה הקודמת</small>
+              <strong>{workTitle(prev)}</strong>
+            </span>
+          </a>
+          <a class="cs-pager__link cs-pager__link--next" href={url(`/work/${next.id}/`)} rel="next">
+            <span class="cs-pager__thumb">
+              <Picture src={next.data.poster} alt="" formats={['avif', 'webp']} widths={[240, 480]} sizes="200px" />
+            </span>
+            <span class="cs-pager__text">
+              <small>העבודה הבאה</small>
+              <strong>{workTitle(next)}</strong>
+            </span>
+          </a>
+        </nav>
+      ) : null
+    }
 
     {
       related.length ? (
@@ -189,21 +377,6 @@ const ld = creativeWorkLd({
             ))}
           </ul>
         </section>
-      ) : null
-    }
-
-    {
-      all.length > 1 && next && prev ? (
-        <nav class="pager" aria-label="עבודות נוספות">
-          <a href={url(`/work/${prev.id}/`)} rel="prev">
-            <small>הקודמת</small>
-            <strong>{workTitle(prev)}</strong>
-          </a>
-          <a class="pager__next" href={url(`/work/${next.id}/`)} rel="next">
-            <small>הבאה</small>
-            <strong>{workTitle(next)}</strong>
-          </a>
-        </nav>
       ) : null
     }
 

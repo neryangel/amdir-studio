@@ -1,37 +1,72 @@
-title: קליפ קצר לרשתות
-artist: '[שם האמן]'
+# DEMO work: sample material, not a real project. Media: scripts/gen-demo-media.mjs
+title: 'דמו: קליפ אנכי לרשתות'
+artist: ''
 client: ''
-type: personal
+type: demo
 disciplines:
-  - clips
-  - ai
+- clips
+- ai
 year: 2026
-summary: >-
-  טקסט זמני. קליפ קצר של 20 שניות לשיר, בנוי לצפייה בנייד.
+logline: קליפ של 20 שניות שנבנה לטלפון מהשוט הראשון.
+aspect: '9:16'
+summary: לבדוק איך נראה קליפ קצר שמתוכנן לאורך מההתחלה, ולא נחתך מגרסה רחבה.
+brief: 'בריף לדוגמה: קטע של 20 שניות מתוך שיר, לרילס ולטיקטוק. רוב הצפייה בלי קול, אז הקצב צריך להיות ברור גם בעין.'
+approach: שוטים צפופים במרכז הפריים, חיתוכים על הפעמה, ורקעים מטושטשים שנוצרו ב-AI ושולבו עם הצילום. כל מה שחשוב נמצא בשליש האמצעי, כדי שממשק האפליקציה לא יסתיר אותו.
 deliverables:
-  - קליפ 9:16
+- קליפ 9:16 של 20 שניות
+- גרסה 4:5 לפיד
 credits:
-  - הפקה
-  - עריכה
-  - יצירת וידאו ב-AI
+- הפקה
+- עריכה
+- יצירת רקעים ב-AI
+crew: []
 tools:
-  - Premiere
+- Premiere
+- After Effects
 aiUsed: true
-aiNote: טקסט זמני. חלק מהשוטים נוצרו ב-AI.
+aiNote: רקעי הבוקה נוצרו בכלי AI ושולבו עם הצילום.
 outcome:
   text: ''
   source: ''
-poster: ../../assets/works/short-ai-clip/poster.png
-posterAlt: תמונת פתיחה זמנית, כתמי אור ירקרקים על רקע כהה
+poster: ../../assets/works/short-ai-clip/poster.avif
+posterAlt: 'פריים דמו אנכי מופשט: כתמי אור טורקיז וכחול על רקע כהה'
 video:
-  discriminant: none
+  discriminant: file
+  value:
+    id: /media/works/short-ai-clip/film.mp4
+    captions: /media/works/demo-film.he.vtt
+preview:
+  mp4: /media/works/short-ai-clip/preview.mp4
+  webm: /media/works/short-ai-clip/preview.webm
+process:
+- image: ../../assets/works/short-ai-clip/process-1.avif
+  alt: סטוריבורד אנכי מופשט של שמונה פריימים
+  caption: 'סטוריבורד אנכי: שמונה פריימים לעשרים שניות'
+- image: ../../assets/works/short-ai-clip/process-2.avif
+  alt: ציר זמן מופשט
+  caption: עריכה על הפעמה ב-Premiere
+compare: []
+formats:
+- aspect: '9:16'
+  image: ../../assets/works/short-ai-clip/format-9x16.avif
+  alt: הפריים האנכי המלא
+  note: הגרסה הראשית
+- aspect: '4:5'
+  image: ../../assets/works/short-ai-clip/format-4x5.avif
+  alt: אותו פריים בחיתוך לפיד
+  note: לפיד
+- aspect: '1:1'
+  image: ../../assets/works/short-ai-clip/format-1x1.avif
+  alt: אותו פריים בחיתוך ריבועי
+  note: לתצוגה מקדימה
+bts: []
 gallery:
-  - image: ../../assets/works/short-ai-clip/gallery-1.png
-    alt: סטיל זמני מהקליפ
-  - image: ../../assets/works/short-ai-clip/gallery-2.png
-    alt: סטיל זמני מרובע מהקליפ
+- image: ../../assets/works/short-ai-clip/still-1.avif
+  alt: 'סטיל דמו מופשט: כתמי אור'
+- image: ../../assets/works/short-ai-clip/still-2.avif
+  alt: 'סטיל דמו מרובע: נוף בגוני טורקיז'
 websiteUrl: ''
 permissionToShow: false
-featured: true
-order: 6
+featured: false
+order: 8
 placeholder: true

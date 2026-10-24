@@ -10,6 +10,7 @@
     "build:review": "node scripts/build-review.mjs",
     "preview": "astro preview",
     "posters": "node scripts/gen-placeholders.mjs",
+    "media:demo": "node scripts/gen-demo-media.mjs",
     "qa": "node scripts/qa.mjs dist-review",
     "e2e:keystatic": "node scripts/keystatic-mobile.mjs",
     "serve": "node scripts/serve.mjs",
