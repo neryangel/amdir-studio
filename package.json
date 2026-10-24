@@ -11,6 +11,7 @@
     "preview": "astro preview",
     "posters": "node scripts/gen-placeholders.mjs",
     "qa": "node scripts/qa.mjs dist-review",
+    "e2e:keystatic": "node scripts/keystatic-mobile.mjs",
     "serve": "node scripts/serve.mjs",
     "test": "vitest run",
     "dev:api": "tsx scripts/local-server.ts - 8787",

@@ -133,7 +133,7 @@ export default config({
         }),
         featured: fields.checkbox({ label: 'להציג בדף הבית' }),
         order: fields.integer({ label: 'סדר', defaultValue: 100 }),
-        placeholder: fields.checkbox({ label: 'חומר זמני', description: 'לא ייכלל בבניית ייצור', defaultValue: true }),
+        placeholder: fields.checkbox({ label: 'חומר זמני', description: 'סמנו רק לחומר דוגמה. עבודה מסומנת לא תופיע באתר החי.', defaultValue: false }),
         needsReview: fields.checkbox({
           label: 'ממתין לבדיקה',
           description: 'נוצר אוטומטית בסקריפט הקליטה. להסיר את הסימון אחרי שבדקת את כל השדות.',
@@ -175,7 +175,7 @@ export default config({
           { label: 'מחיר (לא חובה, מוצג רק עם ציון מע״מ)' },
         ),
         order: fields.integer({ label: 'סדר', defaultValue: 100 }),
-        placeholder: fields.checkbox({ label: 'חומר זמני', defaultValue: true }),
+        placeholder: fields.checkbox({ label: 'חומר זמני', description: 'סמנו רק לחומר דוגמה. לא יופיע באתר החי.', defaultValue: false }),
       },
     }),
     products: collection({
@@ -206,7 +206,7 @@ export default config({
         posterAlt: fields.text({ label: 'טקסט חלופי', validation: { length: { min: 1 } } }),
         demoVideo: video('סרטון הדגמה'),
         appUrl: fields.url({ label: 'קישור לאפליקציה' }),
-        placeholder: fields.checkbox({ label: 'חומר זמני', defaultValue: true }),
+        placeholder: fields.checkbox({ label: 'חומר זמני', description: 'סמנו רק לחומר דוגמה. לא יופיע באתר החי.', defaultValue: false }),
       },
     }),
   },
