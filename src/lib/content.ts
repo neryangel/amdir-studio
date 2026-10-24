@@ -5,7 +5,8 @@
 //  4. needsReview items (from scripts/ingest.mjs) are treated like placeholders
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
 import { SHOW_PLACEHOLDERS } from './config';
-import { WORK_FILTERS, type FilterKey } from './enums';
+import { WORK_FILTERS, type Aspect, type FilterKey } from './enums';
+import { deliveryAspects } from './case-study';
 
 export type Work = CollectionEntry<'works'>;
 export type Service = CollectionEntry<'services'>;
@@ -71,6 +72,11 @@ export function filterKeys(work: Work): FilterKey[] {
   return WORK_FILTERS.filter((f) => f.key !== 'all' && f.match.some((d) => work.data.disciplines.includes(d))).map(
     (f) => f.key,
   );
+}
+
+/** Delivery formats of a work (from its format variants, else its main aspect). */
+export function workAspects(work: Work): Aspect[] {
+  return deliveryAspects(work.data.formats, work.data.aspect);
 }
 
 /** Related works: shares a discipline, excluding itself. */

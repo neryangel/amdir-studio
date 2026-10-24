@@ -104,27 +104,14 @@ async function png(file, w, h, kind, palette, seed) {
   console.log('wrote', file);
 }
 
-const works = [
-  ['clip-original-song', 'beams', 'stage', 3],
-  ['service-business-site', 'blocks', 'paper', 5],
-  ['event-teaser', 'beams', 'ember', 9],
-  ['ai-image-series', 'fields', 'dusk', 11],
-  ['show-landing-page', 'blocks', 'ember', 13],
-  ['short-ai-clip', 'fields', 'sea', 17],
-];
-
-for (const [slug, kind, pal, seed] of works) {
-  await png(`src/assets/works/${slug}/poster.png`, 1600, 900, kind, pal, seed);
-  await png(`src/assets/works/${slug}/gallery-1.png`, 1600, 900, kind, pal, seed + 101);
-  await png(`src/assets/works/${slug}/gallery-2.png`, 1200, 1200, kind === 'blocks' ? 'blocks' : 'fields', pal, seed + 202);
-}
+// Work media (posters, process, before/after, formats, films, previews) is made by scripts/gen-demo-media.mjs.
 await png('src/assets/services/video/cover.png', 1600, 900, 'beams', 'stage', 21);
 await png('src/assets/services/websites/cover.png', 1600, 900, 'blocks', 'paper', 23);
 await png('src/assets/products/event-pro-studio/poster.png', 1600, 1000, 'frame', 'ember', 31);
 await png('src/assets/site/showreel-poster.png', 1600, 900, 'beams', 'stage', 41);
 await png('public/og-default.png', 1200, 630, 'beams', 'stage', 51);
 
-// Abstract 8s placeholder video (no audio) for the showreel and one work.
+// Abstract 8s placeholder video (no audio) for the showreel slot.
 const video = path.join(root, 'public/media/placeholder-reel.mp4');
 if (!existsSync(video)) {
   try {
@@ -146,13 +133,3 @@ await writeFile(
   'WEBVTT\n\n00:00:00.000 --> 00:00:04.000\nחומר זמני: סרטון מופשט במקום השואוריל\n\n00:00:04.000 --> 00:00:08.000\nאין בסרטון הזה עבודה אמיתית\n',
 );
 console.log('wrote public/media/placeholder-reel.he.vtt');
-
-// Muted preview loop for the placeholder clip (same settings as scripts/ingest.mjs).
-const pv = path.join(root, 'public/media/works/clip-original-song');
-if (existsSync(video) && !existsSync(path.join(pv, 'preview.mp4'))) {
-  await mkdir(pv, { recursive: true });
-  const base = ['-y', '-hide_banner', '-loglevel', 'error', '-ss', '0.5', '-t', '7', '-i', video, '-an'];
-  execFileSync('ffmpeg', [...base, '-vf', "scale=-2:'min(720,ih)',format=yuv420p", '-c:v', 'libx264', '-crf', '28', '-preset', 'slow', '-movflags', '+faststart', path.join(pv, 'preview.mp4')]);
-  execFileSync('ffmpeg', [...base, '-vf', "scale=-2:'min(720,ih)'", '-c:v', 'libvpx-vp9', '-crf', '36', '-b:v', '0', '-row-mt', '1', '-deadline', 'good', '-cpu-used', '4', path.join(pv, 'preview.webm')]);
-  console.log('wrote public/media/works/clip-original-song/preview.{mp4,webm}');
-}

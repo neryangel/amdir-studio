@@ -1,0 +1,54 @@
+# DEMO work: sample material, not a real project. Media: scripts/gen-demo-media.mjs
+title: 'דמו: אתר לאמן'
+artist: ''
+client: ''
+type: demo
+disciplines:
+- web
+year: 2026
+logline: מוזיקה, הופעות קרובות וקליפים, במקום אחד שמתעדכן בקלות.
+aspect: ''
+summary: אתר אמן שמתעדכן מהתוכן, בלי לבנות עמוד חדש לכל הופעה.
+brief: 'בריף לדוגמה: אמן עם סינגל חדש כל כמה חודשים והופעות לאורך השנה. כל עדכון צריך לקחת דקות, לא יום עבודה.'
+approach: 'מבנה קבוע של שלושה אזורים: מה חדש, הופעות וקליפים. הקליפים נטענים רק בלחיצה, כך שהאתר נשאר מהיר ולא שולח מידע לשירותים חיצוניים לפני שהגולש בחר לצפות.'
+deliverables:
+- אתר בעברית, מותאם לנייד
+- עמוד הופעות שמתעדכן מהתוכן
+- הדרכה לעדכון
+credits:
+- אפיון
+- עיצוב
+- פיתוח
+crew: []
+tools:
+- Astro
+- Figma
+aiUsed: false
+aiNote: ''
+outcome:
+  text: ''
+  source: ''
+poster: ../../assets/works/artist-site/poster.avif
+posterAlt: 'אתר אמן לדוגמה, שרטוט מופשט כהה: כותרת, כפתור סגול ותמונה בגרדיאנט'
+video:
+  discriminant: none
+process:
+- image: ../../assets/works/artist-site/process-1.avif
+  alt: שרטוט קווי של שני מסכים
+  caption: 'סקיצה: מבנה העמוד'
+- image: ../../assets/works/artist-site/process-2.avif
+  alt: לוח צבעים בגוני סגול וורוד
+  caption: צבעים מתוך עטיפת הסינגל
+compare: []
+formats: []
+bts: []
+gallery:
+- image: ../../assets/works/artist-site/still-1.avif
+  alt: 'מסך דמו מופשט כהה: שורות של תמונה וטקסט'
+- image: ../../assets/works/artist-site/still-2.avif
+  alt: שלושה מסכי נייד מופשטים כהים
+websiteUrl: ''
+permissionToShow: false
+featured: false
+order: 12
+placeholder: true

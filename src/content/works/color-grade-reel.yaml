@@ -1,0 +1,71 @@
+# DEMO work: sample material, not a real project. Media: scripts/gen-demo-media.mjs
+title: 'דמו: ריל צבע'
+artist: ''
+client: ''
+type: demo
+disciplines:
+- video
+year: 2026
+logline: 'אותו חומר בשלושה מצבים: גלם, איזון, ומראה סופי.'
+aspect: '16:9'
+summary: להראות מה עבודת צבע עושה לחומר שצולם שטוח, שוט אחרי שוט.
+brief: 'בריף לדוגמה: חומר שצולם בפרופיל שטוח בשעת שקיעה, לצד שוטי לילה עם הרבה אורות רחוב. צריך מראה אחד שמחזיק את שניהם.'
+approach: 'קודם איזון: חשיפה, לבן ושחורים. אחר כך מראה: צללים קרים, אור חם, ורוויה שלא שורפת את הגוונים. לוח הצבעים נקבע לפני שנגענו בשוט הראשון.'
+deliverables:
+- ריל של 60 שניות
+- קובץ LUT של המראה
+credits:
+- עריכה
+- צבע
+crew: []
+tools:
+- Premiere
+aiUsed: false
+aiNote: ''
+outcome:
+  text: ''
+  source: ''
+poster: ../../assets/works/color-grade-reel/poster.avif
+posterAlt: 'פריים דמו מופשט: שקיעה זהובה מעל רכסי הרים כהים'
+video:
+  discriminant: file
+  value:
+    id: /media/works/color-grade-reel/film.mp4
+    captions: /media/works/demo-film.he.vtt
+preview:
+  mp4: /media/works/color-grade-reel/preview.mp4
+  webm: /media/works/color-grade-reel/preview.webm
+process:
+- image: ../../assets/works/color-grade-reel/process-1.avif
+  alt: 'לוח צבעים: חמישה גוונים חמים ופסי מעבר'
+  caption: לוח הצבעים של המראה הסופי
+- image: ../../assets/works/color-grade-reel/process-2.avif
+  alt: ציר זמן מופשט עם שכבות תיקון
+  caption: שכבות תיקון צבע על ציר הזמן
+compare:
+- before: ../../assets/works/color-grade-reel/compare-1-before.avif
+  beforeAlt: 'נוף בשקיעה בגלם: שמיים אפורים והרים שטוחים'
+  beforeLabel: גלם (Log)
+  after: ../../assets/works/color-grade-reel/compare-1-after.avif
+  afterAlt: 'אותו נוף אחרי צבע: שמיים חמים וצללים עמוקים'
+  afterLabel: אחרי צבע
+  caption: 'שקיעה: החזרת הניגודיות והחום לשמיים'
+- before: ../../assets/works/color-grade-reel/compare-2-before.avif
+  beforeAlt: אורות לילה מטושטשים בגלם, אפורים ודהויים
+  beforeLabel: גלם (Log)
+  after: ../../assets/works/color-grade-reel/compare-2-after.avif
+  afterAlt: אותם אורות אחרי צבע, חמים ומופרדים מהרקע
+  afterLabel: אחרי צבע
+  caption: 'לילה: הפרדת האורות מהרקע'
+formats: []
+bts: []
+gallery:
+- image: ../../assets/works/color-grade-reel/still-1.avif
+  alt: 'סטיל דמו מופשט: נוף בשקיעה'
+- image: ../../assets/works/color-grade-reel/still-2.avif
+  alt: 'סטיל דמו מרובע: אורות לילה מטושטשים'
+websiteUrl: ''
+permissionToShow: false
+featured: true
+order: 4
+placeholder: true

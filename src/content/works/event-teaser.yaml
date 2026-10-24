@@ -1,37 +1,71 @@
-title: טיזר לאירוע
+# DEMO work: sample material, not a real project. Media: scripts/gen-demo-media.mjs
+title: 'קונספט: טיזר להופעה'
 artist: ''
 client: ''
 type: concept
 disciplines:
-  - video
-  - motion
+- video
+- motion
 year: 2025
-summary: >-
-  טקסט זמני. קונספט לטיזר של 30 שניות שמזמין לאירוע, בלי לגלות יותר מדי.
+logline: טיזר של 30 שניות שמזמין להופעה בלי לגלות יותר מדי.
+aspect: '16:9'
+summary: לבנות ציפייה להופעה מתוך אור ותנועה בלבד, לפני שיש צילומים מהמקום.
+brief: 'בריף לדוגמה: הופעה בעוד שלושה שבועות, ואין עדיין צילומים מהמקום או מהקהל. הטיזר צריך לעבוד בלי קול, בפיד ובסטוריז.'
+approach: במקום צילומי קהל, הטיזר בנוי מאלומות שנדלקות אחת אחרי השנייה בקצב שמאיץ. הפלייט הוא במה ריקה, וכל האור נוסף בקומפוזיטינג, כך שאפשר לשנות צבעים לכל הופעה.
 deliverables:
-  - טיזר 30 שניות
-  - גרסה 9:16
+- טיזר 30 שניות
+- גרסה 9:16 של 15 שניות
 credits:
-  - רעיון
-  - עריכה
-  - מושן ואפקטים
+- רעיון
+- עריכה
+- מושן ואפקטים
+crew: []
 tools:
-  - Premiere
-  - After Effects
+- Premiere
+- After Effects
 aiUsed: false
 aiNote: ''
 outcome:
   text: ''
   source: ''
-poster: ../../assets/works/event-teaser/poster.png
-posterAlt: תמונת פתיחה זמנית, אלומות אור כתומות על רקע כחול כהה
+poster: ../../assets/works/event-teaser/poster.avif
+posterAlt: 'פריים קונספט מופשט: אלומות אור כתומות ולבנות על במה כהה'
 video:
-  discriminant: none
+  discriminant: file
+  value:
+    id: /media/works/event-teaser/film.mp4
+    captions: /media/works/demo-film.he.vtt
+preview:
+  mp4: /media/works/event-teaser/preview.mp4
+  webm: /media/works/event-teaser/preview.webm
+process:
+- image: ../../assets/works/event-teaser/process-1.avif
+  alt: סטוריבורד מופשט של שישה פריימים
+  caption: 'מבנה הטיזר: שלוש פעימות ואז שיא'
+- image: ../../assets/works/event-teaser/process-2.avif
+  alt: גרף צמתים מופשט של קומפוזיציה
+  caption: 'קומפוזיטינג: פלייט, אלומות, ערפל וצבע'
+compare:
+- before: ../../assets/works/event-teaser/compare-1-before.avif
+  beforeAlt: במה ריקה וחשוכה, רק ערפל עמום
+  beforeLabel: פלייט
+  after: ../../assets/works/event-teaser/compare-1-after.avif
+  afterAlt: אותה במה עם אלומות כתומות ולבנות ואבק באוויר
+  afterLabel: אחרי קומפוזיטינג
+  caption: כל האלומות נוספו בפוסט, על גבי במה ריקה
+formats:
+- aspect: '16:9'
+  image: ../../assets/works/event-teaser/format-16x9.avif
+  alt: פריים הטיזר לרוחב
+  note: טיזר 30 שניות
+- aspect: '9:16'
+  image: ../../assets/works/event-teaser/format-9x16.avif
+  alt: אותו פריים בחיתוך אנכי
+  note: סטוריז, 15 שניות
+bts: []
 gallery:
-  - image: ../../assets/works/event-teaser/gallery-1.png
-    alt: סטיל זמני מתוך הטיזר, אלומות אור
-  - image: ../../assets/works/event-teaser/gallery-2.png
-    alt: סטיל זמני מרובע, כתמי אור כתומים
+- image: ../../assets/works/event-teaser/still-1.avif
+  alt: 'סטיל קונספט מופשט: אלומות על במה'
 websiteUrl: ''
 permissionToShow: false
 featured: true

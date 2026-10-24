@@ -2,8 +2,9 @@
 import { Picture } from 'astro:assets';
 import TempBadge from './TempBadge.astro';
 import TypeLabel from './TypeLabel.astro';
+import AspectTag from './AspectTag.astro';
 import { DISCIPLINE_LABEL } from '../lib/enums';
-import { workTitle, type Work } from '../lib/content';
+import { workAspects, workTitle, type Work } from '../lib/content';
 import { asset, url } from '../lib/url';
 
 interface Props {
@@ -44,6 +45,7 @@ const preview = d.preview ? { mp4: asset(d.preview.mp4), webm: d.preview.webm ? 
     <p class="work-card__meta">
       <TypeLabel type={d.type} />
       <span><span class="visually-hidden">תחום: </span>{d.disciplines.map((x) => DISCIPLINE_LABEL[x]).join(', ')}</span>
+      <AspectTag aspects={workAspects(work)} />
       <TempBadge show={d.placeholder} />
       <TempBadge show={d.needsReview} label="ממתין לבדיקה" />
     </p>

@@ -1,0 +1,77 @@
+# DEMO work: sample material, not a real project. Media: scripts/gen-demo-media.mjs
+title: 'דמו: פירוק אפקטים לקליפ'
+artist: ''
+client: ''
+type: demo
+disciplines:
+- clips
+- motion
+year: 2026
+logline: מה צולם ומה נוסף אחר כך, שוט אחרי שוט.
+aspect: '16:9'
+summary: 'להראות בשקיפות את החלק של האפקטים בקליפ: מה היה בפריים, ומה נבנה ב-After Effects.'
+brief: 'בריף לדוגמה: שני שוטים מקליפ שצולמו בלי אמצעים, נוף בדמדומים ובמה ריקה. הקליפ צריך שמש, קרני אור ואלומות שלא היו שם.'
+approach: כל אפקט נבנה כשכבה נפרדת, כך שאפשר לכוון אותו לקצב בלי לרנדר מחדש את כל השוט. הקרניים יוצאות ממקור האור שבפריים, כדי שהעין תקבל אותן כחלק מהצילום.
+deliverables:
+- סרטון פירוק של 45 שניות
+- גרסה 9:16
+credits:
+- מושן ואפקטים
+- קומפוזיטינג
+crew: []
+tools:
+- After Effects
+- Premiere
+aiUsed: false
+aiNote: ''
+outcome:
+  text: ''
+  source: ''
+poster: ../../assets/works/vfx-breakdown/poster.avif
+posterAlt: 'פריים דמו מופשט: קרני שמש מעל רכסים בסגול וורוד'
+video:
+  discriminant: file
+  value:
+    id: /media/works/vfx-breakdown/film.mp4
+    captions: /media/works/demo-film.he.vtt
+preview:
+  mp4: /media/works/vfx-breakdown/preview.mp4
+  webm: /media/works/vfx-breakdown/preview.webm
+process:
+- image: ../../assets/works/vfx-breakdown/process-1.avif
+  alt: גרף צמתים מופשט של קומפוזיציה
+  caption: 'מבנה הקומפוזיציה: פלייט, שכבות אור, ערפל וצבע'
+- image: ../../assets/works/vfx-breakdown/process-2.avif
+  alt: ציר זמן מופשט
+  caption: האפקטים מסונכרנים לקצב השיר
+compare:
+- before: ../../assets/works/vfx-breakdown/compare-1-before.avif
+  beforeAlt: נוף בדמדומים בלי קרני אור
+  beforeLabel: פלייט
+  after: ../../assets/works/vfx-breakdown/compare-1-after.avif
+  afterAlt: אותו נוף עם קרני שמש והשתקפויות עדשה
+  afterLabel: אחרי אפקטים
+  caption: קרני השמש וההשתקפויות נוספו בפוסט
+- before: ../../assets/works/vfx-breakdown/compare-2-before.avif
+  beforeAlt: במה ריקה וחשוכה
+  beforeLabel: פלייט
+  after: ../../assets/works/vfx-breakdown/compare-2-after.avif
+  afterAlt: אותה במה עם אלומות סגולות ואבק
+  afterLabel: אחרי אפקטים
+  caption: אלומות ואבק על במה ריקה
+formats:
+- aspect: '16:9'
+  image: ../../assets/works/vfx-breakdown/format-16x9.avif
+  alt: פריים לרוחב עם קרני שמש
+  note: סרטון הפירוק
+- aspect: '9:16'
+  image: ../../assets/works/vfx-breakdown/format-9x16.avif
+  alt: אותו פריים בחיתוך אנכי
+  note: לרשתות
+bts: []
+gallery: []
+websiteUrl: ''
+permissionToShow: false
+featured: false
+order: 7
+placeholder: true

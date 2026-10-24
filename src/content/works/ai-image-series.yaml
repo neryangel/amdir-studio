@@ -1,37 +1,73 @@
-title: סדרת תמונות AI
+# DEMO work: sample material, not a real project. Media: scripts/gen-demo-media.mjs
+title: 'קונספט: סדרת תמונות AI'
 artist: ''
 client: ''
-type: personal
+type: concept
 disciplines:
-  - ai
-  - photo
+- ai
+- photo
 year: 2026
-summary: >-
-  טקסט זמני. סדרת תמונות סביב רעיון אחד, שנוצרה ב-AI ועברה עריכה ידנית.
+logline: 'סדרה אחת סביב רעיון אחד: נוצרה ב-AI, ועברה ריטוש וצבע ביד.'
+aspect: '4:5'
+summary: ליצור סדרה עקבית, ולא כמה תמונות שכל אחת נראית אחרת.
+brief: 'בריף לדוגמה: סדרת תמונות לקמפיין של סינגל. צריך מראה אחד שחוזר בכל התמונות, וגרסאות לפיד, לסטוריז ולקאבר.'
+approach: הרעיון והקומפוזיציה נקבעו לפני היצירה. כל תמונה נוצרה בכמה סבבים, ואז עברה ריטוש, תיקון פרטים וצבע אחיד ב-Photoshop, לפי אותו לוח צבעים.
 deliverables:
-  - שש תמונות ברזולוציה מלאה
+- שש תמונות ברזולוציה מלאה
+- גרסאות לפיד, לסטוריז ולקאבר
 credits:
-  - רעיון
-  - יצירת תמונות ב-AI
-  - עריכה וצבע
+- רעיון
+- יצירת תמונות ב-AI
+- ריטוש וצבע
+crew: []
 tools:
-  - Photoshop
+- Photoshop
 aiUsed: true
-aiNote: טקסט זמני. התמונות נוצרו ב-AI ועברו עריכה וצבע ידניים.
+aiNote: התמונות נוצרו בכלי AI ועברו ריטוש וצבע ידניים.
 outcome:
   text: ''
   source: ''
-poster: ../../assets/works/ai-image-series/poster.png
-posterAlt: תמונת פתיחה זמנית, כתמי אור זהובים מטושטשים
+poster: ../../assets/works/ai-image-series/poster.avif
+posterAlt: 'תמונת קונספט מופשטת: שמש רכה מעל רכסים בגוני ורוד וסגול'
 video:
   discriminant: none
+process:
+- image: ../../assets/works/ai-image-series/process-1.avif
+  alt: לוח צבעים בגוני ורוד וסגול
+  caption: לוח הצבעים שכל התמונות מותאמות אליו
+compare:
+- before: ../../assets/works/ai-image-series/compare-1-before.avif
+  beforeAlt: 'תמונה גולמית: אפורה ושטוחה'
+  beforeLabel: יצירה גולמית
+  after: ../../assets/works/ai-image-series/compare-1-after.avif
+  afterAlt: 'אותה תמונה אחרי ריטוש: ורודים חמים וניגודיות'
+  afterLabel: אחרי ריטוש וצבע
+  caption: 'ריטוש: ניקוי פרטים, ניגודיות וצבע אחיד לכל הסדרה'
+formats:
+- aspect: '4:5'
+  image: ../../assets/works/ai-image-series/format-4x5.avif
+  alt: תמונה אנכית לפיד
+  note: לפיד
+- aspect: '1:1'
+  image: ../../assets/works/ai-image-series/format-1x1.avif
+  alt: אותה תמונה בחיתוך ריבועי
+  note: לקאבר
+- aspect: '9:16'
+  image: ../../assets/works/ai-image-series/format-9x16.avif
+  alt: אותה תמונה בחיתוך לסטוריז
+  note: לסטוריז
+bts: []
 gallery:
-  - image: ../../assets/works/ai-image-series/gallery-1.png
-    alt: תמונה זמנית מהסדרה, כתמי אור רכים
-  - image: ../../assets/works/ai-image-series/gallery-2.png
-    alt: תמונה זמנית מרובעת מהסדרה
+- image: ../../assets/works/ai-image-series/still-1.avif
+  alt: 'תמונה מופשטת מהסדרה: שמש מעל רכסים'
+- image: ../../assets/works/ai-image-series/still-2.avif
+  alt: 'תמונה מרובעת מהסדרה: כתמי אור'
+- image: ../../assets/works/ai-image-series/still-3.avif
+  alt: 'תמונה מופשטת מהסדרה: קרני אור מעל הרים'
+- image: ../../assets/works/ai-image-series/still-4.avif
+  alt: 'תמונה מרובעת מהסדרה: אורות רכים'
 websiteUrl: ''
 permissionToShow: false
 featured: true
-order: 4
+order: 5
 placeholder: true

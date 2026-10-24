@@ -3,6 +3,8 @@
 // then committed with git like any other file. Fields mirror src/content.config.ts.
 import { collection, config, fields, singleton } from '@keystatic/core';
 import {
+  ASPECT_LABEL,
+  ASPECTS,
   DIRECTION_LABEL,
   DIRECTIONS,
   DISCIPLINE_LABEL,
@@ -49,6 +51,9 @@ const video = (label: string) =>
     },
   );
 
+const workImage = (label: string) =>
+  fields.image({ label, directory: 'src/assets/works', publicPath: '../../assets/works/', validation: { isRequired: true } });
+
 const textList = (label: string, itemLabel: string, description?: string) =>
   fields.array(fields.text({ label: itemLabel }), {
     label,
@@ -84,7 +89,7 @@ export default config({
         year: fields.integer({ label: 'שנה', validation: { isRequired: true, min: 2000, max: 2100 } }),
         summary: fields.text({ label: 'המטרה', multiline: true, validation: { length: { min: 1 } } }),
         deliverables: textList('מה נוצר', 'תוצר'),
-        credits: textList('קרדיטים (תפקידים)', 'תפקיד', 'למשל: רעיון והפקה, עריכה, מושן ואפקטים, יצירת תמונה ב-AI'),
+        credits: textList('קרדיטים (התפקידים שלך)', 'תפקיד', 'מוצגים תמיד עם השם שלך. למשל: רעיון והפקה, עריכה, מושן ואפקטים, יצירת תמונה ב-AI'),
         tools: textList('כלים', 'כלי', 'למשל: Premiere, After Effects'),
         aiUsed: fields.checkbox({ label: 'נעשה שימוש ב-AI', description: 'יופיע כקרדיט אחד מתוך כמה' }),
         aiNote: fields.text({ label: 'מה נעשה ב-AI', description: 'משפט קצר. למשל: תמונות רקע לשתי סצנות' }),
@@ -123,6 +128,70 @@ export default config({
           { label: 'גלריה', itemLabel: (props) => props.fields.alt.value || 'תמונה' },
         ),
         websiteUrl: fields.url({ label: 'קישור לאתר (לעבודות אתרים)' }),
+
+        // ---- Case study (all optional) ----
+        logline: fields.text({ label: 'שורת פתיחה', description: 'משפט אחד מתחת לכותרת: מה זה, במילים פשוטות.' }),
+        aspect: fields.select({
+          label: 'יחס התוצר הראשי',
+          description: '9:16 מציג את הסרטון לאורך בראש העמוד.',
+          options: [{ label: 'לא צוין', value: '' }, ...ASPECTS.map((a) => ({ value: a, label: `${a} · ${ASPECT_LABEL[a]}` }))],
+          defaultValue: '',
+        }),
+        brief: fields.text({ label: 'האתגר / הבריף', multiline: true, description: 'מה היה המצב ומה היה המגבלה.' }),
+        approach: fields.text({ label: 'הגישה', multiline: true, description: 'הרעיון ואיך הוא בוצע.' }),
+        process: fields.array(
+          fields.object({
+            image: workImage('תמונה'),
+            alt: fields.text({ label: 'טקסט חלופי', validation: { length: { min: 1 } } }),
+            caption: fields.text({ label: 'כיתוב' }),
+          }),
+          { label: 'תהליך (סטילס עם כיתוב)', itemLabel: (props) => props.fields.caption.value || props.fields.alt.value || 'שלב' },
+        ),
+        compare: fields.array(
+          fields.object({
+            before: workImage('לפני'),
+            beforeAlt: fields.text({ label: 'טקסט חלופי, לפני', validation: { length: { min: 1 } } }),
+            beforeLabel: fields.text({ label: 'תווית לפני', description: 'ברירת מחדל: לפני. למשל: גלם, פלייט' }),
+            after: workImage('אחרי'),
+            afterAlt: fields.text({ label: 'טקסט חלופי, אחרי', validation: { length: { min: 1 } } }),
+            afterLabel: fields.text({ label: 'תווית אחרי', description: 'ברירת מחדל: אחרי. למשל: אחרי צבע' }),
+            caption: fields.text({ label: 'כיתוב' }),
+          }),
+          { label: 'לפני ואחרי (עריכה, צבע, אפקטים)', itemLabel: (props) => props.fields.caption.value || 'השוואה' },
+        ),
+        formats: fields.array(
+          fields.object({
+            aspect: fields.select({
+              label: 'יחס',
+              options: ASPECTS.map((a) => ({ value: a, label: `${a} · ${ASPECT_LABEL[a]}` })),
+              defaultValue: '16:9',
+            }),
+            image: workImage('פריים מהגרסה'),
+            alt: fields.text({ label: 'טקסט חלופי', validation: { length: { min: 1 } } }),
+            note: fields.text({ label: 'הערה', description: 'למשל: 15 שניות, לסטוריז' }),
+          }),
+          { label: 'גרסאות פורמט', itemLabel: (props) => props.fields.aspect.value },
+        ),
+        bts: fields.array(
+          fields.object({
+            image: workImage('תמונה'),
+            alt: fields.text({ label: 'טקסט חלופי', validation: { length: { min: 1 } } }),
+            caption: fields.text({ label: 'כיתוב' }),
+          }),
+          { label: 'מאחורי הקלעים', itemLabel: (props) => props.fields.caption.value || props.fields.alt.value || 'תמונה' },
+        ),
+        crew: fields.array(
+          fields.object({
+            role: fields.text({ label: 'תפקיד', validation: { length: { min: 1 } } }),
+            name: fields.text({ label: 'שם', description: 'לא חובה. רק שם אמיתי ובאישור.' }),
+          }),
+          {
+            label: 'קרדיטים נוספים (תפקיד ושם)',
+            description: 'אנשים אחרים בפרויקט. התפקידים שלך נמצאים בשדה "קרדיטים".',
+            itemLabel: (props) => props.fields.role.value || 'תפקיד',
+          },
+        ),
+
         permissionToShow: fields.checkbox({
           label: 'יש אישור להציג',
           description: 'חובה לעבודות לקוח. עבודת לקוח בלי אישור לא תיכלל באתר.',

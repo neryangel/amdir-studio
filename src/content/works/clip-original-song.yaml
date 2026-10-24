@@ -1,50 +1,101 @@
-title: קליפ לשיר מקורי
-artist: '[שם האמן]'
+# DEMO work: sample material, not a real project. Media: scripts/gen-demo-media.mjs
+title: 'דמו: קליפ לשיר פופ'
+artist: ''
 client: ''
-type: personal
+type: demo
 disciplines:
-  - clips
-  - motion
-  - ai
+- clips
+- motion
+- ai
 year: 2026
-summary: >-
-  טקסט זמני. כאן ייכתב בשתיים או שלוש שורות מה היה צריך לקרות: למי השיר מיועד,
-  איזה רגש הקליפ צריך להעביר ואיפה הוא יוצג.
+logline: 'קליפ דמו מלא לשיר פופ: במה חשוכה, עריכה על הקצב, ותאורה שנבנתה מחדש בפוסט.'
+aspect: '16:9'
+summary: להראות איך נראה קליפ מלא, מהרעיון ועד שלוש גרסאות לרשתות, מתוך יום צילום אחד.
+brief: 'בריף לדוגמה: שיר פופ של שלוש וחצי דקות, יום צילום אחד ובמה קטנה בלי תאורת הופעה. הקליפ צריך לעבוד גם לרוחב ביוטיוב וגם לאורך בסטוריז, בלי לצלם פעמיים.'
+approach: 'הכול נבנה סביב האור. הבמה צולמה כמעט חשוכה, עם מקור אור אחד, ובפוסט נוספו אלומות ואבק שנעים עם הקצב. העריכה נעשתה ב-Premiere על גריד של פעמות, והאפקטים ב-After Effects.
+
+
+  המסגור תוכנן מראש לשלושה יחסים: כל שוט ממוקם כך שהחיתוך ל-9:16 ול-1:1 לא מפספס את מה שחשוב.'
 deliverables:
-  - גרסה מלאה לרוחב
-  - שלוש גרסאות קצרות 9:16 לרשתות
-  - סטילס לקאבר
+- קליפ מלא 16:9
+- שלוש גרסאות קצרות 9:16 לרשתות
+- גרסה 1:1 לפיד
+- סטילס לקאבר
 credits:
-  - רעיון והפקה
-  - עריכה
-  - מושן ואפקטים
-  - יצירת תמונות ב-AI
+- רעיון והפקה
+- צילום
+- עריכה
+- מושן ואפקטים
+- צבע
+crew:
+- role: שירה ומוזיקה
+  name: ''
 tools:
-  - Premiere
-  - After Effects
+- Premiere
+- After Effects
 aiUsed: true
-aiNote: טקסט זמני. למשל, תמונות רקע לשתי סצנות נוצרו ב-AI ועובדו ב-After Effects.
+aiNote: רקעי אור לשתי סצנות נוצרו בכלי AI ועובדו ב-After Effects.
 outcome:
   text: ''
   source: ''
-poster: ../../assets/works/clip-original-song/poster.png
-posterAlt: תמונת פתיחה זמנית, אלומות אור ורודות ולבנות על במה חשוכה
+poster: ../../assets/works/clip-original-song/poster.avif
+posterAlt: 'פריים דמו מופשט: אלומות אור ורודות וסגולות על במה חשוכה'
 video:
   discriminant: file
   value:
-    id: /media/placeholder-reel.mp4
-    captions: /media/placeholder-reel.he.vtt
+    id: /media/works/clip-original-song/film.mp4
+    captions: /media/works/demo-film.he.vtt
 preview:
   mp4: /media/works/clip-original-song/preview.mp4
   webm: /media/works/clip-original-song/preview.webm
+process:
+- image: ../../assets/works/clip-original-song/process-1.avif
+  alt: 'סטוריבורד מופשט: שישה פריימים עם חץ תנועת מצלמה בכל אחד'
+  caption: 'סטוריבורד: שישה שוטים מרכזיים ותנועת המצלמה בכל אחד'
+- image: ../../assets/works/clip-original-song/process-2.avif
+  alt: 'ציר זמן מופשט של עריכה: מסך תצוגה ומעליו שכבות וידאו וקול'
+  caption: 'עריכה ב-Premiere: וידאו, אפקטים וגרפיקה, ושתי שכבות קול'
+- image: ../../assets/works/clip-original-song/process-3.avif
+  alt: גרף צמתים מופשט של קומפוזיציה, שש תיבות מחוברות בקווים
+  caption: 'בניית האלומות ב-After Effects: שכבות אור, אבק ותיקון צבע'
+compare:
+- before: ../../assets/works/clip-original-song/compare-1-before.avif
+  beforeAlt: 'אותו פריים במה בגלם: אפור, שטוח וחסר ניגודיות'
+  beforeLabel: גלם (Log)
+  after: ../../assets/works/clip-original-song/compare-1-after.avif
+  afterAlt: 'אותו פריים אחרי צבע: ורודים וסגולים עמוקים ושחורים נקיים'
+  afterLabel: אחרי צבע
+  caption: הצבע מחזיר את העומק שהצילום השטוח שומר בשבילו
+formats:
+- aspect: '16:9'
+  image: ../../assets/works/clip-original-song/format-16x9.avif
+  alt: הפריים המלא לרוחב, אלומות על במה
+  note: גרסה מלאה ליוטיוב
+- aspect: '9:16'
+  image: ../../assets/works/clip-original-song/format-9x16.avif
+  alt: אותו פריים בחיתוך אנכי סביב האלומה המרכזית
+  note: שלוש גרסאות של 15 שניות
+- aspect: '1:1'
+  image: ../../assets/works/clip-original-song/format-1x1.avif
+  alt: אותו פריים בחיתוך ריבועי
+  note: קטע לפיד
+bts:
+- image: ../../assets/works/clip-original-song/bts-1.avif
+  alt: 'איור מופשט של סט: סופטבוקס מואר ומצלמה על חצובה מול רקע סגול'
+  caption: סופטבוקס ומצלמה לפני השוט הראשון
+- image: ../../assets/works/clip-original-song/bts-2.avif
+  alt: איור מופשט של סט מזווית שנייה, האור מימין
+  caption: זווית שנייה, מצד הבמה
+- image: ../../assets/works/clip-original-song/bts-3.avif
+  alt: איור מופשט של סט עם רקע בגוון חם
+  caption: רקע חם לשוטים הקרובים
 gallery:
-  - image: ../../assets/works/clip-original-song/gallery-1.png
-    alt: סטיל זמני, אלומות אור על רקע כהה
-  - image: ../../assets/works/clip-original-song/gallery-2.png
-    alt: סטיל זמני מרובע, כתמי אור רכים
+- image: ../../assets/works/clip-original-song/still-1.avif
+  alt: 'סטיל דמו מופשט: אלומות אור על במה'
+- image: ../../assets/works/clip-original-song/still-2.avif
+  alt: 'סטיל דמו מרובע: כתמי אור רכים'
 websiteUrl: ''
 permissionToShow: false
-musicLicensed: true
 featured: true
 order: 1
 placeholder: true

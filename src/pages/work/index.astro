@@ -3,9 +3,10 @@ import { Picture } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import TempBadge from '../../components/TempBadge.astro';
 import TypeLabel from '../../components/TypeLabel.astro';
+import AspectTag from '../../components/AspectTag.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import { DISCIPLINE_LABEL, WORK_FILTERS } from '../../lib/enums';
-import { filterKeys, getSettings, getWorks, workTitle } from '../../lib/content';
+import { filterKeys, getSettings, getWorks, workAspects, workTitle } from '../../lib/content';
 import { asset, url, whatsappHref } from '../../lib/url';
 
 const works = await getWorks();
@@ -76,7 +77,10 @@ const counts = Object.fromEntries(
                   <a href={url(`/work/${w.id}/`)}>{workTitle(w)}</a>
                   <TempBadge show={w.data.placeholder} />
                   <TempBadge show={w.data.needsReview} label="ממתין לבדיקה" />
-                  <span class="index-row__disc"><span class="visually-hidden">תחום: </span>{w.data.disciplines.map((d) => DISCIPLINE_LABEL[d]).join(', ')}</span>
+                  <span class="index-row__disc">
+                    <span><span class="visually-hidden">תחום: </span>{w.data.disciplines.map((d) => DISCIPLINE_LABEL[d]).join(', ')}</span>
+                    <AspectTag aspects={workAspects(w)} />
+                  </span>
                 </div>
                 <span class="index-row__roles"><span class="visually-hidden">החלק שלי: </span>{w.data.credits.join(', ')}</span>
                 <span class="index-row__labels">

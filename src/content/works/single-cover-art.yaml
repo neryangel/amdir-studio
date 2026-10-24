@@ -1,0 +1,65 @@
+# DEMO work: sample material, not a real project. Media: scripts/gen-demo-media.mjs
+title: 'דמו: עטיפה ולופ לסינגל'
+artist: ''
+client: ''
+type: demo
+disciplines:
+- photo
+- motion
+year: 2026
+logline: עטיפה אחת לסינגל, ולופ קצר שממשיך אותה בתנועה.
+aspect: '1:1'
+summary: 'להראות איך עטיפה סטטית הופכת לחבילה: קאבר, לופ לנגן המוזיקה וגרסאות לרשתות.'
+brief: 'בריף לדוגמה: סינגל ראשון, בלי צילום של האמן. העטיפה צריכה להיקרא בגודל של אגודל באפליקציה, וגם כפוסטר.'
+approach: צורה אחת חזקה וניגוד צבע אחד, שנקראים גם בגודל קטן. מאותו קובץ נבנה לופ של כמה שניות שבו הצורה מסתובבת לאט.
+deliverables:
+- קאבר ריבועי ברזולוציה מלאה
+- לופ 8 שניות 9:16
+- רקע 16:9
+credits:
+- עיצוב
+- אנימציה
+crew: []
+tools:
+- Illustrator
+- After Effects
+aiUsed: false
+aiNote: ''
+outcome:
+  text: ''
+  source: ''
+poster: ../../assets/works/single-cover-art/poster.avif
+posterAlt: 'עטיפת דמו מופשטת: עיגול טורקיז וכחול, פסים אלכסוניים וטבעות דקות'
+video:
+  discriminant: none
+preview:
+  mp4: /media/works/single-cover-art/preview.mp4
+  webm: /media/works/single-cover-art/preview.webm
+process:
+- image: ../../assets/works/single-cover-art/process-1.avif
+  alt: לוח צבעים בגוני טורקיז
+  caption: בחירת צבעים לפי קריאות בגודל קטן
+- image: ../../assets/works/single-cover-art/process-2.avif
+  alt: סטוריבורד מופשט
+  caption: תנועת הלופ, פריים אחרי פריים
+compare: []
+formats:
+- aspect: '1:1'
+  image: ../../assets/works/single-cover-art/format-1x1.avif
+  alt: העטיפה הריבועית
+  note: קאבר
+- aspect: '9:16'
+  image: ../../assets/works/single-cover-art/format-9x16.avif
+  alt: העטיפה בחיתוך אנכי
+  note: לופ לנגן ולסטוריז
+- aspect: '16:9'
+  image: ../../assets/works/single-cover-art/format-16x9.avif
+  alt: העטיפה בחיתוך רחב
+  note: רקע ליוטיוב
+bts: []
+gallery: []
+websiteUrl: ''
+permissionToShow: false
+featured: false
+order: 11
+placeholder: true

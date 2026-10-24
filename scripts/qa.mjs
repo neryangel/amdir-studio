@@ -2,11 +2,12 @@
 //  - screenshot every page at 390 and 1440 in both directions (+ index dark)
 //  - assert no horizontal overflow
 //  - run axe (WCAG 2.0/2.1 A+AA) on every page in every theme
-//  - functional checks: no third-party requests, video facade, work filters (with and without JS), contact form
+//  - functional checks: no third-party requests, video facade, work filters (with and without JS), contact form,
+//    before/after comparison (keyboard + value text with JS, stacked images without JS)
 // Usage: node scripts/qa.mjs [distDir=dist-review] [shotsDir]
 import http from 'node:http';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import handler from 'serve-handler';
 import { applyVercelHeaders } from './vercel-headers.mjs';
@@ -265,6 +266,51 @@ if (!process.env.QA_SKIP_FUNCTIONAL) {
   await p2.click('label.chip:has(#f-clips)');
   const clips = await p2.locator('.index-row:visible').count();
   check('filters (no JS): CSS :has() filtering', clips > 0 && clips < all, `all=${all} clips=${clips}`);
+
+  // Before/after comparison: first work page that has one.
+  const workRoot = path.join(dist, 'work');
+  const cmpSlug = existsSync(workRoot)
+    ? readdirSync(workRoot).find((d) => {
+        const f = path.join(workRoot, d, 'index.html');
+        return existsSync(f) && readFileSync(f, 'utf8').includes('data-compare');
+      })
+    : undefined;
+  if (cmpSlug) {
+    // No JS: both images stacked and visible, labelled, slider hidden.
+    await p2.goto(`${site}work/${cmpSlug}/`, { waitUntil: 'networkidle' });
+    const stacked = await p2.evaluate(() => {
+      const root = document.querySelector('[data-compare]');
+      const imgs = [...(root?.querySelectorAll('.compare__layer img') ?? [])];
+      const boxes = imgs.map((i) => i.getBoundingClientRect());
+      return {
+        imgs: imgs.length,
+        alts: imgs.every((i) => (i.getAttribute('alt') ?? '').length > 0),
+        stacked: boxes.length === 2 && boxes[1].top >= boxes[0].bottom - 1,
+        rangeHidden: root?.querySelector('input[type=range]') instanceof HTMLInputElement && root.querySelector('input[type=range]').hidden,
+      };
+    });
+    check('compare (no JS): before + after stacked, both with alt, slider hidden', stacked.imgs === 2 && stacked.alts && stacked.stacked && stacked.rangeHidden, JSON.stringify(stacked));
+
+    // JS: a labelled native range, operable by keyboard, value text announced, divider follows.
+    const cctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const cp = await cctx.newPage();
+    await cp.goto(`${site}work/${cmpSlug}/?direction=stage`, { waitUntil: 'networkidle' });
+    const range = cp.locator('[data-compare] input[type=range]').first();
+    await range.focus();
+    const v0 = await range.inputValue();
+    const t0 = await range.getAttribute('aria-valuetext');
+    await cp.keyboard.press('ArrowLeft');
+    await cp.keyboard.press('End');
+    const v1 = await range.inputValue();
+    const t1 = await range.getAttribute('aria-valuetext');
+    const label = await range.getAttribute('aria-label');
+    const pos = await cp.evaluate(() => getComputedStyle(document.querySelector('[data-compare] .compare__stage')).getPropertyValue('--pos').trim());
+    check('compare (JS): keyboard moves the divider, aria-valuetext updates',
+      v0 === '50' && v1 === '100' && pos === '100' && !!label && t0 !== t1 && /100%/.test(t1 ?? ''), `slug=${cmpSlug} v0=${v0} v1=${v1} pos=${pos} label="${label}" text="${t1}"`);
+    await cctx.close();
+  } else {
+    check('compare: a work page with a before/after pair exists in this build', false, 'none found');
+  }
   await noJs.close();
 }
 

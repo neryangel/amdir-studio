@@ -1,0 +1,74 @@
+# DEMO work: sample material, not a real project. Media: scripts/gen-demo-media.mjs
+title: 'קונספט: פתיח מושן'
+artist: ''
+client: ''
+type: concept
+disciplines:
+- motion
+year: 2026
+logline: פתיח של 10 שניות מצורות, קווים וקצב, בלי מילה אחת.
+aspect: '16:9'
+summary: לבנות שפה גרפית אחת שמשמשת לפתיח, למעברים ולסיום של סדרת סרטונים.
+brief: 'בריף לדוגמה: סדרת סרטונים שצריכה פתיח קצר שמזהים מהשנייה הראשונה, ושעובד גם בלי קול.'
+approach: 'שלוש צורות בסיס, שני צבעים ותנועה אחת שחוזרת: סיבוב. כל אלמנט נכנס על פעמה, והפתיח נגמר בדיוק בפריים שבו הסרטון מתחיל.'
+deliverables:
+- פתיח 10 שניות
+- מעבר של 2 שניות
+- לופ 1:1
+credits:
+- עיצוב
+- אנימציה
+crew: []
+tools:
+- After Effects
+- Illustrator
+aiUsed: false
+aiNote: ''
+outcome:
+  text: ''
+  source: ''
+poster: ../../assets/works/title-sequence/poster.avif
+posterAlt: 'פריים קונספט מופשט: עיגול צהוב ומגנטה, פסים אלכסוניים וטבעות דקות על רקע שחור'
+video:
+  discriminant: file
+  value:
+    id: /media/works/title-sequence/film.mp4
+    captions: /media/works/demo-film.he.vtt
+preview:
+  mp4: /media/works/title-sequence/preview.mp4
+  webm: /media/works/title-sequence/preview.webm
+process:
+- image: ../../assets/works/title-sequence/process-1.avif
+  alt: סטוריבורד מופשט של שישה פריימים
+  caption: 'סטוריבורד: שישה רגעים בעשר שניות'
+- image: ../../assets/works/title-sequence/process-2.avif
+  alt: 'לוח צבעים: צהוב, מגנטה ושחור'
+  caption: שני צבעים וניגוד אחד
+- image: ../../assets/works/title-sequence/process-3.avif
+  alt: גרף צמתים מופשט
+  caption: מערכת התנועה ב-After Effects
+compare: []
+formats:
+- aspect: '16:9'
+  image: ../../assets/works/title-sequence/format-16x9.avif
+  alt: פריים הפתיח לרוחב
+  note: פתיח מלא
+- aspect: '1:1'
+  image: ../../assets/works/title-sequence/format-1x1.avif
+  alt: אותו פריים בחיתוך ריבועי
+  note: לופ לפיד
+- aspect: '9:16'
+  image: ../../assets/works/title-sequence/format-9x16.avif
+  alt: אותו פריים בחיתוך אנכי
+  note: לסטוריז
+bts: []
+gallery:
+- image: ../../assets/works/title-sequence/still-1.avif
+  alt: 'סטיל קונספט מופשט: עיגול ופסים'
+- image: ../../assets/works/title-sequence/still-2.avif
+  alt: 'סטיל קונספט מרובע: עיגול וטבעות'
+websiteUrl: ''
+permissionToShow: false
+featured: true
+order: 6
+placeholder: true

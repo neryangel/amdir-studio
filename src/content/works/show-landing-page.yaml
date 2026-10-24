@@ -1,40 +1,51 @@
-title: דף נחיתה להופעה
+# DEMO work: sample material, not a real project. Media: scripts/gen-demo-media.mjs
+title: 'דמו: דף נחיתה להופעה'
 artist: ''
 client: ''
 type: demo
 disciplines:
-  - web
-  - motion
+- web
+- motion
 year: 2025
-summary: >-
-  טקסט זמני. דמו של דף נחיתה להופעה: תאריך, מקום וכפתור כרטיסים אחד, עם תנועה קלה
-  שלא מעכבת את הטעינה.
+logline: 'דף אחד: תאריך, מקום וכפתור כרטיסים.'
+aspect: ''
+summary: דף נחיתה שמוביל לכפתור אחד, עם תנועה קלה שלא מעכבת את הטעינה.
+brief: 'בריף לדוגמה: הופעה אחת, תאריך אחד ותקופת מכירה קצרה. הדף צריך להוביל לכפתור אחד, בלי הסחות.'
+approach: כותרת גדולה, פרטים בשורה אחת וכפתור שנשאר בהישג יד בזמן גלילה. התנועה קלה ונטענת אחרי התוכן, כדי שלא תעכב את הקנייה.
 deliverables:
-  - דף נחיתה בעברית
-  - גרסת נייד
+- דף נחיתה בעברית
+- גרסת נייד
 credits:
-  - עיצוב
-  - פיתוח
-  - מושן
+- עיצוב
+- פיתוח
+- מושן
+crew: []
 tools:
-  - Astro
-  - After Effects
+- Astro
+- After Effects
 aiUsed: false
 aiNote: ''
 outcome:
   text: ''
   source: ''
-poster: ../../assets/works/show-landing-page/poster.png
-posterAlt: תמונת פתיחה זמנית, שרטוט מופשט של דף נחיתה כהה
+poster: ../../assets/works/show-landing-page/poster.avif
+posterAlt: 'דף נחיתה לדוגמה, שרטוט מופשט כהה: כותרת, כפתור כתום ותמונה בגרדיאנט'
 video:
   discriminant: none
+process:
+- image: ../../assets/works/show-landing-page/process-1.avif
+  alt: שרטוט קווי של שני מסכים
+  caption: 'סקיצה: גרסת מחשב וגרסת נייד'
+compare: []
+formats: []
+bts: []
 gallery:
-  - image: ../../assets/works/show-landing-page/gallery-1.png
-    alt: תצוגה זמנית של הדף, שרטוט מופשט
-  - image: ../../assets/works/show-landing-page/gallery-2.png
-    alt: תצוגה זמנית בנייד, שרטוט מופשט
+- image: ../../assets/works/show-landing-page/still-1.avif
+  alt: 'מסך דמו מופשט כהה: שורות של תמונה וטקסט'
+- image: ../../assets/works/show-landing-page/still-2.avif
+  alt: שלושה מסכי נייד מופשטים כהים
 websiteUrl: ''
 permissionToShow: false
-featured: true
-order: 5
+featured: false
+order: 10
 placeholder: true

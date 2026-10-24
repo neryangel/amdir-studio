@@ -1,40 +1,54 @@
-title: אתר תדמית
+# DEMO work: sample material, not a real project. Media: scripts/gen-demo-media.mjs
+title: 'דמו: אתר לעסק שירות'
 artist: ''
-client: '[שם עסק השירות]'
-type: client
+client: ''
+type: demo
 disciplines:
-  - web
+- web
 year: 2026
-summary: >-
-  טקסט זמני. מה העסק היה צריך מהאתר: למשל, שלקוחות יבינו בתוך כמה שניות מה
-  השירות, ושפנייה תגיע ישירות לבעל העסק.
+logline: 'עמוד אחד ארוך שעונה על שלוש שאלות: מה השירות, למי הוא מתאים ואיך פונים.'
+aspect: ''
+summary: אתר שבו לקוח מבין בתוך כמה שניות מה השירות, ופנייה מגיעה ישירות לבעל העסק.
+brief: 'בריף לדוגמה: עסק שירות קטן שמקבל את רוב הפניות בטלפון. האתר צריך להסביר את השירות מהר, ולהעביר פנייה ישר לבעל העסק בלי טפסים ארוכים.'
+approach: 'קודם התוכן, אחר כך העיצוב: סדר השאלות שלקוחות שואלים בטלפון הפך לסדר האזורים בעמוד. האתר בנוי ב-Astro, נטען מהר גם בנייד, ובעל העסק מעדכן אותו בעצמו.'
 deliverables:
-  - אתר בעברית, מותאם לנייד
-  - טופס פנייה
-  - הדרכה לעדכון תוכן
+- אתר בעברית, מותאם לנייד
+- טופס פנייה קצר
+- הדרכה לעדכון תוכן
 credits:
-  - אפיון
-  - עיצוב
-  - פיתוח
+- אפיון
+- עיצוב
+- פיתוח
+crew: []
 tools:
-  - Astro
-  - Figma
+- Astro
+- Figma
 aiUsed: false
 aiNote: ''
 outcome:
   text: ''
   source: ''
-poster: ../../assets/works/service-business-site/poster.png
-posterAlt: תמונת פתיחה זמנית, שרטוט מופשט של עמוד אתר
+poster: ../../assets/works/service-business-site/poster.avif
+posterAlt: 'עמוד בית לדוגמה, שרטוט מופשט: כותרת, כפתור כתום ותמונה בגרדיאנט'
 video:
   discriminant: none
+process:
+- image: ../../assets/works/service-business-site/process-1.avif
+  alt: שרטוט קווי של שני מסכים עם סימוני הערות
+  caption: 'סקיצות: מבנה העמוד במחשב ובנייד'
+- image: ../../assets/works/service-business-site/process-2.avif
+  alt: 'לוח צבעים: חמישה גוונים ופסי מעבר'
+  caption: צבעים שנבדקו לניגודיות לפי תקן הנגישות
+compare: []
+formats: []
+bts: []
 gallery:
-  - image: ../../assets/works/service-business-site/gallery-1.png
-    alt: תצוגה זמנית של עמוד הבית, שרטוט מופשט
-  - image: ../../assets/works/service-business-site/gallery-2.png
-    alt: תצוגה זמנית בנייד, שרטוט מופשט
+- image: ../../assets/works/service-business-site/still-1.avif
+  alt: מסך דמו מופשט של אזור השירותים, שורות של תמונה וטקסט
+- image: ../../assets/works/service-business-site/still-2.avif
+  alt: שלושה מסכי נייד מופשטים זה לצד זה
 websiteUrl: ''
-permissionToShow: true
+permissionToShow: false
 featured: true
 order: 2
 placeholder: true

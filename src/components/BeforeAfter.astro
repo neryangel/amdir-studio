@@ -1,0 +1,80 @@
+---
+// Before/after comparison.
+// Without JS: two stacked, labelled images (before first). With JS: the images overlay and a native
+// <input type="range"> drives the divider, so keyboard (arrows, Home/End, PageUp/PageDown) and screen
+// readers work out of the box; aria-valuetext says how much of each side is shown.
+// RTL: the "before" side sits at the inline start (right) and grows as the value grows.
+// CSP: no inline style attributes; the position is set through CSSOM (--pos).
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { compareValueText } from '../lib/case-study';
+
+interface Props {
+  before: ImageMetadata;
+  beforeAlt: string;
+  beforeLabel?: string | undefined;
+  after: ImageMetadata;
+  afterAlt: string;
+  afterLabel?: string | undefined;
+  caption?: string | undefined;
+  /** Unique id prefix within the page. */
+  id: string;
+}
+const { before, beforeAlt, after, afterAlt, caption, id } = Astro.props;
+const beforeLabel = Astro.props.beforeLabel ?? 'לפני';
+const afterLabel = Astro.props.afterLabel ?? 'אחרי';
+const sizes = '(max-width: 1240px) 100vw, 1240px';
+const widths = [480, 800, 1200, 1600];
+---
+
+<figure class="compare" data-compare data-before={beforeLabel} data-after={afterLabel}>
+  <div class="compare__stage">
+    <div class="compare__layer compare__layer--before">
+      <Picture src={before} alt={beforeAlt} formats={['avif', 'webp']} widths={widths} sizes={sizes} />
+      <span class="compare__tag compare__tag--before">{beforeLabel}</span>
+    </div>
+    <div class="compare__layer compare__layer--after">
+      <Picture src={after} alt={afterAlt} formats={['avif', 'webp']} widths={widths} sizes={sizes} />
+      <span class="compare__tag compare__tag--after">{afterLabel}</span>
+    </div>
+    <input
+      class="compare__range"
+      type="range"
+      id={`${id}-range`}
+      min="0"
+      max="100"
+      step="1"
+      value="50"
+      aria-label={`השוואה: ${beforeLabel} מול ${afterLabel}`}
+      aria-valuetext={compareValueText(50, beforeLabel, afterLabel)}
+      hidden
+    />
+    <span class="compare__handle" aria-hidden="true"><span class="compare__knob"></span></span>
+  </div>
+  <figcaption class="compare__caption">
+    {caption ? <span>{caption}</span> : null}
+    <span class="compare__hint mono" hidden>גוררים את הקו או משתמשים בחצים במקלדת</span>
+  </figcaption>
+</figure>
+
+<script>
+  import { compareValueText } from '../lib/case-study';
+
+  document.querySelectorAll<HTMLElement>('[data-compare]').forEach((root) => {
+    const stage = root.querySelector<HTMLElement>('.compare__stage');
+    const range = root.querySelector<HTMLInputElement>('.compare__range');
+    if (!stage || !range) return;
+    const before = root.dataset.before ?? 'לפני';
+    const after = root.dataset.after ?? 'אחרי';
+    const set = () => {
+      const v = Number(range.value);
+      stage.style.setProperty('--pos', String(v));
+      range.setAttribute('aria-valuetext', compareValueText(v, before, after));
+    };
+    range.hidden = false;
+    root.querySelector<HTMLElement>('.compare__hint')?.removeAttribute('hidden');
+    root.dataset.ready = '';
+    range.addEventListener('input', set);
+    set();
+  });
+</script>
