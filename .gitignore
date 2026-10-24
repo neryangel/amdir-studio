@@ -16,3 +16,4 @@ dist-e2e/
 inbox/
 inbox-sample/
 qa-report-aria.json
+.claude/
